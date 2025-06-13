@@ -19,11 +19,42 @@ class Bed extends Model
         return $this->hasMany(MedicalBed::class);
     }
     
-    public function currentOccupancy()
+    // Bo'sh koygalarni aniqlash uchun scope
+    public function scopeAvailableBeds($query)
     {
-        return $this->hasOne(MedicalBed::class)
-                    ->join('medical_histories', 'medical_beds.medical_history_id', '=', 'medical_histories.id')
-                    ->whereNull('medical_histories.discharge_date');
+        return $query->whereDoesntHave('medicalBeds', function ($subQuery) {
+            $subQuery->whereHas('medicalHistory', function ($historyQuery) {
+                $historyQuery->where(function ($dateQuery) {
+                    // Aktiv (chiqmagan) bemorlar
+                    $dateQuery->whereNull('discharge_date')
+                        ->orWhere('discharge_date', '>', now()->toDateString());
+                });
+            });
+        });
+    }   
+    // Koyga band yoki yo'qligini tekshirish
+    public function isAvailable()
+    {
+        return !$this->medicalBeds()
+            ->whereHas('medicalHistory', function ($query) {
+                $query->where(function ($dateQuery) {
+                    $dateQuery->whereNull('discharge_date')
+                        ->orWhere('discharge_date', '>', now()->toDateString());
+                });
+            })
+            ->exists();
+    } 
+    // Hozirgi bemorni olish
+    public function currentPatient()
+    {
+        return $this->medicalBeds()
+            ->whereHas('medicalHistory', function ($query) {
+                $query->where(function ($dateQuery) {
+                    $dateQuery->whereNull('discharge_date')
+                        ->orWhere('discharge_date', '>', now()->toDateString());
+                });
+            })
+            ->with('medicalHistory.patient')
+            ->first();
     }
-    
 }

@@ -7,6 +7,7 @@ use App\Models\AssignedProcedure;
 use App\Models\MedicalBed;
 use App\Models\MedicalMeal;
 use App\Models\LabTestHistory;
+use Carbon\Carbon;
 
     /**
      * Tibbiy tarix uchun umumiy yig'indini hisoblash
@@ -65,30 +66,43 @@ use App\Models\LabTestHistory;
 
         return $medicalBed->tariff->price * $daysStayed;
     }
+    if (!function_exists('calculateMealCost')) {
     function calculateMealCost($medicalHistoryId)
     {
-        $medicalHistory = MedicalHistory::find($medicalHistoryId);
-        
-        if (!$medicalHistory || !$medicalHistory->admission_date) {
+        try {
+            $medicalHistory = MedicalHistory::find($medicalHistoryId);
+            
+            if (!$medicalHistory || !$medicalHistory->admission_date) {
+                return 0;
+            }
+
+            $medicalMeal = MedicalMeal::where('medical_history_id', $medicalHistoryId)
+                ->with('mealType')
+                ->first();
+
+            if (!$medicalMeal || !$medicalMeal->mealType) {
+                return 0;
+            }
+
+            $admissionDate = Carbon::parse($medicalHistory->admission_date);
+            $dischargeDate = $medicalHistory->discharge_date 
+                ? Carbon::parse($medicalHistory->discharge_date)
+                : Carbon::now();
+
+            // Agar discharge_date admission_date dan kichik bo'lsa, 1 kun deb hisoblash
+            $daysStayed = max(1, $admissionDate->diffInDays($dischargeDate));
+
+            $totalCost = $medicalMeal->mealType->price * $daysStayed;
+            
+            return number_format($totalCost, 2);
+            
+        } catch (\Exception $e) {
+            // Debug uchun log yozish
+            \Log::error('calculateMealCost error: ' . $e->getMessage());
             return 0;
         }
-
-        $medicalMeal = MedicalMeal::where('medical_history_id', $medicalHistoryId)
-            ->with('mealType')
-            ->first();
-
-        if (!$medicalMeal || !$medicalMeal->mealType) {
-            return 0;
-        }
-        $admissionDate = \Carbon\Carbon::parse($medicalHistory->admission_date);
-        $dischargeDate = $medicalHistory->discharge_date 
-            ? \Carbon\Carbon::parse($medicalHistory->discharge_date)
-            : \Carbon\Carbon::now();
-
-        $daysStayed = $admissionDate->diffInDays($dischargeDate);
-
-        return $medicalMeal->mealType->price * $daysStayed;
     }
+}
      function calculateLabTestsCost($medicalHistoryId)
     {
         return LabTestHistory::where('medical_history_id', $medicalHistoryId)

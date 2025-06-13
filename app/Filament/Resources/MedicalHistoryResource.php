@@ -229,63 +229,56 @@ class MedicalHistoryResource extends Resource
                                                     })
                                                     ->columnSpanFull(), 
                                 ])->columns(12)->columnSpan(12),
-                            Fieldset::make('Койка')
-                                ->relationship('medicalBed')
-                                ->schema([
-                                Select::make('tariff_id')
-                                    ->label('Tariff')
-                                    ->options(function () {
-                                        return Tariff::with('wards.beds')
-                                            ->get()
-                                            ->mapWithKeys(function ($tariff) {
-                                                return [$tariff->id => $tariff->name . ' - ' . number_format($tariff->daily_price, 0, '.', ' ') . ' сум/kun'];
-                                            });
-                                    })
-                                    ->reactive()
-                                    ->afterStateUpdated(fn (Set $set) => $set('ward_id', null))
-                                    ->columnSpan(4),
+                            // Eng oddiy va tushunarli variant
+                            Fieldset::make('Койка') 
+                                ->relationship('medicalBed') 
+                                ->schema([ 
+                                    Select::make('tariff_id') 
+                                        ->label('Тарифф') 
+                                        ->options(function () { 
+                                            return Tariff::all()->mapWithKeys(function ($tariff) { 
+                                                return [$tariff->id => $tariff->name . ' - ' . number_format($tariff->daily_price, 0) . ' сум']; 
+                                            }); 
+                                        }) 
+                                        ->reactive() 
+                                        ->required()
+                                        ->columnSpan(4), 
 
-                                Select::make('ward_id')
-                                    ->label('Palata')
-                                    ->options(function (Get $get) {
-                                        $tariffId = $get('tariff_id');
-                                        if (!$tariffId) {
-                                            return [];
-                                        }
-                                        
-                                        return Ward::where('tariff_id', $tariffId)
-                                            ->withCount('beds')
-                                            ->get()
-                                            ->mapWithKeys(function ($ward) {
-                                                return [$ward->id => $ward->name . ' (' . $ward->beds_count . ' ta koyga)'];
-                                            });
-                                    })
-                                    ->reactive()
-                                    ->afterStateUpdated(fn (Set $set) => $set('bed_id', null))
-                                    ->visible(fn (Get $get) => filled($get('tariff_id')))
-                                    ->columnSpan(4),
+                                    Select::make('ward_id') 
+                                        ->label('Палата') 
+                                        ->options(function (Get $get) { 
+                                            $tariffId = $get('tariff_id'); 
+                                            if (!$tariffId) return []; 
+                                            
+                                            return Ward::where('tariff_id', $tariffId)
+                                                ->get()
+                                                ->mapWithKeys(function ($ward) {
+                                                    // Bo'sh koygalar sonini hisoblash
+                                                        
+                                                    return [$ward->id => $ward->name . " ({$ward->availableBedsCount} на пустой койке)"];
+                                                });
+                                        }) 
+                                        ->reactive() 
+                                        ->required()
+                                        ->visible(fn (Get $get) => filled($get('tariff_id'))) 
+                                        ->columnSpan(4), 
 
-                                Select::make('bed_id')
-                                    ->label('Koyga')
-                                    ->options(function (Get $get) {
-                                        $wardId = $get('ward_id');
-                                        if (!$wardId) {
-                                            return [];
-                                        }
-                                        
-                                        return Bed::where('ward_id', $wardId)
-                                            ->with(['ward.tariff'])
-                                            ->get()
-                                            ->mapWithKeys(function ($bed) {
-                                                return [
-                                                    $bed->id => 'Koyga #' . $bed->number . 
-                                                            ' (' . $bed->ward->name . ' - ' . 
-                                                            $bed->ward->tariff->name . ')'
-                                                ];
-                                            });
-                                    })
-                                    ->visible(fn (Get $get) => filled($get('ward_id')))
-                                    ->columnSpan(4),
+                                    Select::make('bed_id') 
+                                        ->label('На пустой койке') 
+                                        ->options(function (Get $get) { 
+                                            $wardId = $get('ward_id'); 
+                                            if (!$wardId) return []; 
+                                            
+                                            return Bed::where('ward_id', $wardId)
+                                                ->availableBeds()
+                                                ->get()
+                                                ->mapWithKeys(function ($bed) {
+                                                    return [$bed->id => "Койка #{$bed->number}"];
+                                                });
+                                        }) 
+                                        ->required()
+                                        ->visible(fn (Get $get) => filled($get('ward_id'))) 
+                                        ->columnSpan(4), 
                                 ])->columns(12)->columnSpan(12),
                             Fieldset::make('Питание')
                                 ->relationship('medicalMeal')
@@ -356,7 +349,7 @@ class MedicalHistoryResource extends Resource
                                     Placeholder::make('bed_total')
                                         ->label('Стоимость койки')
                                         ->content(function (Get $get) {
-                                            $bedId = $get('bed_id');
+                                            $bedId = $get('medicalBed.bed_id');
                                             $admissionDate = $get('admission_date');
                                             $dischargeDate = $get('discharge_date');
 
@@ -381,7 +374,7 @@ class MedicalHistoryResource extends Resource
                                     Placeholder::make('meal_total')
                                         ->label('Стоимость питания')
                                         ->content(function (Get $get) {
-                                            $mealTypeId = $get('meal_type_id');
+                                            $mealTypeId = $get('medicalMeal.meal_type_id');
                                             $admissionDate = $get('admission_date');
                                             $dischargeDate = $get('discharge_date');
 
@@ -415,7 +408,7 @@ class MedicalHistoryResource extends Resource
 
                                             // Koyka
                                             $bedTotal = 0;
-                                            $bedId = $get('bed_id');
+                                            $bedId = $get('medicalBed.bed_id');
                                             $admissionDate = $get('admission_date');
                                             $dischargeDate = $get('discharge_date');
 
@@ -429,7 +422,7 @@ class MedicalHistoryResource extends Resource
 
                                             // Ovqatlanish
                                             $mealTotal = 0;
-                                            $mealTypeId = $get('meal_type_id');
+                                            $mealTypeId = $get('medicalMeal.meal_type_id');
 
                                             if ($mealTypeId && $admissionDate && $dischargeDate) {
                                                 $mealType = \App\Models\MealType::find($mealTypeId);

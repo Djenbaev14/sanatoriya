@@ -17,4 +17,16 @@ class Ward extends Model
     {
         return $this->belongsTo(Tariff::class);
     }
+
+    // Bo'sh koygalar sonini olish
+    public function getAvailableBedsCountAttribute()
+    {
+        return $this->beds()->availableBeds()->count();
+    }
+
+    // Jami koygalar soni
+    public function getTotalBedsCountAttribute()
+    {
+        return $this->beds()->count();
+    }
 }
