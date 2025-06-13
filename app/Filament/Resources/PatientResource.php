@@ -146,15 +146,15 @@ class PatientResource extends Resource
     }
     public static function getNavigationLabel(): string
     {
-        return 'Bemorni qabul qilish'; // Rus tilidagi nom
+        return 'Регистрация'; // Rus tilidagi nom
     }
     public static function getModelLabel(): string
     {
-        return 'Bemorni qabul qilish'; // Rus tilidagi yakka holdagi nom
+        return 'Регистрация'; // Rus tilidagi yakka holdagi nom
     }
     public static function getPluralModelLabel(): string
     {
-        return 'Bemorni qabul qilish'; // Rus tilidagi ko'plik shakli
+        return 'Регистрация'; // Rus tilidagi ko'plik shakli
     }
 
     public static function getPages(): array

@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('daily_services', function (Blueprint $table) {
+        Schema::create('wards', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // "Pastel", "Pitalniy"
-            $table->decimal('price_per_day', 10, 2);
+            $table->string('name'); // Palata nomi (masalan, "1-xona")
+            $table->unsignedBigInteger('tariff_id');
+            $table->foreign('tariff_id')->references('id')->on('tariffs');
             $table->timestamps();
         });
     }
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('daily_services');
+        Schema::dropIfExists('wards');
     }
 };

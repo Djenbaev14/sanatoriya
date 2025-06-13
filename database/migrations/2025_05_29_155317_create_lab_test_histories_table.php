@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('lab_test_histories');
+        Schema::dropIfExists('labTestHistories');
     }
 };

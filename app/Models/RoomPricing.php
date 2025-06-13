@@ -5,9 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Procedure extends Model
+class RoomPricing extends Model
 {
-    use HasFactory; 
-    
-    protected $guarded=['id'];
+    use HasFactory;
 }

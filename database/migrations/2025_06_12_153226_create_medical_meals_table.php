@@ -11,16 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('assigned_procedures', function (Blueprint $table) {
+        Schema::create('medical_meals', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('medical_history_id');
             $table->foreign('medical_history_id')->references('id')->on('medical_histories');
-
-            $table->unsignedBigInteger('procedure_id');
-            $table->foreign('procedure_id')->references('id')->on('procedures');
             
-            $table->integer('sessions'); // ✅ nechta marta/protsedura oladi
-            $table->decimal('price', 10, 2);
+            $table->unsignedBigInteger('meal_type_id');
+            $table->foreign('meal_type_id')->references('id')->on('meal_types');
             $table->timestamps();
         });
     }
@@ -30,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('assignedProcedures');
+        Schema::dropIfExists('medical_meals');
     }
 };
