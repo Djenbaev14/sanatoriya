@@ -10,10 +10,5 @@ class ListAssignedProcedures extends ListRecords
 {
     protected static string $resource = AssignedProcedureResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\CreateAction::make(),
-        ];
-    }
+    
 }

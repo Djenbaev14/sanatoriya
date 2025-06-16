@@ -10,10 +10,5 @@ class ListLabTestHistories extends ListRecords
 {
     protected static string $resource = LabTestHistoryResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\CreateAction::make(),
-        ];
-    }
+    
 }
