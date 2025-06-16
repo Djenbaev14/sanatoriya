@@ -19,9 +19,9 @@ class DatabaseSeeder extends Seeder
             TariffSeeder::class,
             WardSeeder::class,
             PaymentTypeSeeder::class,
-            MealSeeder::class,
-            ProcedureSeeder::class,
-            LabTestSeeder::class,
+            // MealSeeder::class,
+            // ProcedureSeeder::class,
+            // LabTestSeeder::class,
         ]);
     }
 }
