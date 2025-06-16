@@ -92,35 +92,25 @@ class WardResource extends Resource
                     ->modalCancelActionLabel('Назад')
             ])
             ->columns([
-                Tables\Columns\Layout\Split::make([
-                            Tables\Columns\Layout\Grid::make()
-                                ->schema([
                                     Tables\Columns\TextColumn::make('name')
+                                        ->label('Палата')
                                         ->searchable()
                                         ->columnSpan(6),
                                     Tables\Columns\TextColumn::make('tariff.name')
+                                        ->label('Тарифф')
                                         ->searchable()
                                         ->columnSpan(6),
                                     TextColumn::make('beds')
+                                        ->label('Койка')
                                         ->getStateUsing(function ($record) {
                                             return $record->beds->map(function ($bed) {
                                                 return $bed->number . ' ';
                                             })->join(', ');
                                         })
                                         ->columnSpan(12),
-                                ])
-                                ->extraAttributes([
-                                    'class' => 'mt-2 -mr-6 rtl:-ml-6 rtl:mr-0'
-                                ])
-                                ->columns(12),
-                ]),
+                
             ])
             ->defaultSort('created_at','desc')
-            ->contentGrid([
-                'md' => 2,
-                'xl' => 4,
-                '2xl' => 4,
-            ])
             ->filters([
                 //
             ])

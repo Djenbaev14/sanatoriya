@@ -1,0 +1,311 @@
+<?php
+
+namespace App\Filament\Resources;
+
+use App\Filament\Resources\LabTestHistoryResource\Pages;
+use App\Filament\Resources\LabTestHistoryResource\RelationManagers;
+use App\Models\LabTest;
+use App\Models\LabTestHistory;
+use App\Models\PaymentType;
+use Filament\Forms;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
+use Filament\Notifications\Notification;
+use Filament\Resources\Resource;
+use Filament\Support\Enums\MaxWidth;
+use Filament\Tables;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Log;
+
+class LabTestHistoryResource extends Resource
+{
+    protected static ?string $model = LabTestHistory::class;
+
+    protected static ?string $navigationGroup = 'Касса';
+    protected static ?int $navigationSort = 2;
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::where('status_payment_id',2)->count();
+    }
+
+    public static function form(Form $form): Form{
+        return $form
+            ->schema([
+                Section::make()
+                    ->schema([
+                                        Hidden::make('doctor_id')
+                                            ->default(fn () => auth()->user()->id)
+                                            ->dehydrated(true),
+                                            Select::make('patient_id')
+                                                ->label('Пациент')
+                                                ->disabled()
+                                                ->relationship('patient', 'full_name') // yoki kerakli atribut
+                                                ->default(request()->get('patient_id'))
+                                                ->required()
+                                                ->columnSpan(12),
+                                            Select::make('medical_history_id')
+                                                ->label('План осмотра')
+                                                ->options(
+                                                    \App\Models\MedicalHistory::all()->pluck('created_at', 'id')->mapWithKeys(function ($createdAt, $id) {
+                                                        $formattedId = str_pad('№'.$id, 10); // 10 ta belgigacha bo‘sh joy qo‘shiladi
+                                                            return [$id => $formattedId . \Carbon\Carbon::parse($createdAt)->format('d.m.Y H:i')];
+                                                        })
+                                                )
+                                                ->required()
+                                                ->columnSpan(4),
+                                                
+                                            Repeater::make('labTestDetails')
+                                                ->label('')
+                                                ->relationship('labTestDetails')
+                                                ->defaultItems(1)
+                                                ->schema([
+                                                    Select::make('lab_test_id')
+                                                        ->label('Тип анализ')
+                                                        ->options(LabTest::all()->pluck('name', 'id'))
+                                                        ->searchable()
+                                                        ->required()
+                                                        ->reactive()
+                                                        ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
+                                                            $price = LabTest::find($state)?->price ?? 0;
+                                                            $set('price', $price);
+                                                            $set('total_price', $price * ($get('sessions') ?? 1));
+                                                            
+                                                            static::recalculateTotalSum($get, $set);
+                                                        })
+                                                        ->columnSpan(4),
+
+                                                    TextInput::make('price')
+                                                        ->label('Цена')
+                                                        ->readOnly()
+                                                        ->numeric()
+                                                        ->columnSpan(3),
+
+                                                    TextInput::make('sessions')
+                                                        ->label('Кол сеансов')
+                                                        ->numeric()
+                                                        ->default(1)
+                                                        ->required()
+                                                        ->reactive()
+                                                        ->afterStateUpdated(function (Get $get, Set $set, $state) {
+                                                            $set('total_price', ($get('price') ?? 0) * ($state ?? 1));
+                                                            
+                                                            static::recalculateTotalSum($get, $set);
+                                                        })
+                                                        ->columnSpan(2),
+
+                                                    TextInput::make('total_price')
+                                                        ->label('Общая стоимость')
+                                                        ->disabled()
+                                                        ->numeric()
+                                                        ->columnSpan(3)
+                                                        ->afterStateUpdated(function (Get $get, Set $set) {
+                                                            static::recalculateTotalSum($get, $set);
+                                                        }),
+                                                ])
+                                                ->afterStateHydrated(function (Get $get, Set $set, $state) {
+                                                    foreach ($state as $index => $item) {
+                                                        $price = $item['price'] ?? 0;
+                                                        $sessions = $item['sessions'] ?? 1;
+                                                        $total = $price * $sessions;
+                                                        $set("labTestDetails.{$index}.total_price", $total);
+                                                    }
+                                                })
+                                                ->columns(12)->columnSpan(12),
+                                                Placeholder::make('total_sum')
+                                                    ->label('Общая стоимость (всего)')
+                                                    ->content(function (Get $get) {
+                                                        $items = $get('labTestDetails') ?? [];
+                                                        $total = collect($items)->sum('total_price');
+                                                        return number_format($total, 2, '.', ' ') . ' сум';
+                                                    })
+                                                    ->columnSpanFull(), 
+                                            // Repeater::make('labTestHistories')
+                                            //     ->label('')
+                                            //     ->schema([
+                                            //         Select::make('lab_test_id')
+                                            //             ->label('Тип анализ')
+                                            //             ->options(LabTest::all()->pluck('name', 'id'))
+                                            //             ->searchable()
+                                            //             ->required()
+                                            //             ->reactive()
+                                            //             ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
+                                            //                 $price = LabTest::find($state)?->price ?? 0;
+                                            //                 $set('price', $price);
+                                            //                 $set('total_price', $price);
+                                                            
+                                            //             })
+                                            //             ->columnSpan(6),
+                                            //         TextInput::make('price')
+                                            //             ->label('Цена')
+                                            //             ->disabled()
+                                            //             ->numeric()
+                                            //             ->columnSpan(6),
+                                            //     ])
+                                            //     ->columns(12)
+                                            //     ->columnSpan(12),
+                                            //     Placeholder::make('total_sum')
+                                            //         ->label('Общая стоимость (всего)')
+                                            //         ->content(function (Get $get) {
+                                            //             $items = $get('labTestHistories') ?? [];
+                                            //             $total = collect($items)->sum('price');
+                                            //             return number_format($total, 2, '.', ' ') . ' сум';
+                                            //         })
+                                            //         ->columnSpanFull(), 
+                    ])->columnSpan(12)->columns(12)
+            ]);
+    }
+    protected static function recalculateTotalSum(Get $get, Set $set): void
+    {
+        $items = $get('labTestHistories') ?? [];
+        $total = collect($items)->sum('total_price');
+        $set('total_sum', $total);
+    }
+    public static function getNavigationLabel(): string
+    {
+        return 'Для анализа'; // Rus tilidagi nom
+    }
+    public static function getModelLabel(): string
+    {
+        return 'Для анализа'; // Rus tilidagi yakka holdagi nom
+    }
+    public static function getPluralModelLabel(): string
+    {
+        return 'Для анализа'; // Rus tilidagi ko'plik shakli
+    }
+    
+    // public static function shouldRegisterNavigation(): bool
+    // {
+    //     return false;
+    // }
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                TextColumn::make('patient.full_name')->label('ФИО')->searchable()->sortable(),
+                TextColumn::make('total_paid')
+                    ->label('Обшый сумма')
+                    ->getStateUsing(function ($record) {
+                        return number_format($record->getTotalCost(),0,'.',' ').' сум';
+                    }),
+                TextColumn::make('created_at')->searchable()->sortable(),
+            ])
+            ->actions([
+                Action::make('add_payment')
+                        ->label('Оплата')
+                        ->icon('heroicon-o-credit-card')
+                        ->color('success')
+                        ->modalWidth(MaxWidth::TwoExtraLarge)
+                        ->form([
+                            Section::make('Данные платежа')
+                                ->schema([
+                                    Grid::make(2)
+                                        ->schema([
+                                            TextInput::make('total_cost')
+                                                ->label('Общие')
+                                                ->disabled()
+                                                ->default(function ($record) {
+                                                    return number_format($record->getTotalCost(), 0, '.', ' ') . ' сум';
+                                                }),
+                                                
+                                            TextInput::make('total_paid')
+                                                ->label('Оплачено')
+                                                ->disabled()
+                                                ->default(function ($record) {
+                                                    return number_format($record->getTotalPaidAmount(), 0, '.', ' ') . ' сум';
+                                                }),
+                                        ]),
+                                        
+                                    TextInput::make('remaining')
+                                        ->label('Остаток')
+                                        ->disabled()
+                                        ->default(function ($record) {
+                                            $remaining = $record->getTotalCost() - $record->getTotalPaidAmount();
+                                            return number_format($remaining, 0, '.', ' ') . ' сум';
+                                        }),
+                                ]),
+                                
+                            Section::make('')
+                                ->schema([
+                                    TextInput::make('amount')
+                                        ->label('Сумма')
+                                        ->numeric()
+                                        ->required()
+                                        ->minValue(0.01)
+                                        ->step(0.01)
+                                        ->suffix('сум')
+                                        ->placeholder('0.00')
+                                        ->live()
+                                        ->afterStateUpdated(function ($state, $set, $record) {
+                                            $remaining = $record->getTotalCost() - $record->getTotalPaidAmount();
+                                            if ($state > $remaining) {
+                                                $set('amount', $remaining);
+                                            }
+                                        }),
+                                    Select::make('payment_type_id')
+                                        ->label('Тип оплаты')
+                                        ->options(PaymentType::all()->pluck('name', 'id'))
+                                        ->required(),
+                                        
+                                    Textarea::make('description')
+                                        ->label('Izoh')
+                                        ->placeholder('Коммент')
+                                        ->maxLength(255)
+                                        ->rows(3),
+                                ]),
+                        ])
+                        ->action(function (array $data, $record) {
+                            // To'lovni saqlash
+                            \App\Models\Payment::create([
+                                'patient_id' => $record->patient_id,
+                                'lab_test_history_id' => $record->id,
+                                'amount' => $data['amount'],
+                                'payment_type_id' => $data['payment_type_id'],
+                                'description' => $data['description'] ?? null,
+                            ]);
+
+                            // Muvaffaqiyat xabari
+                            Notification::make()
+                                ->title('Выплата успешно добавлена!')
+                                ->success()
+                                ->body("Оплата: " . number_format($data['amount'], 2) . " сум")
+                                ->send();
+                        })
+                        ->modalHeading('Оплата')
+                        ->modalSubmitActionLabel('Сохранить')
+                        ->modalCancelActionLabel('Отмена'),
+            ])
+            ->filters([
+                //
+            ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListLabTestHistories::route('/'),
+            'create' => Pages\CreateLabTestHistory::route('/create'),
+            'edit' => Pages\EditLabTestHistory::route('/{record}/edit'),
+            'view' => Pages\ViewLabTestHistory::route('/{record}'),
+        ];
+    }
+}

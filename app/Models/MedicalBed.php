@@ -15,6 +15,10 @@ class MedicalBed extends Model
     {
         return $this->belongsTo(MedicalHistory::class);
     }
+    public function assignedProcedure()
+    {
+        return $this->belongsTo(AssignedProcedure::class);
+    }
 
     public function ward()
     {

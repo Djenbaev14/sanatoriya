@@ -13,16 +13,18 @@ return new class extends Migration
     {
         Schema::create('lab_test_histories', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('patient_id');
+            $table->foreign('patient_id')->references('id')->on('patients');
+            
+            $table->unsignedBigInteger('doctor_id');
+            $table->foreign('doctor_id')->references('id')->on('users');
+
             $table->unsignedBigInteger('medical_history_id');
             $table->foreign('medical_history_id')->references('id')->on('medical_histories');
             
-            $table->unsignedBigInteger('lab_test_id');
-            $table->foreign('lab_test_id')->references('id')->on('lab_tests');
-            
-            // $table->date('test_date'); // Qachon tayinlandi yoki o‘tkazildi
-            $table->string('result')->nullable(); // Tahlil natijasi
-            $table->enum('status', ['pending', 'completed', 'cancelled'])->default('pending');
-            $table->decimal('price', 10, 2); // O‘sha vaqtdagi narx (narx o‘zgarsa tarix saqlansin)
+            $table->unsignedBigInteger('status_payment_id')->default(1);
+            $table->foreign('status_payment_id')->references('id')->on('status_payments');
+
             $table->timestamps();
         });
     }

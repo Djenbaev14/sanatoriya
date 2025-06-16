@@ -76,42 +76,23 @@ class ProcedureResource extends Resource
                         }),
             ])
             ->columns([
-                Tables\Columns\Layout\Split::make([
-                    Tables\Columns\Layout\Grid::make()
-                        ->schema([
-                            Tables\Columns\Layout\Grid::make()
-                                ->schema([
-                                    Tables\Columns\TextColumn::make('name')
-                                        ->searchable()
-                                        ->extraAttributes([
-                                            'class' => 'text-gray-500 dark:text-gray-300 text-xs'
-                                        ])
-                                        ->columnSpan(3),
-                                    Tables\Columns\TextColumn::make('price_per_day')
-                                        ->searchable()
-                                        ->formatStateUsing(function ($state) {
-                                            return number_format($state, 0, '.', ' ') . " сум";  // Masalan, 1000.50 ni 1,000.50 formatida
-                                        })
-                                        ->extraAttributes([
-                                            'class' => 'text-gray-500 dark:text-gray-300 text-xs'
-                                        ])
-                                        ->columnSpan(3),
-
-                                ])
-                                ->extraAttributes([
-                                    'class' => 'mt-2 -mr-6 rtl:-ml-6 rtl:mr-0'
-                                ])
-                                ->columns(3),
-                        ])
-                        ->columns(1),
-                ]),
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable()
+                    ->extraAttributes([
+                        'class' => 'text-gray-500 dark:text-gray-300 text-xs'
+                    ])
+                    ->columnSpan(3),
+                Tables\Columns\TextColumn::make('price_per_day')
+                    ->searchable()
+                    ->formatStateUsing(function ($state) {
+                        return number_format($state, 0, '.', ' ') . " сум";  // Masalan, 1000.50 ni 1,000.50 formatida
+                    })
+                    ->extraAttributes([
+                        'class' => 'text-gray-500 dark:text-gray-300 text-xs'
+                    ])
+                    ->columnSpan(3),
             ])
             ->defaultSort('created_at','desc')
-            ->contentGrid([
-                'md' => 2,
-                'xl' => 4,
-                '2xl' => 4,
-            ])
             ->filters([
                 //
             ])

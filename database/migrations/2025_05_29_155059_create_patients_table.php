@@ -13,11 +13,15 @@ return new class extends Migration
     {
         Schema::create('patients', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('region_id');
+            $table->foreign('region_id')->references('id')->on('regions');
+            $table->unsignedBigInteger('district_id');
+            $table->foreign('district_id')->references('id')->on('districts');
             $table->string('full_name');
             $table->date('birth_date');
             $table->enum('gender', ['male', 'female']);
             $table->string('profession')->nullable();
-            $table->string('phone');
+            $table->string('phone')->unique();
             $table->longText('address');
             $table->timestamps();
         });

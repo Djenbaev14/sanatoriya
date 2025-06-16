@@ -15,12 +15,18 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('patient_id');
             $table->foreign('patient_id')->references('id')->on('patients');
-            $table->string('height');
-            $table->string('weight');
-            $table->string('temperature');
+            $table->unsignedBigInteger('doctor_id');
+            $table->foreign('doctor_id')->references('id')->on('users');
+            $table->string('height')->nullable();
+            $table->string('weight')->nullable();
+            $table->string('temperature')->nullable();
             $table->string('type_disability')->nullable();
-            $table->date('admission_date')->nullable(); // Qabul qilingan sana
-            $table->date('discharge_date')->nullable(); // Chiqish sanasi
+            $table->longText('diagnosis')->nullable();
+            $table->longText('complaints')->nullable();
+            $table->longText('history')->nullable();
+            $table->longText('objectively')->nullable();
+            $table->longText('treatment')->nullable();
+            $table->string('photo')->nullable();
             $table->timestamps();
         });
     }

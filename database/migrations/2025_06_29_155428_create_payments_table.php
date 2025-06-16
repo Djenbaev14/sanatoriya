@@ -16,13 +16,17 @@ return new class extends Migration
             $table->unsignedBigInteger('patient_id');
             $table->foreign('patient_id')->references('id')->on('patients');
             
-            $table->unsignedBigInteger('medical_history_id');
-            $table->foreign('medical_history_id')->references('id')->on('medical_histories');
+            $table->unsignedBigInteger('assigned_procedure_id')->nullable();
+            $table->foreign('assigned_procedure_id')->references('id')->on('assigned_procedures');
+            
+            $table->unsignedBigInteger('lab_test_history_id')->nullable();
+            $table->foreign('lab_test_history_id')->references('id')->on('lab_test_histories');
+            
+            $table->unsignedBigInteger('payment_type_id');
+            $table->foreign('payment_type_id')->references('id')->on('payment_types');
 
             $table->decimal('amount', 10, 2);
-            $table->enum('type', ['lab_test', 'procedure', 'daily_service']);
             $table->string('description')->nullable();
-            $table->date('payment_date');
             $table->timestamps();
         });
     }

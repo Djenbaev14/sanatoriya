@@ -19,13 +19,14 @@ class Bed extends Model
         return $this->hasMany(MedicalBed::class);
     }
     
+    
     // Bo'sh koygalarni aniqlash uchun scope
     public function scopeAvailableBeds($query)
     {
         return $query->whereDoesntHave('medicalBeds', function ($subQuery) {
-            $subQuery->whereHas('medicalHistory', function ($historyQuery) {
+            $subQuery->whereHas('assignedProcedure', function ($historyQuery) {
                 $historyQuery->where(function ($dateQuery) {
-                    // Aktiv (chiqmagan) bemorlar
+                    // Aktiv (chiqmagan) Пациентlar
                     $dateQuery->whereNull('discharge_date')
                         ->orWhere('discharge_date', '>', now()->toDateString());
                 });
@@ -36,7 +37,7 @@ class Bed extends Model
     public function isAvailable()
     {
         return !$this->medicalBeds()
-            ->whereHas('medicalHistory', function ($query) {
+            ->whereHas('assignedProcedure', function ($query) {
                 $query->where(function ($dateQuery) {
                     $dateQuery->whereNull('discharge_date')
                         ->orWhere('discharge_date', '>', now()->toDateString());
@@ -44,17 +45,17 @@ class Bed extends Model
             })
             ->exists();
     } 
-    // Hozirgi bemorni olish
+    // Hozirgi Пациентni olish
     public function currentPatient()
     {
         return $this->medicalBeds()
-            ->whereHas('medicalHistory', function ($query) {
+            ->whereHas('assignedProcedure', function ($query) {
                 $query->where(function ($dateQuery) {
                     $dateQuery->whereNull('discharge_date')
                         ->orWhere('discharge_date', '>', now()->toDateString());
                 });
             })
-            ->with('medicalHistory.patient')
+            ->with('assignedProcedure.patient')
             ->first();
     }
 }

@@ -13,14 +13,17 @@ return new class extends Migration
     {
         Schema::create('assigned_procedures', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('patient_id');
+            $table->foreign('patient_id')->references('id')->on('patients');
+            
             $table->unsignedBigInteger('medical_history_id');
             $table->foreign('medical_history_id')->references('id')->on('medical_histories');
-
-            $table->unsignedBigInteger('procedure_id');
-            $table->foreign('procedure_id')->references('id')->on('procedures');
             
-            $table->integer('sessions'); // ✅ nechta marta/protsedura oladi
-            $table->decimal('price', 10, 2);
+            $table->unsignedBigInteger('status_payment_id')->default(1);
+            $table->foreign('status_payment_id')->references('id')->on('status_payments');
+            
+            $table->date('admission_date')->nullable(); // Qabul qilingan sana
+            $table->date('discharge_date')->nullable(); // Chiqish sanasi
             $table->timestamps();
         });
     }

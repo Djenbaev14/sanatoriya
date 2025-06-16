@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PaymentReceiptController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,3 +18,10 @@ Route::get('/', function () {
     return redirect('admin');
 });
 
+
+// Yoki qisqaroq
+Route::get('/payment-receipt/{medicalHistory}', [PaymentReceiptController::class, 'generateReceipt'])
+    ->name('payment.receipt');
+    
+Route::get('/payment-receipt/{medicalHistory}/view', [PaymentReceiptController::class, 'viewReceipt'])
+    ->name('payment.receipt.view');
