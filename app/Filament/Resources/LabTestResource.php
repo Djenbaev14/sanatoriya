@@ -97,7 +97,8 @@ class LabTestResource extends Resource
                     ])
                     ->columnSpan(3),
             ])
-            ->defaultSort('created_at','desc')
+            ->defaultSort('id','desc')
+            ->defaultPaginationPageOption(50)
             ->filters([
                 //
             ])

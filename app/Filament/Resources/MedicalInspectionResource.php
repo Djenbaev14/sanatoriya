@@ -66,6 +66,7 @@ class MedicalInspectionResource extends Resource
                     }),
                 TextColumn::make('created_at')->searchable()->sortable(),
             ])
+            ->defaultPaginationPageOption(50)
             ->actions([
                 Action::make('add_payment')
                         ->label('Оплата')

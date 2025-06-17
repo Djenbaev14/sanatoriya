@@ -138,7 +138,8 @@ class PatientResource extends Resource
                     ->dateTime()
                     ->sortable(),
             ])
-            ->defaultSort('created_at','desc')
+            ->defaultSort('id','desc')
+            ->defaultPaginationPageOption(50)
             ->filters([
                 //
             ])

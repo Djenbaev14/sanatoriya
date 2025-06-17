@@ -110,7 +110,8 @@ class WardResource extends Resource
                                         ->columnSpan(12),
                 
             ])
-            ->defaultSort('created_at','desc')
+            ->defaultSort('id','desc')
+            ->defaultPaginationPageOption(50)
             ->filters([
                 //
             ])

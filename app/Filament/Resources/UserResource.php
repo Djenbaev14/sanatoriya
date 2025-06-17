@@ -37,6 +37,8 @@ class UserResource extends Resource
                 TextColumn::make('username')
                     ->label(''),
             ])
+            ->defaultSort('id','desc')
+            ->defaultPaginationPageOption(50)
             ->filters([
                 //
             ])

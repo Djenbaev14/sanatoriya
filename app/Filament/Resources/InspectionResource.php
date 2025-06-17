@@ -76,6 +76,8 @@ class InspectionResource extends Resource
                                 ->send();
                         }),
             ])
+            ->defaultSort('id','desc')
+            ->defaultPaginationPageOption(50)
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->label('Название')
@@ -95,7 +97,6 @@ class InspectionResource extends Resource
                     ])
                     ->columnSpan(3),
             ])
-            ->defaultSort('created_at','desc')
             ->filters([
                 //
             ])
