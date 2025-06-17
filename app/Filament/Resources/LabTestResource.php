@@ -14,6 +14,7 @@ use Filament\Resources\Resource;
 use Filament\Support\Enums\MaxWidth;
 use Filament\Tables;
 use Filament\Tables\Actions\CreateAction;
+use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -120,6 +121,7 @@ class LabTestResource extends Resource
 
                         return $record;
                     }),
+                    DeleteAction::make()->label('Удалить'),
             ]);
     }
 
