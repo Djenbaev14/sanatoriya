@@ -36,6 +36,7 @@ class LabTestResource extends Resource
                     TextInput::make('name')
                         ->label('Название')
                         ->required()
+                        ->unique(ignoreRecord: true)
                         ->maxLength(255)->columnSpan(12),
                     TextInput::make('price')
                         ->label('Цена')

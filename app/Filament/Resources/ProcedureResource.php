@@ -55,6 +55,7 @@ class ProcedureResource extends Resource
                         Forms\Components\TextInput::make('name')
                             ->required()
                             ->label('Название')
+                            ->unique(ignoreRecord: true)
                             ->maxLength(255),
                         Forms\Components\TextInput::make('price_per_day')
                             ->required()
