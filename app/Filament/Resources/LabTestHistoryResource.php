@@ -179,7 +179,7 @@ class LabTestHistoryResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->where('status_payment_id', 1); // faqat status 1 bo'lganlar
+            ->where('status_payment_id', 2); // faqat status 1 bo'lganlar
     }
     public static function table(Table $table): Table
     {

@@ -41,7 +41,8 @@ class PatientResource extends Resource
                     ->schema([
                         TextInput::make('phone')
                             ->label('Телефон номер')
-                            ->unique()
+                            ->unique(ignoreRecord: true)
+                            ->required()
                             ->tel()
                             ->maxLength(255)
                             ->columnSpan(12),
@@ -52,9 +53,11 @@ class PatientResource extends Resource
                             ->columnSpan(6),
                         DatePicker::make('birth_date')
                             ->label('День рождения')
+                            ->required()
                             ->columnSpan(6),
                         Select::make('region_id') 
                             ->label('Регион ') 
+                            ->required()
                             ->options(function () { 
                                 return Region::all()->mapWithKeys(function ($region) { 
                                     return [$region->id => $region->name]; 
@@ -65,6 +68,7 @@ class PatientResource extends Resource
                             ->columnSpan(6), 
                         Select::make('district_id') 
                             ->label('Район ') 
+                            ->required()
                             ->options(function (Get $get) { 
                                 $regionID = $get('region_id'); 
                                 if (!$regionID) return []; 
@@ -92,6 +96,7 @@ class PatientResource extends Resource
                             ->columnSpan(6), 
                         TextInput::make('profession')
                             ->maxLength(255)
+                            ->required()
                             ->label('Место работы, должность')
                             ->columnSpan(6),
                     ])->columns(12)->columnSpan(12)

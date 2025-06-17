@@ -79,12 +79,14 @@ class ProcedureResource extends Resource
             ])
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Название')
                     ->searchable()
                     ->extraAttributes([
                         'class' => 'text-gray-500 dark:text-gray-300 text-xs'
                     ])
                     ->columnSpan(3),
                 Tables\Columns\TextColumn::make('price_per_day')
+                    ->label(label: 'Цена')
                     ->searchable()
                     ->formatStateUsing(function ($state) {
                         return number_format($state, 0, '.', ' ') . " сум";  // Masalan, 1000.50 ni 1,000.50 formatida
