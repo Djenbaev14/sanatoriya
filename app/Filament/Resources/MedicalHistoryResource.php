@@ -7,6 +7,7 @@ use App\Filament\Resources\MedicalHistoryResource\RelationManagers;
 use App\Models\AssignedProcedure;
 use App\Models\Bed;
 use App\Models\DailyService;
+use App\Models\Inspection;
 use App\Models\LabTest;
 use App\Models\MealType;
 use App\Models\MedicalHistory;
@@ -52,7 +53,12 @@ use Illuminate\Support\HtmlString;
 class MedicalHistoryResource extends Resource
 {
     protected static ?string $model = MedicalHistory::class;
-    protected static ?string $navigationIcon = 'fas-book-open';
+    protected static ?string $navigationGroup = 'Касса';
+    protected static ?int $navigationSort = 3;
+    // public static function getNavigationBadge(): ?string
+    // {
+    //     return static::getModel()::where('inspection_payment_status_id',1)->count();
+    // }
 
     // public static function form(Form $form): Form
     // {
@@ -580,20 +586,17 @@ class MedicalHistoryResource extends Resource
                             ->disabled()
                             ->relationship('patient', 'full_name') // yoki kerakli atribut
                             ->default(request()->get('patient_id'))
-                            ->required(),
+                            ->required()
+                            ->columnSpan(12),
                         Hidden::make('doctor_id')
                             ->default(fn () => auth()->user()->id)
                             ->dehydrated(true),
                         Textarea::make('diagnosis')
-                            ->label('Диагноз'),
+                            ->label('Диагноз')
+                            ->columnSpan(12),
                         Textarea::make('complaints')
-                            ->label('Жалобы'),
-                        Textarea::make('history')
-                            ->label('Анамнез'),
-                        Textarea::make('objectively')
-                            ->label('Объективно'),
-                        Textarea::make('treatment')
-                            ->label('Лечение'),
+                            ->label('Жалобы')
+                            ->columnSpan(12),
                         FileUpload::make('photo')
                                 ->label('Фото')
                                 ->image()
@@ -604,9 +607,74 @@ class MedicalHistoryResource extends Resource
                                     '16:9',
                                     '4:3',
                                     '1:1',
-                                ]),
-                    ])
-            ]);
+                                ])
+                                ->columnSpan(12),
+                                Repeater::make('inspectionDetails')
+                                                ->label('')
+                                                ->defaultItems(1)
+                                                ->schema([
+                                                    Select::make('inspection_id')
+                                                        ->label('Тип осмотр')
+                                                        ->options(function (Get $get, $state, $context) {
+                                                            // Foydalanuvchi tanlagan barcha inspection_id larni to'plab olamiz
+                                                            $selectedIds = collect($get('../../inspectionDetails'))
+                                                                ->pluck('inspection_id')
+                                                                ->filter()
+                                                                ->toArray();
+
+                                                            // Agar bu `Select` allaqachon tanlangan bo‘lsa, uni istisno qilamiz
+                                                            // Aks holda o‘zi ham option ro‘yxatdan yo‘qolib qoladi
+                                                            if ($state) {
+                                                                $selectedIds = array_diff($selectedIds, [$state]);
+                                                            }
+
+                                                            // Tanlanmagan inspection larni qaytaramiz
+                                                            return Inspection::query()
+                                                                ->whereNotIn('id', $selectedIds)
+                                                                ->pluck('name', 'id');
+                                                        })
+                                                        ->required()
+                                                        ->reactive()
+                                                        ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
+                                                            $price = Inspection::find($state)?->price ?? 0;
+                                                            $set('price', $price);
+                                                            
+                                                            static::recalculateTotalSum($get, $set);
+                                                        })
+                                                        ->columnSpan(4),
+
+                                                    TextInput::make('price')
+                                                        ->label('Цена')
+                                                        ->readOnly()
+                                                        ->numeric()
+                                                        ->columnSpan(3),
+
+                                                ])
+                                                ->afterStateHydrated(function (Get $get, Set $set, $state) {
+                                                    foreach ($state as $index => $item) {
+                                                        $price = $item['price'] ?? 0;
+                                                        $total = $price;
+                                                        $set("inspectionDetails.{$index}.total_price", $total);
+                                                    }
+                                                })
+                                                ->columns(12)->columnSpan(12),
+                                                Placeholder::make('total_sum')
+                                                    ->label('Общая стоимость (всего)')
+                                                    ->content(function (Get $get) {
+                                                        $items = $get('inspectionDetails') ?? [];
+                                                        $total = collect($items)->sum('price');
+                                                        return number_format($total, 2, '.', ' ') . ' сум';
+                                                    })
+                                                    ->columnSpan(12),
+            ])->columns(12)->columnSpan(12)
+        ]);
+    }
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $this->inspectionDetails = $data['inspectionDetails']; // Repeater
+        unset($data['inspectionDetails']);
+
+        return $data;
     }
     public static function shouldRegisterNavigation(): bool
     {
@@ -615,317 +683,116 @@ class MedicalHistoryResource extends Resource
 
     protected static function recalculateTotalSum(Get $get, Set $set): void
     {
-        $items = $get('assignedProcedures') ?? [];
-        $total = collect($items)->sum('total_price');
+        $items = $get('inspectionDetails') ?? [];
+        $total = collect($items)->sum('price');
         $set('total_sum', $total);
     }
-    public static function table(Table $table): Table
-    {
-        return $table
-            ->columns([
-                // TextColumn::make('id')
-                //     ->label('№')
-                //     ->sortable(),
-                TextColumn::make('patient.full_name')
-                    ->label('ФИО')
-                    ->sortable(),
-                TextColumn::make('calculateTotalCost')
-                    ->label('Обшый сумма')
-                    ->getStateUsing(function ($record) {
-                        return number_format($record->total_cost,0,'.',' ').' сум';
-                    }),
-                Tables\Columns\TextColumn::make('payment_status')
-                ->label('To\'lov holati')
-                ->state(function ($record) {
-                    $totalCost = $record->getTotalCost();
-                    $totalPaid = $record->getTotalPaidAmount();
-                    $remaining = $totalCost - $totalPaid;
-                    
-                    if ($remaining <= 0) {
-                        return 'To\'liq to\'langan';
-                    } elseif ($totalPaid > 0) {
-                        return 'Qisman to\'langan';
-                    } else {
-                        return 'To\'lanmagan';
-                    }
-                })
-                ->badge()
-                ->color(function ($record) {
-                    $totalCost = $record->getTotalCost();
-                    $totalPaid = $record->getTotalPaidAmount();
-                    $remaining = $totalCost - $totalPaid;
-                    
-                    if ($remaining <= 0) {
-                        return 'success';
-                    } elseif ($totalPaid > 0) {
-                        return 'warning';
-                    } else {
-                        return 'danger';
-                    }
-                }),
-                TextColumn::make('created_at')
-                    ->label('')
-                    ->dateTime()
-                    ->sortable(),
-            ])
-            ->filters([
-                //
-            ])
-            // ->actions([
-            //     Tables\Actions\EditAction::make(),
-            // ])
-            ->actions([
-                // Tables\Actions\EditAction::make(),
-                Action::make('return_procedures')
-                    ->label('Proseduralarni qaytarish')
-                    ->icon('heroicon-o-arrow-uturn-left')
-                    ->color('warning')
-                    ->form([
-                        Select::make('procedure_selections')
-                            ->label('Qaytariladigan proseduralar')
-                            ->multiple()
-                            ->options(function ($record) {
-                                return $record->assignedProcedures()
-                                    ->with('procedure')
-                                    ->get()
-                                    ->mapWithKeys(function ($assignedProcedure) {
-                                        return [
-                                            $assignedProcedure->id => 
-                                                $assignedProcedure->procedure->name . 
-                                                ' (Sessions: ' . $assignedProcedure->sessions . 
-                                                ', Price: $' . $assignedProcedure->price . ')'
-                                        ];
-                                    });
-                            })
-                            ->required()
-                            ->searchable(),
-                            
-                        Forms\Components\Repeater::make('procedure_returns')
-                            ->label('Qaytariladigan proseduralar tafsiloti')
-                            ->schema([
-                                Select::make('assigned_procedure_id')
-                                    ->label('Prosedura')
-                                    ->options(function ($get, $record) {
-                                        return $record->assignedProcedures()
-                                            ->with('procedure')
-                                            ->get()
-                                            ->mapWithKeys(function ($assignedProcedure) {
-                                                return [
-                                                    $assignedProcedure->id => 
-                                                        $assignedProcedure->procedure->name . 
-                                                        ' (Max sessions: ' . $assignedProcedure->sessions . ')'
-                                                ];
-                                            });
-                                    })
-                                    ->required()
-                                    ->reactive(),
-                                    
-                                TextInput::make('returned_sessions')
-                                    ->label('Qaytariladigan seanslar soni')
-                                    ->numeric()
-                                    ->required()
-                                    ->minValue(1)
-                                    ->rules([
-                                        function ($get, $record) {
-                                            return function (string $attribute, $value, \Closure $fail) use ($get, $record) {
-                                                $assignedProcedureId = $get('assigned_procedure_id');
-                                                if ($assignedProcedureId) {
-                                                    $assignedProcedure = $record->assignedProcedures()
-                                                        ->find($assignedProcedureId);
-                                                    
-                                                    if ($assignedProcedure && $value > $assignedProcedure->sessions) {
-                                                        $fail("Qaytariladigan seanslar soni {$assignedProcedure->sessions} dan oshmasligi kerak.");
-                                                    }
-                                                }
-                                            };
-                                        },
-                                    ]),
-                            ])
-                            ->minItems(1)
-                            ->addActionLabel('Prosedura qo\'shish')
-                            ->collapsible(),
-                    ])
-                    ->action(function ($record, array $data) {
-                        try {
-                            foreach ($data['procedure_returns'] as $return) {
-                                $assignedProcedure = AssignedProcedure::find($return['assigned_procedure_id']);
-                                
-                                if (!$assignedProcedure) {
-                                    continue;
-                                }
-                                
-                                // Qaytarilgan prosedura yaratish
-                                ReturnedProcedure::create([
-                                    'medical_history_id' => $record->id,
-                                    'procedure_id' => $assignedProcedure->procedure_id,
-                                    'sessions' => $return['returned_sessions'],
-                                ]);
-                                
-                                // Assigned procedure dan seanslarni ayirish
-                                $assignedProcedure->sessions -= $return['returned_sessions'];
-                                
-                                // Agar barcha seanslar qaytarilgan bo'lsa, assigned procedure ni o'chirish
-                                if ($assignedProcedure->sessions <= 0) {
-                                    $assignedProcedure->delete();
-                                } else {
-                                    $assignedProcedure->save();
-                                }
-                            }
-                            
-                            Notification::make()
-                                ->title('Muvaffaqiyatli!')
-                                ->body('Proseduralar muvaffaqiyatli qaytarildi.')
-                                ->success()
-                                ->send();
-                                
-                        } catch (\Exception $e) {
-                            Notification::make()
-                                ->title('Xatolik!')
-                                ->body('Proseduralarni qaytarishda xatolik yuz berdi: ' . $e->getMessage())
-                                ->danger()
-                                ->send();
-                        }
-                    })
-                    ->visible(function ($record) {
-                        // Faqat assigned procedures mavjud bo'lsa ko'rsatish
-                        return $record->assignedProcedures()->exists();
-                    }),
-                ActionGroup::make([
-                    // boshqa actionlar...
-                    
-                    Action::make('add_payment')
-                        ->label('To\'lov qo\'shish')
-                        ->icon('heroicon-o-credit-card')
-                        ->color('success')
-                        ->modalWidth(MaxWidth::TwoExtraLarge)
-                        ->form([
-                            Section::make('To\'lov ma\'lumotlari')
-                                ->schema([
-                                    Grid::make(2)
-                                        ->schema([
-                                            TextInput::make('total_cost')
-                                                ->label('Jami xarajat')
-                                                ->disabled()
-                                                ->default(function ($record) {
-                                                    return number_format($record->getTotalCost(), 0, '.', ' ') . ' сум';
-                                                }),
+    // public static function table(Table $table): Table
+    // {
+    //     return $table
+    //         ->columns([
+    //             TextColumn::make('patient.full_name')->label('ФИО')->searchable()->sortable(),
+    //             TextColumn::make('total_paid')
+    //                 ->label('Обшый сумма')
+    //                 ->getStateUsing(function ($record) {
+    //                     return number_format($record->getTotalCost(),0,'.',' ').' сум';
+    //                 }),
+    //             TextColumn::make('created_at')->searchable()->sortable(),
+    //         ])
+    //         ->filters([
+    //             //
+    //         ])
+    //         ->actions([
+    //             Action::make('add_payment')
+    //                     ->label('Оплата')
+    //                     ->icon('heroicon-o-credit-card')
+    //                     ->color('success')
+    //                     ->modalWidth(MaxWidth::TwoExtraLarge)
+    //                     ->form([
+    //                         Section::make('Данные платежа')
+    //                             ->schema([
+    //                                 Grid::make(2)
+    //                                     ->schema([
+    //                                         TextInput::make('total_cost')
+    //                                             ->label('Общие')
+    //                                             ->disabled()
+    //                                             ->default(function ($record) {
+    //                                                 return number_format($record->getTotalCost(), 0, '.', ' ') . ' сум';
+    //                                             }),
                                                 
-                                            TextInput::make('total_paid')
-                                                ->label('To\'langan')
-                                                ->disabled()
-                                                ->default(function ($record) {
-                                                    return number_format($record->getTotalPaidAmount(), 0, '.', ' ') . ' сум';
-                                                }),
-                                        ]),
+    //                                         TextInput::make('total_paid')
+    //                                             ->label('Оплачено')
+    //                                             ->disabled()
+    //                                             ->default(function ($record) {
+    //                                                 return number_format($record->getTotalPaidAmount(), 0, '.', ' ') . ' сум';
+    //                                             }),
+    //                                     ]),
                                         
-                                    TextInput::make('remaining')
-                                        ->label('Qoldiq')
-                                        ->disabled()
-                                        ->default(function ($record) {
-                                            $remaining = $record->getTotalCost() - $record->getTotalPaidAmount();
-                                            return number_format($remaining, 0, '.', ' ') . ' сум';
-                                        }),
-                                ]),
+    //                                 TextInput::make('remaining')
+    //                                     ->label('Остаток')
+    //                                     ->disabled()
+    //                                     ->default(function ($record) {
+    //                                         $remaining = $record->getTotalCost() - $record->getTotalPaidAmount();
+    //                                         return number_format($remaining, 0, '.', ' ') . ' сум';
+    //                                     }),
+    //                             ]),
                                 
-                            Section::make('Yangi to\'lov')
-                                ->schema([
-                                    TextInput::make('amount')
-                                        ->label('To\'lov miqdori')
-                                        ->numeric()
-                                        ->required()
-                                        ->minValue(0.01)
-                                        ->step(0.01)
-                                        ->suffix('сум')
-                                        ->placeholder('0.00')
-                                        ->live()
-                                        ->afterStateUpdated(function ($state, $set, $record) {
-                                            $remaining = $record->getTotalCost() - $record->getTotalPaidAmount();
-                                            if ($state > $remaining) {
-                                                $set('amount', $remaining);
-                                            }
-                                        }),
-                                    Select::make('payment_type_id')
-                                        ->label('Тип оплаты')
-                                        ->options(PaymentType::all()->pluck('name', 'id'))
-                                        ->required(),
-                                    DatePicker::make('payment_date')
-                                        ->label('To\'lov sanasi')
-                                        ->default(now())
-                                        ->required()
-                                        ->native(false),
+    //                         Section::make('')
+    //                             ->schema([
+    //                                 TextInput::make('amount')
+    //                                     ->label('Сумма')
+    //                                     ->numeric()
+    //                                     ->required()
+    //                                     ->minValue(0.01)
+    //                                     ->step(0.01)
+    //                                     ->suffix('сум')
+    //                                     ->placeholder('0.00')
+    //                                     ->live()
+    //                                     ->afterStateUpdated(function ($state, $set, $record) {
+    //                                         $remaining = $record->getTotalCost() - $record->getTotalPaidAmount();
+    //                                         if ($state > $remaining) {
+    //                                             $set('amount', $remaining);
+    //                                         }
+    //                                     }),
+    //                                 Select::make('payment_type_id')
+    //                                     ->label('Тип оплаты')
+    //                                     ->options(PaymentType::all()->pluck('name', 'id'))
+    //                                     ->required(),
                                         
-                                    Textarea::make('description')
-                                        ->label('Izoh')
-                                        ->placeholder('To\'lov haqida qo\'shimcha ma\'lumot')
-                                        ->maxLength(255)
-                                        ->rows(3),
-                                ]),
-                        ])
-                        ->action(function (array $data, $record) {
-                            // To'lovni saqlash
-                            \App\Models\Payment::create([
-                                'patient_id' => $record->patient_id,
-                                'medical_history_id' => $record->id,
-                                'amount' => $data['amount'],
-                                'payment_type_id' => $data['payment_type_id'],
-                                'description' => $data['description'] ?? null,
-                                'payment_date' => $data['payment_date'],
-                            ]);
+    //                                 Textarea::make('description')
+    //                                     ->label('Izoh')
+    //                                     ->placeholder('Коммент')
+    //                                     ->maxLength(255)
+    //                                     ->rows(3),
+    //                             ]),
+    //                     ])
+    //                     ->action(function (array $data, $record) {
+    //                         // To'lovni saqlash
+    //                         \App\Models\Payment::create([
+    //                             'patient_id' => $record->patient_id,
+    //                             'lab_test_history_id' => $record->id,
+    //                             'amount' => $data['amount'],
+    //                             'payment_type_id' => $data['payment_type_id'],
+    //                             'description' => $data['description'] ?? null,
+    //                         ]);
 
-                            // Muvaffaqiyat xabari
-                            Notification::make()
-                                ->title('To\'lov muvaffaqiyatli qo\'shildi!')
-                                ->success()
-                                ->body("Miqdor: " . number_format($data['amount'], 2) . " сум")
-                                ->send();
-                        })
-                        ->modalHeading('To\'lov qo\'shish')
-                        ->modalSubmitActionLabel('To\'lovni saqlash')
-                        ->modalCancelActionLabel('Bekor qilish'),
-                        
-                    Action::make('view_payments')
-                        ->label('To\'lovlar tarixi')
-                        ->icon('heroicon-o-banknotes')
-                        ->color('info')
-                        ->modalWidth(MaxWidth::FourExtraLarge)
-                        ->modalContent(function ($record) {
-                            $payments = \App\Models\Payment::where('medical_history_id', $record->id)
-                                ->orderBy('payment_date', 'desc')
-                                ->get();
-                                
-                            $totalPaid = $payments->sum('amount');
-                            $totalCost = $record->getTotalCost();
-                            $remaining = $totalCost - $totalPaid;
-                            
-                            return view('filament.modals.payments-history', [
-                                'payments' => $payments,
-                                'totalPaid' => $totalPaid,
-                                'totalCost' => $totalCost,
-                                'remaining' => $remaining,
-                            ]);
-                        })
-                        ->modalHeading('To\'lovlar tarixi')
-                        ->modalCancelActionLabel('Yopish'),
-                        
-                    Action::make('payment_receipt')
-                        ->label('Kvitansiya')
-                        ->icon('heroicon-o-document-text')
-                        ->color('gray')
-                        ->visible(fn ($record) => $record->getTotalPaidAmount() > 0)
-                        ->url(fn ($record) => route('payment.receipt', $record->id))
-                        ->openUrlInNewTab(),
-                        
-                ])->label('To\'lovlar')
-                ->icon('heroicon-o-currency-dollar')
-                ->button()
-                ->outlined(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
-    }
+    //                         // Muvaffaqiyat xabari
+    //                         Notification::make()
+    //                             ->title('Выплата успешно добавлена!')
+    //                             ->success()
+    //                             ->body("Оплата: " . number_format($data['amount'], 2) . " сум")
+    //                             ->send();
+    //                     })
+    //                     ->modalHeading('Оплата')
+    //                     ->modalSubmitActionLabel('Сохранить')
+    //                     ->modalCancelActionLabel('Отмена'),
+    //         ])
+    //         ->bulkActions([
+    //             Tables\Actions\BulkActionGroup::make([
+    //                 Tables\Actions\DeleteBulkAction::make(),
+    //             ]),
+    //         ]);
+    // }
 
     public static function getNavigationLabel(): string
     {

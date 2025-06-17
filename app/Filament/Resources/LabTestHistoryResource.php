@@ -74,7 +74,24 @@ class LabTestHistoryResource extends Resource
                                                 ->schema([
                                                     Select::make('lab_test_id')
                                                         ->label('Тип анализ')
-                                                        ->options(LabTest::all()->pluck('name', 'id'))
+                                                        ->options(function (Get $get, $state, $context) {
+                                                            // Foydalanuvchi tanlagan barcha inspection_id larni to'plab olamiz
+                                                            $selectedIds = collect($get('../../labTestDetails'))
+                                                                ->pluck('lab_test_id')
+                                                                ->filter()
+                                                                ->toArray();
+
+                                                            // Agar bu `Select` allaqachon tanlangan bo‘lsa, uni istisno qilamiz
+                                                            // Aks holda o‘zi ham option ro‘yxatdan yo‘qolib qoladi
+                                                            if ($state) {
+                                                                $selectedIds = array_diff($selectedIds, [$state]);
+                                                            }
+
+                                                            // Tanlanmagan inspection larni qaytaramiz
+                                                            return LabTest::query()
+                                                                ->whereNotIn('id', $selectedIds)
+                                                                ->pluck('name', 'id');
+                                                        })
                                                         ->searchable()
                                                         ->required()
                                                         ->reactive()
@@ -132,38 +149,6 @@ class LabTestHistoryResource extends Resource
                                                         return number_format($total, 2, '.', ' ') . ' сум';
                                                     })
                                                     ->columnSpanFull(), 
-                                            // Repeater::make('labTestHistories')
-                                            //     ->label('')
-                                            //     ->schema([
-                                            //         Select::make('lab_test_id')
-                                            //             ->label('Тип анализ')
-                                            //             ->options(LabTest::all()->pluck('name', 'id'))
-                                            //             ->searchable()
-                                            //             ->required()
-                                            //             ->reactive()
-                                            //             ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
-                                            //                 $price = LabTest::find($state)?->price ?? 0;
-                                            //                 $set('price', $price);
-                                            //                 $set('total_price', $price);
-                                                            
-                                            //             })
-                                            //             ->columnSpan(6),
-                                            //         TextInput::make('price')
-                                            //             ->label('Цена')
-                                            //             ->disabled()
-                                            //             ->numeric()
-                                            //             ->columnSpan(6),
-                                            //     ])
-                                            //     ->columns(12)
-                                            //     ->columnSpan(12),
-                                            //     Placeholder::make('total_sum')
-                                            //         ->label('Общая стоимость (всего)')
-                                            //         ->content(function (Get $get) {
-                                            //             $items = $get('labTestHistories') ?? [];
-                                            //             $total = collect($items)->sum('price');
-                                            //             return number_format($total, 2, '.', ' ') . ' сум';
-                                            //         })
-                                            //         ->columnSpanFull(), 
                     ])->columnSpan(12)->columns(12)
             ]);
     }
@@ -190,6 +175,12 @@ class LabTestHistoryResource extends Resource
     // {
     //     return false;
     // }
+    
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->where('status_payment_id', 1); // faqat status 1 bo'lganlar
+    }
     public static function table(Table $table): Table
     {
         return $table
@@ -199,6 +190,14 @@ class LabTestHistoryResource extends Resource
                     ->label('Обшый сумма')
                     ->getStateUsing(function ($record) {
                         return number_format($record->getTotalCost(),0,'.',' ').' сум';
+                    }),
+                TextColumn::make('total_debt')
+                    ->label('Долг')
+                    ->color('danger')
+                    ->badge()
+                    ->getStateUsing(function ($record) {
+                        $remaining = $record->getTotalCost() - $record->getTotalPaidAmount();
+                        return number_format($remaining, 0, '.', ' ') . ' сум';
                     }),
                 TextColumn::make('created_at')->searchable()->sortable(),
             ])
@@ -243,8 +242,6 @@ class LabTestHistoryResource extends Resource
                                         ->label('Сумма')
                                         ->numeric()
                                         ->required()
-                                        ->minValue(0.01)
-                                        ->step(0.01)
                                         ->suffix('сум')
                                         ->placeholder('0.00')
                                         ->live()

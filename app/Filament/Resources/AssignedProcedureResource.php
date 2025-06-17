@@ -82,7 +82,24 @@ class AssignedProcedureResource extends Resource
                                                 ->schema([
                                                     Select::make('procedure_id')
                                                         ->label('Тип процедура')
-                                                        ->options(Procedure::all()->pluck('name', 'id'))
+                                                        ->options(function (Get $get, $state, $context) {
+                                                            // Foydalanuvchi tanlagan barcha inspection_id larni to'plab olamiz
+                                                            $selectedIds = collect($get('../../procedureDetails'))
+                                                                ->pluck('procedure_id')
+                                                                ->filter()
+                                                                ->toArray();
+
+                                                            // Agar bu `Select` allaqachon tanlangan bo‘lsa, uni istisno qilamiz
+                                                            // Aks holda o‘zi ham option ro‘yxatdan yo‘qolib qoladi
+                                                            if ($state) {
+                                                                $selectedIds = array_diff($selectedIds, [$state]);
+                                                            }
+
+                                                            // Tanlanmagan inspection larni qaytaramiz
+                                                            return Procedure::query()
+                                                                ->whereNotIn('id', $selectedIds)
+                                                                ->pluck('name', 'id');
+                                                        })
                                                         ->searchable()
                                                         ->required()
                                                         ->reactive()
@@ -372,6 +389,11 @@ class AssignedProcedureResource extends Resource
         $set('total_sum', $total);
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->where('status_payment_id', 1); // faqat status 1 bo'lganlar
+    }
     public static function table(Table $table): Table
     {
         return $table
@@ -381,6 +403,14 @@ class AssignedProcedureResource extends Resource
                     ->label('Обшый сумма')
                     ->getStateUsing(function ($record) {
                         return number_format($record->getTotalCost(),0,'.',' ').' сум';
+                    }),
+                TextColumn::make('total_debt')
+                    ->label('Долг')
+                    ->color('danger')
+                    ->badge()
+                    ->getStateUsing(function ($record) {
+                        $remaining = $record->getTotalCost() - $record->getTotalPaidAmount();
+                        return number_format($remaining, 0, '.', ' ') . ' сум';
                     }),
                 TextColumn::make('created_at')->searchable()->sortable(),
             ])
@@ -425,8 +455,10 @@ class AssignedProcedureResource extends Resource
                                         ->label('Сумма')
                                         ->numeric()
                                         ->required()
-                                        ->minValue(0.01)
-                                        ->step(0.01)
+                                        ->maxValue(function ($record) {
+                                            $remaining = $record->getTotalCost() - $record->getTotalPaidAmount();
+                                            return $remaining;
+                                        })
                                         ->suffix('сум')
                                         ->placeholder('0.00')
                                         ->live()

@@ -60,7 +60,6 @@ class PatientResource extends Resource
                                     return [$region->id => $region->name]; 
                                 }); 
                             }) 
-                            ->searchable()
                             ->reactive() 
                             ->required()
                             ->columnSpan(6), 
@@ -76,7 +75,6 @@ class PatientResource extends Resource
                                         return [$district->id => $district->name];
                                     });
                             }) 
-                            ->searchable()
                             ->reactive() 
                             ->required()
                             // ->visible(fn (Get $get) => filled($get('region_id'))) 

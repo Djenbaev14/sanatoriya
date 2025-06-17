@@ -14,7 +14,7 @@
         <tr class="bg-gray-100" style="white-space: nowrap">
             <th class="border border-gray-300 px-4 py-2">ID</th>
             <th class="border border-gray-300 px-4 py-2">Название</th>
-            <th class="border border-gray-300 px-4 py-2">Этапы лечения</th>
+            <th class="border border-gray-300 px-4 py-2">сумма</th>
             <th class="border border-gray-300 px-4 py-2">Врач осмотра</th>
             <th class="border border-gray-300 px-4 py-2">Дата создания</th>
         </tr>
@@ -24,7 +24,7 @@
         <tr style="border-bottom:1px solid #929292;white-space: nowrap;">
             <td class="border-gray-300 p-2">{{ $history->id}}</td>
             <td class="border-gray-300 p-2">Осмотр</td>
-            <td class="border-gray-300 p-2"></td>
+            <td class="border-gray-300 p-2">{{number_format($history->medicalInspection->getTotalCost())}} сум</td>
             <td class="border-gray-300 p-2">{{ $history->doctor->name}}</td>
             <td class="border-gray-300 p-2">{{ $history->created_at}}</td>
         </tr>

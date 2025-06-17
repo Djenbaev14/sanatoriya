@@ -23,9 +23,6 @@ return new class extends Migration
             $table->string('type_disability')->nullable();
             $table->longText('diagnosis')->nullable();
             $table->longText('complaints')->nullable();
-            $table->longText('history')->nullable();
-            $table->longText('objectively')->nullable();
-            $table->longText('treatment')->nullable();
             $table->string('photo')->nullable();
             $table->timestamps();
         });

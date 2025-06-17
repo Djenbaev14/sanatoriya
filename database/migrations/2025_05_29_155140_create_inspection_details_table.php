@@ -6,15 +6,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('inspection_details', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('medical_history_id');
-            $table->foreign('medical_history_id')->references('id')->on('medical_histories');
+            $table->unsignedBigInteger('medical_inspection_id');
+            $table->foreign('medical_inspection_id')->references('id')->on('medical_inspections');
             
             $table->unsignedBigInteger('inspection_id');
             $table->foreign('inspection_id')->references('id')->on('inspections');

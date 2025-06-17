@@ -12,9 +12,6 @@ class LabTestHistory extends Model
     public function patient(){
         return $this->belongsTo(Patient::class);
     }
-    public function lab_test(){
-        return $this->belongsTo(LabTest::class);
-    }
     public function labTestDetails(){
         return $this->hasMany(LabTestDetail::class);
     }

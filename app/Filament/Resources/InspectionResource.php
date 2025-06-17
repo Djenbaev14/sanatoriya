@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ProcedureResource\Pages;
-use App\Filament\Resources\ProcedureResource\RelationManagers;
-use App\Models\Procedure;
+use App\Filament\Resources\InspectionResource\Pages;
+use App\Filament\Resources\InspectionResource\RelationManagers;
+use App\Models\Inspection;
 use Filament\Forms;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\TextInput;
@@ -20,13 +20,12 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class ProcedureResource extends Resource
+class InspectionResource extends Resource
 {
-    protected static ?string $model = Procedure::class;
-    
-    protected static ?string $navigationGroup = 'Услуги';
-    protected static ?int $navigationSort = 2;
+    protected static ?string $model = Inspection::class;
 
+    protected static ?string $navigationGroup = 'Услуги';
+    protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form
     {
@@ -38,7 +37,7 @@ class ProcedureResource extends Resource
                         ->label('Название')
                         ->required()
                         ->maxLength(255)->columnSpan(12),
-                    TextInput::make('price_per_day')
+                    TextInput::make('price')
                         ->label('Цена')
                         ->required()
                         ->maxLength(255)->columnSpan(12)
@@ -58,33 +57,35 @@ class ProcedureResource extends Resource
                             ->label('Название')
                             ->unique(ignoreRecord: true)
                             ->maxLength(255),
-                        Forms\Components\TextInput::make('price_per_day')
+                        Forms\Components\TextInput::make('price')
                             ->required()
-                            ->label('Цена за сутки')
+                            ->label('Цена')
                             ->numeric(),
                     ])
                     ->slideOver()
                     ->modalWidth(MaxWidth::Medium)
                     ->action(function (array $data) {
-                            Procedure::create([
+                            Inspection::create([
                                 'name' => $data['name'],
-                                'price_per_day' => $data['price_per_day'],
+                                'price' => $data['price'],
                             ]);
 
                             Notification::make()
-                                ->title('Процедура табыслы жаратылды!')
+                                ->title('Осмотр табыслы жаратылды!')
                                 ->success()
                                 ->send();
                         }),
             ])
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Название')
                     ->searchable()
                     ->extraAttributes([
                         'class' => 'text-gray-500 dark:text-gray-300 text-xs'
                     ])
                     ->columnSpan(3),
-                Tables\Columns\TextColumn::make('price_per_day')
+                Tables\Columns\TextColumn::make('price')
+                        ->label('Цена')
                     ->searchable()
                     ->formatStateUsing(function ($state) {
                         return number_format($state, 0, '.', ' ') . " сум";  // Masalan, 1000.50 ni 1,000.50 formatida
@@ -104,15 +105,15 @@ class ProcedureResource extends Resource
                     ->modalHeading('Изменение')
                     ->modalWidth('lg')
                     ->modalAlignment('end')
-                    ->using(function (Procedure $record, array $data): Procedure {
+                    ->using(function (Inspection $record, array $data): Inspection {
                         // Filial ma'lumotlarini yangilash
                         $record->update([
                             'name' => $data['name'],
-                            'price_per_day' => $data['price_per_day'],
+                            'price' => $data['price'],
                         ]);
 
                         Notification::make()
-                            ->title('Процедура табыслы редакторланды!')
+                            ->title('Осмотр табыслы редакторланды!')
                             ->success()
                             ->send();
 
@@ -130,24 +131,21 @@ class ProcedureResource extends Resource
     }
     public static function getNavigationLabel(): string
     {
-        return 'Процедуры'; // Rus tilidagi nom
+        return 'Осмотр'; // Rus tilidagi nom
     }
     public static function getModelLabel(): string
     {
-        return 'Процедуры'; // Rus tilidagi yakka holdagi nom
+        return 'Осмотр'; // Rus tilidagi yakka holdagi nom
     }
     public static function getPluralModelLabel(): string
     {
-        return 'Процедуры'; // Rus tilidagi ko'plik shakli
+        return 'Осмотр'; // Rus tilidagi ko'plik shakli
     }
-
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListProcedures::route('/'),
-            // 'create' => Pages\CreateProcedure::route('/create'),
-            // 'edit' => Pages\EditProcedure::route('/{record}/edit'),
+            'index' => Pages\ListInspections::route('/'),
         ];
     }
 }
