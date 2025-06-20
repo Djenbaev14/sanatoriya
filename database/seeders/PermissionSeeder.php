@@ -11,6 +11,10 @@ class PermissionSeeder extends Seeder
     public function run(): void
     {
         $permissions=[
+            'просмотреть любое разрешение',
+            'просмотр разрешение',
+            'создать разрешение',
+            
             'просмотреть любое роль',
             'просмотр роль',
             'создать роль',
