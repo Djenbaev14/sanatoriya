@@ -17,13 +17,30 @@ return new class extends Migration
             $table->foreign('patient_id')->references('id')->on('patients');
             $table->unsignedBigInteger('doctor_id');
             $table->foreign('doctor_id')->references('id')->on('users');
+            
+            $table->dateTime('admission_date')->nullable(); // Qabul qilingan sana
+            $table->date('discharge_date')->nullable(); // Chiqish sanasi
+            
+            $table->unsignedBigInteger('bed_meal_status_payment_id')->default(1);
+            $table->foreign('bed_meal_status_payment_id')->references('id')->on('status_payments');
+            
             $table->string('height')->nullable();
             $table->string('weight')->nullable();
             $table->string('temperature')->nullable();
-            $table->string('type_disability')->nullable();
-            $table->longText('diagnosis')->nullable();
-            $table->longText('complaints')->nullable();
+            $table->json('disability_types')->nullable();
+
+            $table->text('side_effects')->nullable();
+            $table->boolean('is_emergency')->default(false);
+            $table->enum('transport_type', ['ambulance', 'family', 'self', 'taxi', 'other'])->nullable();
+            $table->enum('referred_from', [
+                'clinic',
+                'hospital',
+                'emergency',
+                'self',
+                'other',
+            ])->nullable();
             $table->string('photo')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

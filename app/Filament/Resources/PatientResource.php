@@ -4,12 +4,14 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PatientResource\Pages;
 use App\Filament\Resources\PatientResource\RelationManagers;
+use App\Models\Country;
 use App\Models\District;
 use App\Models\Patient;
 use App\Models\Region;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Group;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Section;
@@ -18,6 +20,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\MaxWidth;
@@ -39,33 +42,56 @@ class PatientResource extends Resource
             ->schema([
                 Group::make()
                     ->schema([
+                        TextInput::make('full_name')
+                            ->label('ФИО')
+                            ->required()
+                            ->maxLength(255)
+                            ->columnSpan(12),
                         TextInput::make('phone')
+                            ->prefix('+998')
                             ->label('Телефон номер')
                             ->unique(ignoreRecord: true)
                             ->required()
                             ->tel()
-                            ->maxLength(255)
-                            ->columnSpan(12),
-                        TextInput::make('full_name')
-                            ->label('ФИО')
-                            ->required()
                             ->maxLength(255)
                             ->columnSpan(6),
                         DatePicker::make('birth_date')
                             ->label('День рождения')
                             ->required()
                             ->columnSpan(6),
-                        Select::make('region_id') 
-                            ->label('Регион ') 
+                        Select::make('country_id') 
+                            ->label('Страна ') 
                             ->required()
                             ->options(function () { 
-                                return Region::all()->mapWithKeys(function ($region) { 
+                                return Country::all()->mapWithKeys(function ($region) { 
                                     return [$region->id => $region->name]; 
                                 }); 
                             }) 
                             ->reactive() 
                             ->required()
+                            ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
+                                $is_foreign = Country::find($state)?->is_foreign ?? 0;
+                                $set('is_foreign', $is_foreign);
+                            })
+                            ->columnSpan(6),
+                        Select::make('region_id') 
+                            ->label('Регион ') 
+                            ->required()
+                            ->options(function (Get $get) { 
+                                $countryID = $get('country_id'); 
+                                if (!$countryID) return []; 
+                                
+                                return Region::where('country_id', $countryID)
+                                    ->get()
+                                    ->mapWithKeys(function ($country) {
+                                        return [$country->id => $country->name];
+                                    });
+                            })
+                            ->reactive() 
+                            ->required()
                             ->columnSpan(6), 
+                        Hidden::make('is_foreign')
+                            ->default(0),
                         Select::make('district_id') 
                             ->label('Район ') 
                             ->required()
@@ -81,7 +107,6 @@ class PatientResource extends Resource
                             }) 
                             ->reactive() 
                             ->required()
-                            // ->visible(fn (Get $get) => filled($get('region_id'))) 
                             ->columnSpan(6), 
                         Textarea::make('address')
                                 ->label('Адрес')
@@ -102,7 +127,6 @@ class PatientResource extends Resource
                     ])->columns(12)->columnSpan(12)
         ]);
     }
-
     public static function table(Table $table): Table
     {
         return $table
@@ -114,11 +138,13 @@ class PatientResource extends Resource
                                 'full_name' => $data['full_name'],
                                 'birth_date' => $data['birth_date'],
                                 'gender' => $data['gender'],
+                                'country_id' => $data['country_id'],
                                 'region_id' => $data['region_id'],
                                 'district_id' => $data['district_id'],
                                 'address' => $data['address'],
                                 'profession' => $data['profession'],
                                 'phone' => $data['phone'],
+                                'is_foreign' => $data['is_foreign'],
                             ]);
 
                             Notification::make()

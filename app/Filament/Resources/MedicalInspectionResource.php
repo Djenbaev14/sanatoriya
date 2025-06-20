@@ -4,15 +4,22 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\MedicalInspectionResource\Pages;
 use App\Filament\Resources\MedicalInspectionResource\RelationManagers;
+use App\Models\Inspection;
 use App\Models\MedicalInspection;
+use App\Models\Patient;
 use App\Models\PaymentType;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\MaxWidth;
@@ -22,6 +29,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Log;
 
 class MedicalInspectionResource extends Resource
 {
@@ -38,13 +46,98 @@ class MedicalInspectionResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Section::make()
+                    ->schema([
+                        Hidden::make('doctor_id')
+                            ->default(fn () => auth()->user()->id)
+                            ->dehydrated(true),
+                        Select::make('patient_id')
+                            ->label('Пациент')
+                            ->disabled()
+                            ->relationship('patient', 'full_name') // yoki kerakli atribut
+                            ->default(request()->get('patient_id'))
+                            ->required()
+                            ->columnSpan(12),
+                        Select::make('medical_history_id')
+                            ->label('История болезно')
+                            ->options(function (Get $get) {
+                                $patientId = $get('patient_id');
+
+                                return \App\Models\MedicalHistory::where('patient_id', $patientId)
+                                    // ->doesntHave('medicalInspection') // agar faqat bog‘lanmaganlar kerak bo‘lsa
+                                    ->get()
+                                    ->mapWithKeys(function ($history) {
+                                        $formattedId = str_pad('№'.$history->id, 10);
+                                        $formattedDate = \Carbon\Carbon::parse($history->created_at)->format('d.m.Y H:i');
+                                        return [$history->id => $formattedId . ' - ' . $formattedDate];
+                                    });
+                            })
+                            ->required()
+                            ->columnSpan(6),
+                        Textarea::make('admission_diagnosis')
+                            ->label('Диагноз')
+                            ->placeholder('Masalan: O‘ng o‘pkaning pastki bo‘limining pnevmoniyasi')
+                            ->columnSpan(6),
+                        Repeater::make('inspectionDetails')
+                                                ->label('Осмотр')
+                                                ->relationship('inspectionDetails')
+                                                ->defaultItems(0)
+                                                ->schema([
+                                                    Select::make('inspection_id')
+                                                        ->label('Тип осмотр')
+                                                        ->options(function (Get $get, $state, $context) {
+                                                            // Foydalanuvchi tanlagan barcha inspection_id larni to'plab olamiz
+                                                            $selectedIds = collect($get('../../inspectionDetails'))
+                                                                ->pluck('inspection_id')
+                                                                ->filter()
+                                                                ->toArray();
+                                                            if ($state) {
+                                                                $selectedIds = array_diff($selectedIds, [$state]);
+                                                            }
+
+                                                            // Tanlanmagan inspection larni qaytaramiz
+                                                            return Inspection::query()
+                                                                ->whereNotIn('id', $selectedIds)
+                                                                ->pluck('name', 'id');
+                                                        })
+                                                        ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
+                                                            $patientId = $get('../../patient_id'); // yoki `request()->get('patient_id')`
+                                                                if (!$patientId || !$state) {
+                                                                    $set('price', 0);
+                                                                    return;
+                                                                }
+
+                                                                $isForeign = Patient::find($patientId)?->is_foreign ?? 0;
+
+                                                                $inspection = Inspection::find($state);
+                                                                $price = $isForeign == 1 ? $inspection?->price_foreign : $inspection?->price;
+
+                                                                $set('price', $price ?? 0);
+                                                        })
+                                                        ->reactive()
+                                                        ->columnSpan(4),
+
+                                                    TextInput::make('price')
+                                                        ->label('Цена')
+                                                        ->readOnly()
+                                                        ->numeric()
+                                                        ->columnSpan(3),
+
+                                                ])
+                                                ->columns(12)->columnSpan(12),
+                    ])->columns(12)->columnSpan(12)
             ]);
     }
-    public static function getEloquentQuery(): Builder
+    
+    public static function shouldRegisterNavigation(): bool
     {
-        return parent::getEloquentQuery()
-            ->where('status_payment_id', 1); // faqat status 1 bo'lganlar
+        return false;
+    }
+    protected static function recalculateTotalSum(Get $get, Set $set): void
+    {
+        $items = $get('inspectionDetails') ?? [];
+        $total = collect($items)->sum('price');
+        $set('total_sum', $total);
     }
     public static function table(Table $table): Table
     {
@@ -171,18 +264,6 @@ class MedicalInspectionResource extends Resource
                 //
             ]);
     }
-    public static function getNavigationLabel(): string
-    {
-        return 'Для осмотр'; // Rus tilidagi nom
-    }
-    public static function getModelLabel(): string
-    {
-        return 'Для осмотр'; // Rus tilidagi yakka holdagi nom
-    }
-    public static function getPluralModelLabel(): string
-    {
-        return 'Для осмотр'; // Rus tilidagi ko'plik shakli
-    }
     public static function getRelations(): array
     {
         return [
@@ -196,6 +277,7 @@ class MedicalInspectionResource extends Resource
             'index' => Pages\ListMedicalInspections::route('/'),
             'create' => Pages\CreateMedicalInspection::route('/create'),
             'edit' => Pages\EditMedicalInspection::route('/{record}/edit'),
+            'view' => Pages\ViewMedicalInspection::route('/{record}'),
         ];
     }
 }

@@ -24,7 +24,7 @@ return new class extends Migration
             
             $table->unsignedBigInteger('status_payment_id')->default(1);
             $table->foreign('status_payment_id')->references('id')->on('status_payments');
-
+            $table->softDeletes();
             $table->timestamps();
         });
     }

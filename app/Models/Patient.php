@@ -9,6 +9,9 @@ class Patient extends Model
 {
     use HasFactory;
     protected $guarded=['id'];
+    public function country(){
+        return $this->belongsTo(Country::class);
+    }
     public function region(){
         return $this->belongsTo(Region::class);
     }
@@ -17,6 +20,9 @@ class Patient extends Model
     }
     public function medicalHistories(){
         return $this->hasMany(MedicalHistory::class);
+    }
+    public function medicalInspections(){
+        return $this->hasMany(MedicalInspection::class);
     }
     public function assignedProcedures(){
         return $this->hasMany(AssignedProcedure::class);

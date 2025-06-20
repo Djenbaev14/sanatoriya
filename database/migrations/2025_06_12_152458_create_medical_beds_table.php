@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('medical_beds', function (Blueprint $table) {
             $table->id();
             
-            $table->unsignedBigInteger('assigned_procedure_id');
-            $table->foreign('assigned_procedure_id')->references('id')->on('assigned_procedures');
+            $table->unsignedBigInteger('medical_history_id');
+            $table->foreign('medical_history_id')->references('id')->on('medical_histories');
 
             $table->unsignedBigInteger('ward_id');
             $table->foreign('ward_id')->references('id')->on('wards');
@@ -25,6 +25,7 @@ return new class extends Migration
 
             $table->unsignedBigInteger('tariff_id');
             $table->foreign('tariff_id')->references('id')->on('tariffs');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

@@ -19,8 +19,11 @@ return new class extends Migration
             $table->unsignedBigInteger('medical_history_id')->default(1);
             $table->foreign('medical_history_id')->references('id')->on('medical_histories');
 
+            $table->text('admission_diagnosis')->nullable();
+            
             $table->unsignedBigInteger('status_payment_id')->default(1);
             $table->foreign('status_payment_id')->references('id')->on('status_payments');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

@@ -20,6 +20,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Rmsramos\Activitylog\ActivitylogPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -33,10 +34,20 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
+            ->plugin(FilamentSpatieRolesPermissionsPlugin::make())
             ->navigationGroups([
+                NavigationGroup::make()
+                    ->label('Касса')
+                    ->icon('fas-wallet'),
                 NavigationGroup::make()
                     ->label('Услуги')
                     ->icon('fas-vials'),
+                NavigationGroup::make()
+                    ->label('Роли и разрешения'),
+            ])
+            ->plugins([
+                ActivitylogPlugin::make()
+                ->navigationCountBadge(true),
             ])
             ->spa()
             ->brandName('Sanatoriya')

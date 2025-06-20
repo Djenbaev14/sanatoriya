@@ -4,13 +4,29 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class AssignedProcedure extends Model
 {
-    use HasFactory;
+    use HasFactory,LogsActivity,SoftDeletes;
+
     protected $guarded=['id'];
+    protected static $logName = 'assigned_procedure';
+    protected static $logOnlyDirty = true;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->useLogName('assigned_procedure');
+    }
     public function patient(){
         return $this->belongsTo(Patient::class);
+    }
+    public function medicalHistory(){
+        return $this->belongsTo(MedicalHistory::class);
     }
     public function doctor(){
         return $this->belongsTo(User::class);
@@ -24,12 +40,7 @@ class AssignedProcedure extends Model
     public function statusPayment(){
         return $this->belongsTo(StatusPayment::class);
     }
-    public function medicalMeal(){
-        return $this->hasOne(MedicalMeal::class);
-    }
-    public function medicalBed(){
-        return $this->hasOne(MedicalBed::class);
-    }
+    
     public function calculateTotalCost()
     {
         $proceduresCost = $this->calculateProceduresCost();

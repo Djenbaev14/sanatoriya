@@ -70,12 +70,18 @@ class ViewLabTestHistory extends ViewRecord
                 ->modalSubmitActionLabel('Да, отправить')
                 ->visible(fn () => $this->record->status_payment_id == 1)
                 ->action(fn () => $this->sendToKassa()),
+            Action::make('back')
+                ->label('Назад')
+                ->icon('heroicon-o-arrow-uturn-left')
+                ->color('danger')
+                ->url(fn () => route('filament.admin.resources.patients.view', $this->record->patient_id)),
 
-            Action::make('print')
-                ->label('Печать')
-                ->icon('heroicon-o-printer')
-                ->color('info')
-                ->action(fn () => $this->printRecord()),
+
+            // Action::make('print')
+            //     ->label('Печать')
+            //     ->icon('heroicon-o-printer')
+            //     ->color('info')
+            //     ->action(fn () => $this->printRecord()),
         ];
     }
     public function sendToKassa()

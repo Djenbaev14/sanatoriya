@@ -14,11 +14,12 @@ return new class extends Migration
         Schema::create('medical_meals', function (Blueprint $table) {
             $table->id();
             
-            $table->unsignedBigInteger('assigned_procedure_id');
-            $table->foreign('assigned_procedure_id')->references('id')->on('assigned_procedures');
+            $table->unsignedBigInteger('medical_history_id');
+            $table->foreign('medical_history_id')->references('id')->on('medical_histories');
             
             $table->unsignedBigInteger('meal_type_id');
             $table->foreign('meal_type_id')->references('id')->on('meal_types');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

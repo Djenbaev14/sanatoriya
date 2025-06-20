@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('patients', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('country_id');
+            $table->foreign('country_id')->references('id')->on('countries');
             $table->unsignedBigInteger('region_id');
             $table->foreign('region_id')->references('id')->on('regions');
             $table->unsignedBigInteger('district_id');
@@ -23,6 +25,7 @@ return new class extends Migration
             $table->string('profession')->nullable();
             $table->string('phone')->unique();
             $table->longText('address');
+            $table->boolean('is_foreign')->default(false);
             $table->timestamps();
         });
     }

@@ -23,6 +23,7 @@ return new class extends Migration
             $table->decimal('price', 10, 2); // O‘sha vaqtdagi narx (narx o‘zgarsa tarix saqlansin)
             
             $table->string('result')->nullable(); // Tahlil natijasi
+            $table->softDeletes();
             $table->timestamps();
         });
     }

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreign('inspection_id')->references('id')->on('inspections');
             
             $table->decimal('price', 10, 2);
+            $table->softDeletes();
             $table->timestamps();
         });
     }

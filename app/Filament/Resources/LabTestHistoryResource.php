@@ -6,6 +6,7 @@ use App\Filament\Resources\LabTestHistoryResource\Pages;
 use App\Filament\Resources\LabTestHistoryResource\RelationManagers;
 use App\Models\LabTest;
 use App\Models\LabTestHistory;
+use App\Models\Patient;
 use App\Models\PaymentType;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
@@ -34,13 +35,6 @@ class LabTestHistoryResource extends Resource
 {
     protected static ?string $model = LabTestHistory::class;
 
-    protected static ?string $navigationGroup = 'Касса';
-    protected static ?int $navigationSort = 2;
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::where('status_payment_id',2)->count();
-    }
-
     public static function form(Form $form): Form{
         return $form
             ->schema([
@@ -57,7 +51,7 @@ class LabTestHistoryResource extends Resource
                                                 ->required()
                                                 ->columnSpan(12),
                                             Select::make('medical_history_id')
-                                                ->label('План осмотра')
+                                                ->label('История болезно')
                                                 ->options(
                                                     \App\Models\MedicalHistory::all()->pluck('created_at', 'id')->mapWithKeys(function ($createdAt, $id) {
                                                         $formattedId = str_pad('№'.$id, 10); // 10 ta belgigacha bo‘sh joy qo‘shiladi
@@ -68,7 +62,7 @@ class LabTestHistoryResource extends Resource
                                                 ->columnSpan(4),
                                                 
                                             Repeater::make('labTestDetails')
-                                                ->label('')
+                                                ->label('Анализ')
                                                 ->relationship('labTestDetails')
                                                 ->defaultItems(1)
                                                 ->schema([
@@ -96,10 +90,20 @@ class LabTestHistoryResource extends Resource
                                                         ->required()
                                                         ->reactive()
                                                         ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
-                                                            $price = LabTest::find($state)?->price ?? 0;
-                                                            $set('price', $price);
-                                                            $set('total_price', $price * ($get('sessions') ?? 1));
-                                                            
+                                                            $patientId = $get('../../patient_id'); // yoki `request()->get('patient_id')`
+                                                                if (!$patientId || !$state) {
+                                                                    $set('price', 0);
+                                                                    return;
+                                                                }
+
+                                                                $isForeign = Patient::find($patientId)?->is_foreign ?? 0;
+
+                                                                $lab_test = LabTest::find($state);
+                                                                $price = $isForeign == 1 ? $lab_test?->price_foreign : $lab_test?->price;
+
+                                                                $set('price', $price ?? 0);
+                                                                $set('total_price', $price * ($get('sessions') ?? 1));
+                                                                
                                                             static::recalculateTotalSum($get, $set);
                                                         })
                                                         ->columnSpan(4),
@@ -171,10 +175,10 @@ class LabTestHistoryResource extends Resource
         return 'Для анализа'; // Rus tilidagi ko'plik shakli
     }
     
-    // public static function shouldRegisterNavigation(): bool
-    // {
-    //     return false;
-    // }
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
     
     public static function getEloquentQuery(): Builder
     {

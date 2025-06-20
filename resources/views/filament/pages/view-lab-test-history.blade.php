@@ -32,10 +32,9 @@
                     <thead>
                         <tr class="bg-gray-50">
                             <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Услуга</th>
-                            <th class="border border-gray-300 px-4 py-3 text-center font-semibold">Зуб</th>
+                            {{-- <th class="border border-gray-300 px-4 py-3 text-center font-semibold">Зуб</th> --}}
                             <th class="border border-gray-300 px-4 py-3 text-center font-semibold">Кол-во</th>
                             <th class="border border-gray-300 px-4 py-3 text-center font-semibold">Цена</th>
-                            <th class="border border-gray-300 px-4 py-3 text-center font-semibold">Доктор</th>
                             <th class="border border-gray-300 px-4 py-3 text-center font-semibold">Сумма</th>
                         </tr>
                     </thead>
@@ -43,12 +42,11 @@
                         @foreach($labTestDetails as $detail)
                         <tr>
                             <td class="border border-gray-300 px-4 py-3">{{ $detail->lab_test->name }}</td>
-                            <td class="border border-gray-300 px-4 py-3 text-center">
+                            {{-- <td class="border border-gray-300 px-4 py-3 text-center">
                                 <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">Не указано</span>
-                            </td>
+                            </td> --}}
                             <td class="border border-gray-300 px-4 py-3 text-center">{{ $detail->sessions }}</td>
                             <td class="border border-gray-300 px-4 py-3 text-right">{{ number_format($detail->price, 2, '.', ' ') }}</td>
-                            <td class="border border-gray-300 px-4 py-3 text-right">{{ number_format($detail->price / 2, 2, '.', ' ') }}</td>
                             <td class="border border-gray-300 px-4 py-3 text-right font-semibold">{{ number_format($detail->price * $detail->sessions, 2, '.', ' ') }}</td>
                         </tr>
                         @endforeach

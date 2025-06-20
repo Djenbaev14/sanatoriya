@@ -16,4 +16,12 @@ class EditMedicalInspection extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+    
+
+    protected function getRedirectUrl(): string
+    {
+        return MedicalInspectionResource::getUrl('view', [
+            'record' => $this->record->id,
+        ]);
+    }
 }

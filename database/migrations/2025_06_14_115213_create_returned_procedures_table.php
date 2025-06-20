@@ -20,6 +20,7 @@ return new class extends Migration
             $table->foreign('procedure_id')->references('id')->on('procedures');
             
             $table->integer('sessions');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

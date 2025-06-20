@@ -24,7 +24,7 @@ class Bed extends Model
     public function scopeAvailableBeds($query)
     {
         return $query->whereDoesntHave('medicalBeds', function ($subQuery) {
-            $subQuery->whereHas('assignedProcedure', function ($historyQuery) {
+            $subQuery->whereHas('MedicalHistory', function ($historyQuery) {
                 $historyQuery->where(function ($dateQuery) {
                     // Aktiv (chiqmagan) Пациентlar
                     $dateQuery->whereNull('discharge_date')

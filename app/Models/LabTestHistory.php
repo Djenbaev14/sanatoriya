@@ -4,11 +4,25 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class LabTestHistory extends Model
 {
-    use HasFactory;
+    
+    use HasFactory,LogsActivity,SoftDeletes;
+
     protected $guarded=['id'];
+    protected static $logName = 'lab_test_history';
+    protected static $logOnlyDirty = true;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->useLogName('lab_test_history');
+    }
     public function patient(){
         return $this->belongsTo(Patient::class);
     }

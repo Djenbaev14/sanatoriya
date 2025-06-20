@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name'); // Massaj, Fizioterapiya
             $table->decimal('price_per_day', 10, 2);
+            $table->decimal('price_foreign', 10, 2);
             $table->timestamps();
         });
     }

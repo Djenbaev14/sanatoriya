@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Country;
 use App\Models\District;
 use App\Models\Region;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -9,11 +10,34 @@ use Illuminate\Database\Seeder;
 
 class RegionSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
+        $countries=[
+            [
+                'name'=>'Озбекистан',
+                'is_foreign'=>'0',
+            ],
+            [
+                'name'=>'Казакстан',
+                'is_foreign'=>'1',
+            ],
+            [
+                'name'=>'Россия',
+                'is_foreign'=>'1',
+            ],
+            [
+                'name'=>'Туркменистан',
+                'is_foreign'=>'1',
+            ],
+            [
+                'name'=>'Кыргыстан',
+                'is_foreign'=>'1',
+            ],
+            [
+                'name'=>'Тажикстан',
+                'is_foreign'=>'1',
+            ],
+        ];
         $regions = [
         [
             "id" => 2,
@@ -1797,9 +1821,15 @@ class RegionSeeder extends Seeder
         ],
     ];
 
-    
+    foreach ($countries as $key => $country) {
+        Country::create([
+            'name'=>$country['name'],
+            'is_foreign'=>$country['is_foreign'],
+        ]);
+    }
     foreach ($regions as $region) {
         Region::create([
+            'country_id'=>1,
             'id'=>$region['id'],
             'name'=>$region['name_oz'],
         ]);

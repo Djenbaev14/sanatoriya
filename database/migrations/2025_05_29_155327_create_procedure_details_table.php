@@ -21,6 +21,7 @@ return new class extends Migration
             
             $table->integer('sessions'); // ✅ nechta marta/protsedura oladi
             $table->decimal('price', 10, 2);
+            $table->softDeletes();
             $table->timestamps();
         });
     }

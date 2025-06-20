@@ -6,25 +6,44 @@ use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
 use Filament\Forms;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
-
-    protected static ?string $navigationIcon = 'fas-users';
+    protected static ?string $navigationGroup = 'Роли и разрешения';
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                //
+                Section::make()
+                    ->schema([
+                        TextInput::make('name')
+                            ->label('ФИО'),
+                        TextInput::make('username')
+                            ->label('Логин'),
+                        TextInput::make('password')
+                            ->password()
+                            ->label('Парол'),
+                        Select::make('roles')
+                            ->relationship(name: 'roles', titleAttribute: 'name')
+                            ->label('Ролы')
+                            ->multiple()
+                            ->preload()
+                            ->searchable(),
+                    ])
             ]);
     }
 
@@ -35,7 +54,9 @@ class UserResource extends Resource
                 TextColumn::make('name')
                     ->label('Имя'),
                 TextColumn::make('username')
-                    ->label(''),
+                    ->label('Логин'),
+                TextColumn::make('roles.name')
+                    ->label('Роль'),
             ])
             ->defaultSort('id','desc')
             ->defaultPaginationPageOption(50)
@@ -77,6 +98,7 @@ class UserResource extends Resource
             'index' => Pages\ListUsers::route('/'),
             'create' => Pages\CreateUser::route('/create'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
+            'view' => Pages\ViewUser::route('/{record}'),
         ];
     }
 }

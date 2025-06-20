@@ -22,6 +22,7 @@ use App\Models\Ward;
 use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
@@ -34,6 +35,7 @@ use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Wizard;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
@@ -55,527 +57,6 @@ class MedicalHistoryResource extends Resource
     protected static ?string $model = MedicalHistory::class;
     protected static ?string $navigationGroup = 'Касса';
     protected static ?int $navigationSort = 3;
-    // public static function getNavigationBadge(): ?string
-    // {
-    //     return static::getModel()::where('inspection_payment_status_id',1)->count();
-    // }
-
-    // public static function form(Form $form): Form
-    // {
-    //     return $form
-    //         ->schema([
-    //             Wizard::make([
-    //                 Wizard\Step::make('История болезно')
-    //                     ->schema([
-    //                         Section::make('Пациент хакида')->schema([
-    //                                     Select::make('patient_id')
-    //                                         ->label('Пациент')
-    //                                         ->options(Patient::orderBy('id','desc')->get()->pluck('full_name','id'))
-    //                                         ->required()
-    //                                         ->reactive()
-    //                                         ->searchable()
-    //                                         ->columnSpan(12)
-    //                                         ->createOptionForm([
-    //                                             Group::make()
-    //                                                 ->schema([
-    //                                                     TextInput::make('full_name')
-    //                                                         ->label('ФИО')
-    //                                                         ->required()
-    //                                                         ->maxLength(255)
-    //                                                         ->columnSpan(12),
-    //                                                     DatePicker::make('birth_date')
-    //                                                         ->label('День рождения')
-    //                                                         ->columnSpan(12),
-    //                                                     Radio::make('gender')
-    //                                                         ->label('Jinsi:')
-    //                                                         ->options([
-    //                                                             'male' => 'Erkak',
-    //                                                             'female' => 'Ayol',
-    //                                                         ])
-    //                                                         ->inline() // yonma-yon chiqishi uchun
-    //                                                         ->required()
-    //                                                         ->columnSpan(12),
-    //                                                     Textarea::make('address')
-    //                                                             ->label('Адрес')
-    //                                                             ->columnSpan(12),
-    //                                                     TextInput::make('profession')
-    //                                                         ->maxLength(255)
-    //                                                         ->label('Иш жойи,лавозими')
-    //                                                         ->columnSpan(12),
-    //                                                     TextInput::make('phone')
-    //                                                         ->label('Телефон номер')
-    //                                                         ->tel()
-    //                                                         ->maxLength(255)
-    //                                                         ->columnSpan(12),
-    //                                                 ])->columns(12)->columnSpan(12)
-    //                                         ])
-    //                                         ->createOptionUsing(function (array $data) {
-    //                                             return Patient::create($data)->id; // ❗️ID qaytariladi va patient_id ga qo‘yiladi
-    //                                         }),
-    //                                     TextInput::make('height')
-    //                                             ->label('рост')
-    //                                             ->suffix('sm')
-    //                                             ->columnSpan(4),
-    //                                     TextInput::make('weight')
-    //                                             ->label('вес')
-    //                                             ->suffix('kg')
-    //                                             ->columnSpan(4),
-    //                                     TextInput::make('temperature')
-    //                                             ->label('температура')
-    //                                             ->suffix('°C')
-    //                                             ->columnSpan(4),
-    //                                     Textarea::make('type_disability')
-    //                                             ->label('Тип инвалидности')
-    //                                             ->columnSpan(12),
-    //                         ])->columnSpan(6),
-    //                         Section::make('Пациент хакида')->schema([
-    //                                     Placeholder::make('full_name')
-    //                                         ->label('ФИО')
-    //                                         ->content(fn (Get $get) => Patient::find($get('patient_id'))->full_name ?? '-')->columnSpan(12),
-    //                                     Placeholder::make('birth_date')
-    //                                         ->label('День рождения')
-    //                                         ->content(fn (Get $get) => Patient::find($get('patient_id'))->birth_date ?? '-')->columnSpan(12),
-    //                                     Placeholder::make('gender')
-    //                                     ->label('Пол')
-    //                                     ->content(fn (Get $get) => match (Patient::find($get('patient_id'))?->gender) {
-    //                                         'male' => 'Мужчина',
-    //                                         'female' => 'Женщина',
-    //                                         default => '-',
-    //                                     })
-    //                                     ->columnSpan(12),
-    //                                     Placeholder::make('phone')
-    //                                         ->label('Телефон номер')
-    //                                         ->content(fn (Get $get) => Patient::find($get('patient_id'))->phone ?? '-')->columnSpan(12),
-    //                         ])->columnSpan(2),
-    //                         Section::make('Анализи')
-    //                             ->schema([
-    //                                         Repeater::make('labTestHistories')
-    //                                             ->label('')
-    //                                             ->relationship('labTestHistories') // Agar relationship bor bo‘lsa
-    //                                             ->schema([
-    //                                                 Select::make('lab_test_id')
-    //                                                     ->label('Тип анализ')
-    //                                                     ->options(LabTest::all()->pluck('name', 'id'))
-    //                                                     ->searchable()
-    //                                                     ->required()
-    //                                                     ->reactive()
-    //                                                     ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
-    //                                                         $price = LabTest::find($state)?->price ?? 0;
-    //                                                         $set('price', $price);
-    //                                                         $set('total_price', $price);
-                                                            
-    //                                                     })
-    //                                                     ->columnSpan(6),
-    //                                                 TextInput::make('price')
-    //                                                     ->label('Цена')
-    //                                                     ->disabled()
-    //                                                     ->numeric()
-    //                                                     ->columnSpan(6),
-    //                                             ])
-    //                                             ->columns(12)
-    //                                             ->columnSpan(12),
-    //                                             Placeholder::make('total_sum')
-    //                                                 ->label('Общая стоимость (всего)')
-    //                                                 ->content(function (Get $get) {
-    //                                                     $items = $get('labTestHistories') ?? [];
-    //                                                     $total = collect($items)->sum('price');
-    //                                                     return number_format($total, 2, '.', ' ') . ' сум';
-    //                                                 })
-    //                                                 ->columnSpanFull(), 
-    //                             ])->columnSpan(8),
-    //                     ]),
-    //                 Wizard\Step::make('Лечение')
-    //                     ->schema([
-    //                         Section::make('Процедуры')
-    //                             ->schema([
-    //                                         Repeater::make('assignedProcedures')
-    //                                             ->label('')
-    //                                             ->defaultItems(2)
-    //                                             ->relationship() // Agar relationship bor bo‘lsa
-    //                                             ->schema([
-    //                                                 Select::make('procedure_id')
-    //                                                     ->label('Тип процедура')
-    //                                                     ->options(Procedure::all()->pluck('name', 'id'))
-    //                                                     ->searchable()
-    //                                                     ->required()
-    //                                                     ->reactive()
-    //                                                     ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
-    //                                                         $price = Procedure::find($state)?->price_per_day ?? 0;
-    //                                                         $set('price', $price);
-    //                                                         $set('total_price', $price * ($get('sessions') ?? 1));
-                                                            
-    //                                                         static::recalculateTotalSum($get, $set);
-    //                                                     })
-    //                                                     ->columnSpan(4),
-
-    //                                                 TextInput::make('price')
-    //                                                     ->label('Цена')
-    //                                                     ->readOnly()
-    //                                                     ->numeric()
-    //                                                     ->columnSpan(3),
-
-    //                                                 TextInput::make('sessions')
-    //                                                     ->label('Кол сеансов')
-    //                                                     ->numeric()
-    //                                                     ->default(1)
-    //                                                     ->required()
-    //                                                     ->reactive()
-    //                                                     ->afterStateUpdated(function (Get $get, Set $set, $state) {
-    //                                                         $set('total_price', ($get('price') ?? 0) * ($state ?? 1));
-                                                            
-    //                                                         static::recalculateTotalSum($get, $set);
-    //                                                     })
-    //                                                     ->columnSpan(2),
-
-    //                                                 TextInput::make('total_price')
-    //                                                     ->label('Общая стоимость')
-    //                                                     ->disabled()
-    //                                                     ->numeric()
-    //                                                     ->columnSpan(3)
-    //                                                     ->afterStateUpdated(function (Get $get, Set $set) {
-    //                                                         static::recalculateTotalSum($get, $set);
-    //                                                     }),
-    //                                             ])
-    //                                             ->afterStateHydrated(function (Get $get, Set $set, $state) {
-    //                                                 foreach ($state as $index => $item) {
-    //                                                     $price = $item['price'] ?? 0;
-    //                                                     $sessions = $item['sessions'] ?? 1;
-    //                                                     $total = $price * $sessions;
-    //                                                     $set("assignedProcedures.{$index}.total_price", $total);
-    //                                                 }
-    //                                             })
-    //                                             ->columns(12)->columnSpan(12),
-    //                                             Placeholder::make('total_sum')
-    //                                                 ->label('Общая стоимость (всего)')
-    //                                                 ->content(function (Get $get) {
-    //                                                     $items = $get('assignedProcedures') ?? [];
-    //                                                     $total = collect($items)->sum('total_price');
-    //                                                     return number_format($total, 2, '.', ' ') . ' сум';
-    //                                                 })
-    //                                                 ->columnSpanFull(), 
-    //                             ])->columns(12)->columnSpan(12),
-    //                         // Eng oddiy va tushunarli variant
-    //                         Fieldset::make('Койка') 
-    //                             ->relationship('medicalBed') 
-    //                             ->schema([ 
-    //                                 Select::make('tariff_id') 
-    //                                     ->label('Тарифф') 
-    //                                     ->options(function () { 
-    //                                         return Tariff::all()->mapWithKeys(function ($tariff) { 
-    //                                             return [$tariff->id => $tariff->name . ' - ' . number_format($tariff->daily_price, 0) . ' сум']; 
-    //                                         }); 
-    //                                     }) 
-    //                                     ->reactive() 
-    //                                     ->required()
-    //                                     ->columnSpan(4), 
-
-    //                                 Select::make('ward_id') 
-    //                                     ->label('Палата') 
-    //                                     ->options(function (Get $get) { 
-    //                                         $tariffId = $get('tariff_id'); 
-    //                                         if (!$tariffId) return []; 
-                                            
-    //                                         return Ward::where('tariff_id', $tariffId)
-    //                                             ->get()
-    //                                             ->mapWithKeys(function ($ward) {
-    //                                                 // Bo'sh koygalar sonini hisoblash
-                                                        
-    //                                                 return [$ward->id => $ward->name . " ({$ward->availableBedsCount} на пустой койке)"];
-    //                                             });
-    //                                     }) 
-    //                                     ->reactive() 
-    //                                     ->required()
-    //                                     ->visible(fn (Get $get) => filled($get('tariff_id'))) 
-    //                                     ->columnSpan(4), 
-
-    //                                 Select::make('bed_id') 
-    //                                     ->label('На пустой койке') 
-    //                                     ->options(function (Get $get) { 
-    //                                         $wardId = $get('ward_id'); 
-    //                                         if (!$wardId) return []; 
-                                            
-    //                                         return Bed::where('ward_id', $wardId)
-    //                                             ->availableBeds()
-    //                                             ->get()
-    //                                             ->mapWithKeys(function ($bed) {
-    //                                                 return [$bed->id => "Койка #{$bed->number}"];
-    //                                             });
-    //                                     }) 
-    //                                     ->required()
-    //                                     ->visible(fn (Get $get) => filled($get('ward_id'))) 
-    //                                     ->columnSpan(4), 
-    //                             ])->columns(12)->columnSpan(12),
-    //                         Fieldset::make('Питание')
-    //                             ->relationship('medicalMeal')
-    //                             ->schema([
-    //                             Select::make('meal_type_id')
-    //                                 ->label('Питание')
-    //                                 ->options(function () {
-    //                                     return MealType::all()
-    //                                         ->mapWithKeys(function ($meal_type) {
-    //                                             return [$meal_type->id => $meal_type->name . ' - ' . number_format($meal_type->daily_price, 0, '.', ' ') . ' сум/kun'];
-    //                                         });
-    //                                 })
-    //                                 ->reactive()
-    //                                 ->afterStateUpdated(fn (Set $set) => $set('ward_id', null))
-    //                                 ->columnSpan(4),
-    //                             Group::make()
-    //                                     ->schema([
-                                            
-    //                                         Placeholder::make('meal_name')
-    //                                                 ->label('Название')
-    //                                                 ->visible(fn (Get $get) => filled($get('meal_type_id')))
-    //                                                 ->content(fn (Get $get) => MealType::find($get('meal_type_id'))->name ?? '-')->columnSpan(6),
-    //                                         Placeholder::make('meal_daily_price')
-    //                                                 ->label('Цена')
-    //                                                 ->visible(fn (Get $get) => filled($get('meal_type_id')))
-    //                                                 ->content(fn (Get $get) => MealType::find($get('meal_type_id'))->daily_price ?? '-')->columnSpan(6),
-    //                                         Placeholder::make('meal_description')
-    //                                                 ->label('Описание')
-    //                                                 ->visible(fn (Get $get) => filled($get('meal_type_id')))
-    //                                                 ->content(fn (Get $get) => MealType::find($get('meal_type_id'))->description ?? '-')->columnSpan(12),
-    //                                 ])->columns(12)->columnSpan(8),
-    //                             ])->columns(12)->columnSpan(12),
-    //                         Section::make()
-    //                             ->schema([
-    //                                 DatePicker::make('admission_date')
-    //                                     ->label('Дата поступления')
-    //                                     ->default(Carbon::now())
-    //                                     ->columnSpan(6),
-    //                                 DatePicker::make('discharge_date')
-    //                                     ->label('Дата выписки')
-    //                                     ->columnSpan(6),  
-    //                             ])->columns(12)->columnSpan(12),
-    //                     ]),
-                        
-    //                 Wizard\Step::make('Итого расчет')
-    //                     ->schema([
-    //                         Section::make('Детализация стоимости')
-    //                             ->schema([
-    //                                 // Proceduralar uchun hisob
-    //                                 Placeholder::make('procedures_total')
-    //                                     ->label('Стоимость процедур')
-    //                                     ->content(function (Get $get) {
-    //                                         $items = $get('assignedProcedures') ?? [];
-    //                                         $total = collect($items)->sum('total_price');
-    //                                         return number_format($total, 0, '.', ' ') . ' сум';
-    //                                     })
-    //                                     ->columnSpan(6),
-    //                                 Placeholder::make('lab_test_total')
-    //                                     ->label('Стоимость анализ')
-    //                                     ->content(function (Get $get) {
-    //                                         $items = $get('labTestHistories') ?? [];
-    //                                         $total = collect($items)->sum('price');
-    //                                         return number_format($total, 0, '.', ' ') . ' сум';
-    //                                     })
-    //                                     ->columnSpan(6),
-
-    //                                 // Koyka uchun hisob
-    //                                 Placeholder::make('bed_total')
-    //                                     ->label('Стоимость койки')
-    //                                     ->content(function (Get $get) {
-    //                                         $bedId = $get('medicalBed.bed_id');
-    //                                         $admissionDate = $get('admission_date');
-    //                                         $dischargeDate = $get('discharge_date');
-
-    //                                         if (!$bedId || !$admissionDate || !$dischargeDate) {
-    //                                             return '0 сум (не выбрано)';
-    //                                         }
-
-    //                                         $bed = \App\Models\Bed::with('ward.tariff')->find($bedId);
-    //                                         if (!$bed) {
-    //                                             return '0 сум (койка не найдена)';
-    //                                         }
-
-    //                                         $dailyPrice = $bed->ward->tariff->daily_price;
-    //                                         $days = \Carbon\Carbon::parse($admissionDate)->diffInDays(\Carbon\Carbon::parse($dischargeDate));
-    //                                         $total = $dailyPrice * $days;
-
-    //                                         return number_format($total, 0, '.', ' ') . ' сум (' . $days . ' дней × ' . number_format($dailyPrice, 0, '.', ' ') . ')';
-    //                                     })
-    //                                     ->columnSpan(6),
-
-    //                                 // Ovqatlanish uchun hisob
-    //                                 Placeholder::make('meal_total')
-    //                                     ->label('Стоимость питания')
-    //                                     ->content(function (Get $get) {
-    //                                         $mealTypeId = $get('medicalMeal.meal_type_id');
-    //                                         $admissionDate = $get('admission_date');
-    //                                         $dischargeDate = $get('discharge_date');
-
-    //                                         if (!$mealTypeId || !$admissionDate || !$dischargeDate) {
-    //                                             return '0 сум (не выбрано)';
-    //                                         }
-
-    //                                         $mealType = \App\Models\MealType::find($mealTypeId);
-    //                                         if (!$mealType) {
-    //                                             return '0 сум (питание не найдено)';
-    //                                         }
-
-    //                                         $dailyPrice = $mealType->daily_price;
-    //                                         $days = \Carbon\Carbon::parse($admissionDate)->diffInDays(\Carbon\Carbon::parse($dischargeDate));
-    //                                         $total = $dailyPrice * $days;
-
-    //                                         return number_format($total, 0, '.', ' ') . ' сум (' . $days . ' дней × ' . number_format($dailyPrice, 0, '.', ' ') . ')';
-    //                                     })
-    //                                     ->columnSpan(6),
-
-    //                                 // Umumiy summa
-    //                                 Placeholder::make('grand_total')
-    //                                     ->label('ОБЩАЯ СТОИМОСТЬ')
-    //                                     ->content(function (Get $get) {
-    //                                         // Proceduralar
-    //                                         $proceduresItems = $get('assignedProcedures') ?? [];
-    //                                         $proceduresTotal = collect($proceduresItems)->sum('total_price');
-    //                                         //Analizlar
-    //                                         $labTestItems = $get('labTestHistories') ?? [];
-    //                                         $labTestTotal = collect($labTestItems)->sum('price');
-
-    //                                         // Koyka
-    //                                         $bedTotal = 0;
-    //                                         $bedId = $get('medicalBed.bed_id');
-    //                                         $admissionDate = $get('admission_date');
-    //                                         $dischargeDate = $get('discharge_date');
-
-    //                                         if ($bedId && $admissionDate && $dischargeDate) {
-    //                                             $bed = \App\Models\Bed::with('ward.tariff')->find($bedId);
-    //                                             if ($bed) {
-    //                                                 $days = \Carbon\Carbon::parse($admissionDate)->diffInDays(\Carbon\Carbon::parse($dischargeDate));
-    //                                                 $bedTotal = $bed->ward->tariff->daily_price * $days;
-    //                                             }
-    //                                         }
-
-    //                                         // Ovqatlanish
-    //                                         $mealTotal = 0;
-    //                                         $mealTypeId = $get('medicalMeal.meal_type_id');
-
-    //                                         if ($mealTypeId && $admissionDate && $dischargeDate) {
-    //                                             $mealType = \App\Models\MealType::find($mealTypeId);
-    //                                             if ($mealType) {
-    //                                                 $days = \Carbon\Carbon::parse($admissionDate)->diffInDays(\Carbon\Carbon::parse($dischargeDate));
-    //                                                 $mealTotal = $mealType->daily_price * $days;
-    //                                             }
-    //                                         }
-
-    //                                         $grandTotal = $proceduresTotal + $labTestTotal + $bedTotal + $mealTotal;
-
-    //                                         return new \Illuminate\Support\HtmlString("
-    //                                             <div class='bg-blue-50 p-4 rounded-lg border-2 border-blue-200'>
-    //                                                 <div class='text-2xl font-bold text-blue-800'>
-    //                                                     " . number_format($grandTotal, 0, '.', ' ') . " сум
-    //                                                 </div>
-    //                                             </div>
-    //                                         ");
-    //                                     })
-    //                                     ->columnSpan(6),
-    //                             ])
-    //                             ->columns(12)
-    //                             ->columnSpan(12),
-
-    //                         // Batafsil ma'lumotlar
-    //                         Section::make('Подробная информация')
-    //                             ->schema([
-    //                                 Placeholder::make('detailed_info')
-    //                                     ->label('')
-    //                                     ->content(function (Get $get) {
-    //                                         $patient = \App\Models\Patient::find($get('patient_id'));
-    //                                         $html = '<div class="space-y-4">';
-
-    //                                         // Пациент ma'lumotlari
-    //                                         $html .= '<div class="bg-gray-50 p-3 rounded">';
-    //                                         $html .= '<h4 class="font-semibold text-gray-700 mb-2">Информация о пациенте:</h4>';
-    //                                         $html .= '<div>ФИО: ' . ($patient->full_name ?? '-') . '</div>';
-    //                                         $html .= '<div>Дата поступления: ' . ($get('admission_date') ? \Carbon\Carbon::parse($get('admission_date'))->format('d.m.Y') : '-') . '</div>';
-    //                                         $html .= '<div>Дата выписки: ' . ($get('discharge_date') ? \Carbon\Carbon::parse($get('discharge_date'))->format('d.m.Y') : '-') . '</div>';
-                                            
-    //                                         if ($get('admission_date') && $get('discharge_date')) {
-    //                                             $days = \Carbon\Carbon::parse($get('admission_date'))->diffInDays(\Carbon\Carbon::parse($get('discharge_date')));
-    //                                             $html .= '<div class="font-semibold">Общее количество дней: ' . $days . '</div>';
-    //                                         }
-    //                                         $html .= '</div>';
-
-    //                                         // Koyka ma'lumotlari
-    //                                         if ($get('bed_id')) {
-    //                                             $bed = \App\Models\Bed::with('ward.tariff')->find($get('bed_id'));
-    //                                             if ($bed) {
-    //                                                 $html .= '<div class="bg-green-50 p-3 rounded">';
-    //                                                 $html .= '<h4 class="font-semibold text-green-700 mb-2">Информация о койке:</h4>';
-    //                                                 $html .= '<div>Койка: #' . $bed->number . '</div>';
-    //                                                 $html .= '<div>Палата: ' . $bed->ward->name . '</div>';
-    //                                                 $html .= '<div>Тариф: ' . $bed->ward->tariff->name . '</div>';
-    //                                                 $html .= '<div>Цена за день: ' . number_format($bed->ward->tariff->daily_price, 0, '.', ' ') . ' сум</div>';
-    //                                                 $html .= '</div>';
-    //                                             }
-    //                                         }
-
-    //                                         // Ovqatlanish ma'lumotlari
-    //                                         if ($get('meal_type_id')) {
-    //                                             $mealType = \App\Models\MealType::find($get('meal_type_id'));
-    //                                             if ($mealType) {
-    //                                                 $html .= '<div class="bg-yellow-50 p-3 rounded">';
-    //                                                 $html .= '<h4 class="font-semibold text-yellow-700 mb-2">Информация о питании:</h4>';
-    //                                                 $html .= '<div>Тип питания: ' . $mealType->name . '</div>';
-    //                                                 $html .= '<div>Цена за день: ' . number_format($mealType->daily_price, 0, '.', ' ') . ' сум</div>';
-    //                                                 if ($mealType->description) {
-    //                                                     $html .= '<div>Описание: ' . $mealType->description . '</div>';
-    //                                                 }
-    //                                                 $html .= '</div>';
-    //                                             }
-    //                                         }
-
-    //                                         $lab_tests = $get('labTestHistories') ?? [];
-    //                                         if (!empty($lab_tests)) {
-    //                                             $html .= '<div class="bg-blue-50 p-3 rounded">';
-    //                                             $html .= '<h4 class="font-semibold text-blue-700 mb-2">Анализы:</h4>';
-    //                                             foreach ($lab_tests as $index => $lab_test) {
-    //                                                 if (!empty($lab_test['lab_test_id'])) {
-    //                                                     $lab = \App\Models\LabTest::find($lab_test['lab_test_id']);
-    //                                                     if ($lab) {
-    //                                                         $html .= '<div class="mb-2 pl-4 border-l-2 border-blue-300">';
-    //                                                         $html .= '<div class="font-medium">' . $lab->name . '</div>';
-    //                                                         $html .= '<div class="text-sm text-gray-600">';
-    //                                                         $html .= 'Цена: ' . number_format($lab_test['price'] ?? 0, 0, '.', ' ') . ' сум ';
-    //                                                         $html .= '</div>';
-    //                                                         $html .= '</div>';
-    //                                                     }
-    //                                                 }
-    //                                             }
-    //                                             $html .= '</div>';
-    //                                         }
-                                            
-    //                                         // Proceduralar ro'yxati
-    //                                         $procedures = $get('assignedProcedures') ?? [];
-    //                                         if (!empty($procedures)) {
-    //                                             $html .= '<div class="bg-blue-50 p-3 rounded">';
-    //                                             $html .= '<h4 class="font-semibold text-blue-700 mb-2">Назначенные процедуры:</h4>';
-    //                                             foreach ($procedures as $index => $procedure) {
-    //                                                 if (!empty($procedure['procedure_id'])) {
-    //                                                     $proc = \App\Models\Procedure::find($procedure['procedure_id']);
-    //                                                     if ($proc) {
-    //                                                         $html .= '<div class="mb-2 pl-4 border-l-2 border-blue-300">';
-    //                                                         $html .= '<div class="font-medium">' . $proc->name . '</div>';
-    //                                                         $html .= '<div class="text-sm text-gray-600">';
-    //                                                         $html .= 'Цена: ' . number_format($procedure['price'] ?? 0, 0, '.', ' ') . ' сум × ';
-    //                                                         $html .= ($procedure['sessions'] ?? 1) . ' сеансов = ';
-    //                                                         $html .= number_format($procedure['total_price'] ?? 0, 0, '.', ' ') . ' сум';
-    //                                                         $html .= '</div>';
-    //                                                         $html .= '</div>';
-    //                                                     }
-    //                                                 }
-    //                                             }
-    //                                             $html .= '</div>';
-    //                                         }
-
-    //                                         $html .= '</div>';
-
-    //                                         return new \Illuminate\Support\HtmlString($html);
-    //                                     })
-    //                                     ->columnSpanFull(),
-    //                             ])
-    //                             ->columnSpan(12),
-    //                 ])])->columnSpan(2),
-    //         ]);
-    // }
     public static function form(Form $form): Form{
         return $form
             ->schema([
@@ -591,102 +72,321 @@ class MedicalHistoryResource extends Resource
                         Hidden::make('doctor_id')
                             ->default(fn () => auth()->user()->id)
                             ->dehydrated(true),
-                        Textarea::make('diagnosis')
-                            ->label('Диагноз')
-                            ->columnSpan(12),
-                        Textarea::make('complaints')
-                            ->label('Жалобы')
-                            ->columnSpan(12),
-                        FileUpload::make('photo')
-                                ->label('Фото')
-                                ->image()
-                                ->disk('public') 
-                                ->directory('osmotr')
-                                ->imageEditor()
-                                ->imageEditorAspectRatios([
-                                    '16:9',
-                                    '4:3',
-                                    '1:1',
-                                ])
-                                ->columnSpan(12),
-                                Repeater::make('inspectionDetails')
-                                                ->label('')
-                                                ->defaultItems(1)
-                                                ->schema([
-                                                    Select::make('inspection_id')
-                                                        ->label('Тип осмотр')
-                                                        ->options(function (Get $get, $state, $context) {
-                                                            // Foydalanuvchi tanlagan barcha inspection_id larni to'plab olamiz
-                                                            $selectedIds = collect($get('../../inspectionDetails'))
-                                                                ->pluck('inspection_id')
-                                                                ->filter()
-                                                                ->toArray();
+                            
+                        TextInput::make('height')
+                            ->label('рост')
+                            ->required()
+                            ->suffix('sm')
+                            ->columnSpan(4),
+                        TextInput::make('weight')
+                            ->label('вес')
+                            ->suffix('kg')
+                            ->required()
+                            ->columnSpan(4),
+                        TextInput::make('temperature')
+                            ->label('температура')
+                            ->suffix('°C')
+                            ->required()
+                            ->columnSpan(4),
+                        Select::make('disability_types')
+                            ->label('Nogironlik turi')
+                            ->multiple()
+                            ->options([
+                                'no' => "Yo'q",
+                                'physical' => 'Jismoniy',
+                                'visual' => 'Ko‘rish',
+                                'hearing' => 'Eshitish',
+                                'mental' => 'Aqliy',
+                                'speech' => 'Nutq',
+                                'other' => 'Boshqa',
+                            ])
+                            ->required()
+                            ->searchable()
+                            ->columnSpan(4),
+                        Select::make('referred_from')
+                            ->label('Qayerdan yuborilgan?')
+                            ->options([
+                                'clinic' => 'Poliklinika',
+                                'hospital' => 'Shifoxona',
+                                'emergency' => 'Tez yordam',
+                                'self' => 'O‘zi kelgan',
+                                'other' => 'Boshqa',
+                            ])
+                            ->searchable()
+                            ->required()
+                            ->columnSpan(4),
+                        Select::make('transport_type')
+                            ->label('Qanday transportda keldi?')
+                            ->options([
+                                'ambulance' => 'Tez yordam',
+                                'family' => 'Yaqinlari olib kelgan',
+                                'self' => 'O‘zi kelgan',
+                                'taxi' => 'Taksi',
+                                'other' => 'Boshqa',
+                            ])
+                            ->searchable()
+                            ->required()
+                            ->columnSpan(4),
+                        Textarea::make('side_effects')
+                            ->label("Dorilarning nojo'ya ta'siri")
+                            ->rows(4)
+                            ->placeholder("Masalan: Allergik toshmalar, bosh aylanishi...")
+                            ->columnSpan(4),
+                        Radio::make('is_emergency')
+                            ->required()
+                            ->label('Shoshilinch holatda keltirildimi?')
+                            ->options([
+                                '1' => 'ha',
+                                '0'=> "yo'q",
+                            ])
+                            ->columnSpan(4),
+            ])->columns(12)->columnSpan(12),
+            Section::make()
+                        ->schema([
+                            DateTimePicker::make('admission_date')
+                                ->label('Дата поступления')
+                                ->reactive()
+                                ->default(Carbon::now())
+                                ->columnSpan(6),
+                            DatePicker::make('discharge_date')
+                                ->label('Дата выписки')
+                                ->reactive()
+                                ->columnSpan(6),  
+                        ])->columns(12)->columnSpan(12),
+                    Fieldset::make('Койка') 
+                                ->relationship('medicalBed') 
+                                ->schema([ 
+                                    Select::make('tariff_id') 
+                                        ->label('Тарифф') 
+                                        ->options(function () { 
+                                            return Tariff::all()->mapWithKeys(function ($tariff) { 
+                                                return [$tariff->id => $tariff->name . ' - ' . number_format($tariff->daily_price, 0) . ' сум']; 
+                                            }); 
+                                        }) 
+                                        ->reactive() 
+                                        ->required()
+                                        ->columnSpan(4), 
 
-                                                            // Agar bu `Select` allaqachon tanlangan bo‘lsa, uni istisno qilamiz
-                                                            // Aks holda o‘zi ham option ro‘yxatdan yo‘qolib qoladi
-                                                            if ($state) {
-                                                                $selectedIds = array_diff($selectedIds, [$state]);
-                                                            }
+                                    Select::make('ward_id') 
+                                        ->label('Палата') 
+                                        ->options(function (Get $get) { 
+                                            $tariffId = $get('tariff_id'); 
+                                            if (!$tariffId) return []; 
+                                            
+                                            return Ward::where('tariff_id', $tariffId)
+                                                ->get()
+                                                ->mapWithKeys(function ($ward) {
+                                                    // Bo'sh koygalar sonini hisoblash
+                                                        
+                                                    return [$ward->id => $ward->name . " ({$ward->availableBedsCount} на пустой койке)"];
+                                                });
+                                        }) 
+                                        ->reactive() 
+                                        ->required()
+                                        ->visible(fn (Get $get) => filled($get('tariff_id'))) 
+                                        ->columnSpan(4), 
 
-                                                            // Tanlanmagan inspection larni qaytaramiz
-                                                            return Inspection::query()
-                                                                ->whereNotIn('id', $selectedIds)
-                                                                ->pluck('name', 'id');
-                                                        })
-                                                        ->required()
-                                                        ->reactive()
-                                                        ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
-                                                            $price = Inspection::find($state)?->price ?? 0;
-                                                            $set('price', $price);
-                                                            
-                                                            static::recalculateTotalSum($get, $set);
-                                                        })
-                                                        ->columnSpan(4),
+                                    Select::make('bed_id') 
+                                        ->label('На пустой койке') 
+                                        ->options(function (Get $get) { 
+                                            $wardId = $get('ward_id'); 
+                                            if (!$wardId) return []; 
+                                            
+                                            return Bed::where('ward_id', $wardId)
+                                                ->availableBeds()
+                                                ->get()
+                                                ->mapWithKeys(function ($bed) {
+                                                    return [$bed->id => "Койка #{$bed->number}"];
+                                                });
+                                        }) 
+                                        ->reactive() 
+                                        ->required()
+                                        ->visible(fn (Get $get) => filled($get('ward_id'))) 
+                                        ->columnSpan(4), 
+                                ])->columns(12)->columnSpan(12),
+                            Fieldset::make('Питание')
+                                ->relationship('medicalMeal')
+                                ->schema([
+                                Select::make('meal_type_id')
+                                    ->label('Питание')
+                                    ->options(function () {
+                                        return MealType::all()
+                                            ->mapWithKeys(function ($meal_type) {
+                                                return [$meal_type->id => $meal_type->name . ' - ' . number_format($meal_type->daily_price, 0, '.', ' ') . ' сум/kun'];
+                                            });
+                                    })
+                                    ->reactive()
+                                    ->afterStateUpdated(fn (Set $set) => $set('ward_id', null))
+                                    ->columnSpan(4),
+                                Group::make()
+                                        ->schema([
+                                            
+                                            Placeholder::make('meal_name')
+                                                    ->label('Название')
+                                                    ->visible(fn (Get $get) => filled($get('meal_type_id')))
+                                                    ->content(fn (Get $get) => MealType::find($get('meal_type_id'))->name ?? '-')->columnSpan(6),
+                                            Placeholder::make('meal_daily_price')
+                                                    ->label('Цена')
+                                                    ->visible(fn (Get $get) => filled($get('meal_type_id')))
+                                                    ->content(fn (Get $get) => number_format(MealType::find($get('meal_type_id'))->daily_price,0) ?? '-')->columnSpan(6),
+                                            Placeholder::make('meal_description')
+                                                    ->label('Описание')
+                                                    ->visible(fn (Get $get) => filled($get('meal_type_id')))
+                                                    ->content(fn (Get $get) => MealType::find($get('meal_type_id'))->description ?? '-')->columnSpan(12),
+                                    ])->columns(12)->columnSpan(8),
+                                ])->columns(12)->columnSpan(12),
+                                
+                            Section::make('Общая стоимость')
+                                ->schema([
+                                    // Koyka uchun hisob
+                                    Placeholder::make('bed_total')
+                                        ->label('Стоимость койки')
+                                        ->content(function (Get $get) {
+                                            $bedId = $get('medicalBed.bed_id');
+                                            $admissionDate = $get('admission_date');
+                                            $dischargeDate = $get('discharge_date');
 
-                                                    TextInput::make('price')
-                                                        ->label('Цена')
-                                                        ->readOnly()
-                                                        ->numeric()
-                                                        ->columnSpan(3),
+                                            if (!$bedId || !$admissionDate || !$dischargeDate) {
+                                                return '0 сум (не выбрано)';
+                                            }
 
-                                                ])
-                                                ->afterStateHydrated(function (Get $get, Set $set, $state) {
-                                                    foreach ($state as $index => $item) {
-                                                        $price = $item['price'] ?? 0;
-                                                        $total = $price;
-                                                        $set("inspectionDetails.{$index}.total_price", $total);
+                                            $bed = \App\Models\Bed::with('ward.tariff')->find($bedId);
+                                            if (!$bed || !$bed->ward || !$bed->ward->tariff) {
+                                                return '0 сум (койка не найдена)';
+                                            }
+
+                                            $dailyPrice = $bed->ward->tariff->daily_price;
+
+                                            $admission = \Carbon\Carbon::parse($admissionDate);
+                                            $discharge = \Carbon\Carbon::parse($dischargeDate);
+
+                                            $days = $admission->diffInDays($discharge) + 1;
+
+                                            // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
+                                            if ($admission->format('H:i') > '12:00' && $days > 0) {
+                                                $days -= 1;
+                                            }
+
+                                            // Kamida 1 kun hisoblash
+                                            $days = max($days, 1);
+
+                                            $total = $dailyPrice * $days;
+
+                                            return number_format($total, 0, '.', ' ') . ' сум (' . $days . ' дней × ' . number_format($dailyPrice, 0, '.', ' ') . ')';
+                                        })
+                                        ->columnSpan(6),
+
+                                    // Ovqatlanish uchun hisob
+                                    Placeholder::make('meal_total')
+                                        ->label('Стоимость питания')
+                                        ->content(function (Get $get) {
+                                            $mealTypeId = $get('medicalMeal.meal_type_id');
+                                            $admissionDate = $get('admission_date');
+                                            $dischargeDate = $get('discharge_date');
+
+                                            if (!$mealTypeId || !$admissionDate || !$dischargeDate) {
+                                                return '0 сум (не выбрано)';
+                                            }
+
+                                            $mealType = \App\Models\MealType::find($mealTypeId);
+                                            if (!$mealType) {
+                                                return '0 сум (питание не найдено)';
+                                            }
+
+                                            $dailyPrice = $mealType->daily_price;
+                                            
+
+                                            $admission = \Carbon\Carbon::parse($admissionDate);
+                                            $discharge = \Carbon\Carbon::parse($dischargeDate);
+
+                                            $days = $admission->diffInDays($discharge) + 1;
+
+                                            // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
+                                            if ($admission->format('H:i') > '12:00' && $days > 0) {
+                                                $days -= 1;
+                                            }
+                                            // Kamida 1 kun hisoblash
+                                            $days = max($days, 1);
+
+                                            $total = $dailyPrice * $days;
+                                            return number_format($total, 0, '.', ' ') . ' сум (' . $days . ' дней × ' . number_format($dailyPrice, 0, '.', ' ') . ')';
+                                        })
+                                        ->columnSpan(6),
+
+                                    // Umumiy summa
+                                    Placeholder::make('grand_total')
+                                        ->label('ОБЩАЯ СТОИМОСТЬ')
+                                        ->content(function (Get $get) {
+
+                                            // Koyka
+                                            $bedTotal = 0;
+                                            $bedId = $get('medicalBed.bed_id');
+                                            $admissionDate = $get('admission_date');
+                                            $dischargeDate = $get('discharge_date');
+
+                                            if ($bedId && $admissionDate && $dischargeDate) {
+                                                $bed = \App\Models\Bed::with('ward.tariff')->find($bedId);
+                                                if ($bed) {
+                                                    $admission = \Carbon\Carbon::parse($admissionDate);
+                                                    $discharge = \Carbon\Carbon::parse($dischargeDate);
+
+                                                    $days = $admission->diffInDays($discharge) + 1;
+
+                                                    // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
+                                                    if ($admission->format('H:i') > '12:00' && $days > 0) {
+                                                        $days -= 1;
                                                     }
-                                                })
-                                                ->columns(12)->columnSpan(12),
-                                                Placeholder::make('total_sum')
-                                                    ->label('Общая стоимость (всего)')
-                                                    ->content(function (Get $get) {
-                                                        $items = $get('inspectionDetails') ?? [];
-                                                        $total = collect($items)->sum('price');
-                                                        return number_format($total, 2, '.', ' ') . ' сум';
-                                                    })
-                                                    ->columnSpan(12),
-            ])->columns(12)->columnSpan(12)
-        ]);
-    }
-    protected function mutateFormDataBeforeCreate(array $data): array
-    {
-        $this->inspectionDetails = $data['inspectionDetails']; // Repeater
-        unset($data['inspectionDetails']);
+                                                    // Kamida 1 kun hisoblash
+                                                    $days = max($days, 1);
+                                                    $bedTotal = $bed->ward->tariff->daily_price * $days;
+                                                }
+                                            }
 
-        return $data;
+                                            // Ovqatlanish
+                                            $mealTotal = 0;
+                                            $mealTypeId = $get('medicalMeal.meal_type_id');
+
+                                            if ($mealTypeId && $admissionDate && $dischargeDate) {
+                                                $mealType = \App\Models\MealType::find($mealTypeId);
+                                                if ($mealType) {
+                                                    
+                                                    $admission = \Carbon\Carbon::parse($admissionDate);
+                                                    $discharge = \Carbon\Carbon::parse($dischargeDate);
+
+                                                    $days = $admission->diffInDays($discharge) + 1;
+
+                                                    // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
+                                                    if ($admission->format('H:i') > '12:00' && $days > 0) {
+                                                        $days -= 1;
+                                                    }
+                                                    // Kamida 1 kun hisoblash
+                                                    $days = max($days, 1);
+                                                    $mealTotal = $mealType->daily_price * $days;
+                                                }
+                                            }
+
+                                            $grandTotal =$bedTotal + $mealTotal;
+
+                                            return new \Illuminate\Support\HtmlString("
+                                                <div class='bg-blue-50 p-4 rounded-lg border-2 border-blue-200'>
+                                                    <div class='text-2xl font-bold text-blue-800'>
+                                                        " . number_format($grandTotal, 0, '.', ' ') . " сум
+                                                    </div>
+                                                </div>
+                                            ");
+                                        })
+                                        ->columnSpan(6),
+                                ])
+                                ->columns(12)
+                                ->columnSpan(12),
+        ]);
     }
     public static function shouldRegisterNavigation(): bool
     {
         return false;
     }
 
-    protected static function recalculateTotalSum(Get $get, Set $set): void
-    {
-        $items = $get('inspectionDetails') ?? [];
-        $total = collect($items)->sum('price');
-        $set('total_sum', $total);
-    }
+    
     // public static function table(Table $table): Table
     // {
     //     return $table
@@ -819,6 +519,7 @@ class MedicalHistoryResource extends Resource
             'index' => Pages\ListMedicalHistories::route('/'),
             'create' => Pages\CreateMedicalHistory::route('/create'),
             'edit' => Pages\EditMedicalHistory::route('/{record}/edit'),
+            'view' => Pages\viewMedicalHistory::route('/{record}'),
         ];
     }
 }

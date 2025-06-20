@@ -56,7 +56,7 @@ class ViewPatient extends ViewRecord
                                         Components\TextEntry::make('address')
                                             ->label('Адрес')
                                             ->state(function ($record) {
-                                            return $record->region->name .','.$record->district->name.','.$record->address;
+                                            return $record->country->name .' , '.$record->region->name .' , '.$record->district->name.' , '.$record->address;
                                         }),
 
                                     ])
@@ -65,50 +65,90 @@ class ViewPatient extends ViewRecord
                         ]),
                     ])->compact()->columnSpan(12),
                     Tabs::make()
-                        ->tabs([
-                            Tab::make("Осмотр и План лечения")
-                                ->schema([
-                                    Components\Group::make([
-                                        Components\TextEntry::make('full_name')
-                                            ->label(false)
-                                            ->formatStateUsing(function ($record) {
-                                                return view('patient.treatment-plan', [
-                                                    'medicalHistories' => $record->medicalHistories,
-                                                    'patient' => $record,
-                                                ])->render();
-                                            })
-                                            ->html(),
-                                    ]),
-                                ]),
-                            Tab::make('Анализи')
-                                ->schema([
-                                    Components\Group::make([
-                                        Components\TextEntry::make('full_name')
-                                            ->label(false)
-                                            ->formatStateUsing(function ($record) {
-                                                return view('patient.lab-test', [
-                                                    'labTestHistories' => $record->labTestHistories,
-                                                    'patient' => $record,
-                                                ])->render();
-                                            })
-                                            ->html(),
-                                    ]),
-                                ]),
-                            Tab::make('Планы лечения')
-                                ->schema([
-                                    Components\Group::make([
-                                        Components\TextEntry::make('full_name')
-                                            ->label(false)
-                                            ->formatStateUsing(function ($record) {
-                                                return view('patient.procedure', [
-                                                    'assignedProcedures' => $record->assignedProcedures,
-                                                    'patient' => $record,
-                                                ])->render();
-                                            })
-                                            ->html(),
-                                    ]),
-                                ]),
-                        ])->columnSpan(12),
+                        ->tabs(array_filter([
+                            auth()->user()->can('просмотреть истории болезни') ?
+                                Tab::make("История болезно")
+                                    ->schema([
+                                        Components\Group::make([
+                                            Components\TextEntry::make('full_name')
+                                                ->label(false)
+                                                ->formatStateUsing(function ($record) {
+                                                    return view('patient.story-painful', [
+                                                        'medicalHistories' => $record->medicalHistories,
+                                                        'patient' => $record,
+                                                    ])->render();
+                                                })
+                                                ->html()
+                                                ->columnSpanFull() // To'liq ustunni egallash
+                                                ->extraAttributes([
+                                                    'style' => 'width: 100% !important; display: block !important;'
+                                                ])
+                                        ])->columnSpan(12)->columns(12)
+                                    ])->columnSpan(12)->columns(12)
+                                : null,
+                            
+                            auth()->user()->can('просмотр медицинских осмотров') ?
+                                Tab::make("Осмотр")
+                                    ->schema([
+                                        Components\Group::make([
+                                            Components\TextEntry::make('full_name')
+                                                ->label(false)
+                                                ->formatStateUsing(function ($record) {
+                                                    return view('patient.treatment-plan', [
+                                                        'medicalInspections' => $record->medicalInspections,
+                                                        'patient' => $record,
+                                                    ])->render();
+                                                })
+                                                ->html()
+                                                ->columnSpanFull() // To'liq ustunni egallash
+                                                ->extraAttributes([
+                                                    'style' => 'width: 100% !important; display: block !important;'
+                                                ]),
+                                        ])->columnSpan(12)->columns(12),
+                                    ])->columnSpan(12)->columns(12)
+                                :null,
+                                
+                            auth()->user()->can('просмотреть лабораторные тесты') ?
+                                Tab::make('Анализи')
+                                    ->schema([
+                                        Components\Group::make([
+                                            Components\TextEntry::make('full_name')
+                                                ->label(false)
+                                                ->formatStateUsing(function ($record) {
+                                                    return view('patient.lab-test', [
+                                                        'labTestHistories' => $record->labTestHistories,
+                                                        'patient' => $record,
+                                                    ])->render();
+                                                })
+                                                ->html()
+                                                ->columnSpanFull() // To'liq ustunni egallash
+                                                ->extraAttributes([
+                                                    'style' => 'width: 100% !important; display: block !important;'
+                                                ]),
+                                        ])->columnSpan(12)->columns(12),
+                                    ])->columnSpan(12)->columns(12)
+                                :null,
+                            auth()->user()->can('просмотр процедур') ?
+                                Tab::make('Планы лечения')
+                                    ->schema([
+                                        Components\Group::make([
+                                            Components\TextEntry::make('full_name')
+                                                ->label(false)
+                                                ->formatStateUsing(function ($record) {
+                                                    return view('patient.procedure', [
+                                                        'assignedProcedures' => $record->assignedProcedures,
+                                                        'patient' => $record,
+                                                    ])->render();
+                                                })
+                                                ->html()
+                                                ->columnSpanFull() // To'liq ustunni egallash
+                                                ->extraAttributes([
+                                                    'style' => 'width: 100% !important; display: block !important;'
+                                                ]),
+                                        ])->columnSpan(12)->columns(12),
+                                    ])->columnSpan(12)->columns(12)
+                                :null
+                        ]))->columnSpan(12)->columns(12),
 
             ]);
     }

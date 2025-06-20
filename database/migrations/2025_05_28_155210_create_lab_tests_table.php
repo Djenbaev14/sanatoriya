@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name'); // Masalan: “Qon tahlili”, “UZI”
             $table->decimal('price', 10, 2); // Narxi (masalan: 15000.00)
+            $table->decimal('price_foreign', 10, 2); // Narxi (masalan: 15000.00)
             $table->timestamps();
         });
     }

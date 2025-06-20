@@ -22,8 +22,7 @@ return new class extends Migration
             $table->unsignedBigInteger('status_payment_id')->default(1);
             $table->foreign('status_payment_id')->references('id')->on('status_payments');
             
-            $table->date('admission_date')->nullable(); // Qabul qilingan sana
-            $table->date('discharge_date')->nullable(); // Chiqish sanasi
+            $table->softDeletes();
             $table->timestamps();
         });
     }
