@@ -22,7 +22,6 @@ class ActivityLogResource extends Resource
         return Activity::class;
     }
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
     {
@@ -31,6 +30,20 @@ class ActivityLogResource extends Resource
                 //
             ]);
     }
+    
+    public static function getNavigationLabel(): string
+    {
+        return 'Лог'; // Rus tilidagi nom
+    }
+    public static function getModelLabel(): string
+    {
+        return 'Лог'; // Rus tilidagi yakka holdagi nom
+    }
+    public static function getPluralModelLabel(): string
+    {
+        return 'Лог'; // Rus tilidagi ko'plik shakli
+    }
+
 
     public static function table(Table $table): Table
     {
