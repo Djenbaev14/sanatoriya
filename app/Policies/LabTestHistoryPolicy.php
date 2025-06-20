@@ -11,16 +11,16 @@ class LabTestHistoryPolicy
     use HandlesAuthorization;
     public function viewAny(User $user): bool
     {
-        return $user->can('просмотреть любого анализ кассы');
+        return $user->can('просмотреть любого касса анализ');
     }
 
     public function view(User $user, LabTestHistory $labTestHistory): bool
     {
-        return $user->can('просмотреть анализа кассы');
+        return $user->can('просмотреть касса анализ');
     }
 
     public function create(User $user): bool
     {
-        return $user->can('создать анализа кассы');
+        return $user->can('создать касса анализ');
     }
 }
