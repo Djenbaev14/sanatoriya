@@ -10,4 +10,13 @@ class Procedure extends Model
     use HasFactory; 
     
     protected $guarded=['id'];
+
+    protected static function booted()
+{
+    static::creating(function ($procedure) {
+        if (is_null($procedure->price_foreign)) {
+            $procedure->price_foreign = $procedure->price_per_day;
+        }
+    });
+}
 }
