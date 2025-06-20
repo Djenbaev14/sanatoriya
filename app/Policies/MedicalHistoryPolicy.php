@@ -6,7 +6,7 @@ use App\Models\MedicalHistory;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class MedicalHistoryResource
+class MedicalHistoryPolicy
 {
     use HandlesAuthorization;
     public function viewAny(User $user): bool
