@@ -16,12 +16,12 @@ class TariffSeeder extends Seeder
         
         $tariffs=[
             [
-                'name'=>'Стандарт',
-                'daily_price'=>'55000'
+                'name'=>'4-ўринли хона',
+                'daily_price'=>'60000'
             ],
             [
-                'name'=>'Люкс',
-                'daily_price'=>'70000'
+                'name'=>'2-ўринли хона',
+                'daily_price'=>'85000'
             ],
         ];
 
