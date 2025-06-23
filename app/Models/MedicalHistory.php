@@ -28,7 +28,7 @@ class MedicalHistory extends Model
             ->useLogName('medical_history');
     }
     public function BedMealstatusPayment(){
-        return $this->belongsTo(StatusPayment::class,'bed_meal_status_payment_id');
+        return $this->belongsTo(StatusPayment::class,'status_payment_id');
     }
     public function patient(){
         return $this->belongsTo(Patient::class);
@@ -50,12 +50,6 @@ class MedicalHistory extends Model
         return $this->hasOne(\App\Models\MedicalInspection::class, 'medical_history_id');
     }
     
-    public function medicalMeal(){
-        return $this->hasOne(MedicalMeal::class);
-    }
-    public function medicalBed(){
-        return $this->hasOne(MedicalBed::class);
-    }
 
     public function payments(){
         return $this->hasMany(Payment::class);
@@ -77,19 +71,14 @@ class MedicalHistory extends Model
     
     public function calculateDays()
     {
-        
             $admissionDate = \Carbon\Carbon::parse($this->admission_date);
-            $dischargeDate = $this->discharge_date 
-                ? \Carbon\Carbon::parse($this->discharge_date)
-                : \Carbon\Carbon::now();
+            $dischargeDate = \Carbon\Carbon::parse($this->discharge_date);
                 
             $days = $admissionDate->diffInDays($dischargeDate) + 1;
             // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
             if ($admissionDate->format('H:i') > '12:00' && $days > 0) {
                 $days -= 1;
             }
-            
-            $days = max($days, 1);
             
             return $days;
     }

@@ -87,6 +87,27 @@ class ViewPatient extends ViewRecord
                                     ])->columnSpan(12)->columns(12)
                                 : null,
                             
+                            auth()->user()->can('Условия размещения') ?
+                                Tab::make("Условия размещения")
+                                    ->schema([
+                                        Components\Group::make([
+                                            Components\TextEntry::make('full_name')
+                                                ->label(false)
+                                                ->formatStateUsing(function ($record) {
+                                                    return view('patient.accommodation', [
+                                                        'accommodations' => $record->accommodations,
+                                                        'patient' => $record,
+                                                    ])->render();
+                                                })
+                                                ->html()
+                                                ->columnSpanFull() // To'liq ustunni egallash
+                                                ->extraAttributes([
+                                                    'style' => 'width: 100% !important; display: block !important;'
+                                                ]),
+                                        ])->columnSpan(12)->columns(12),
+                                    ])->columnSpan(12)->columns(12)
+                                :null,
+                                
                             auth()->user()->can('просмотр медицинских осмотров') ?
                                 Tab::make("Осмотр")
                                     ->schema([

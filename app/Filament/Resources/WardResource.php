@@ -30,9 +30,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class WardResource extends Resource
 {
     protected static ?string $model = Ward::class;
-
-    protected static ?string $navigationIcon = 'fas-bed';
-
+    protected static ?string $navigationGroup = 'Настройка';
+    protected static ?int $navigationSort = 2;
     public static function form(Form $form): Form
     {
         return $form

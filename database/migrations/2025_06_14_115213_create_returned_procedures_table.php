@@ -13,13 +13,14 @@ return new class extends Migration
     {
         Schema::create('returned_procedures', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('patient_id');
+            $table->foreign('patient_id')->references('id')->on('patients');
             $table->unsignedBigInteger('medical_history_id');
             $table->foreign('medical_history_id')->references('id')->on('medical_histories');
-
-            $table->unsignedBigInteger('procedure_id');
-            $table->foreign('procedure_id')->references('id')->on('procedures');
             
-            $table->integer('sessions');
+            $table->unsignedBigInteger('assigned_procedure_id');
+            $table->foreign('assigned_procedure_id')->references('id')->on('assigned_procedures');
+            
             $table->softDeletes();
             $table->timestamps();
         });

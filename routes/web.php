@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\InspectionController;
 use App\Http\Controllers\PaymentReceiptController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,3 +26,5 @@ Route::get('/payment-receipt/{medicalHistory}', [PaymentReceiptController::class
     
 Route::get('/payment-receipt/{medicalHistory}/view', [PaymentReceiptController::class, 'viewReceipt'])
     ->name('payment.receipt.view');
+
+Route::get('/download-inspection/{id}', [InspectionController::class, 'downloadWord'])->name('download.inspection');

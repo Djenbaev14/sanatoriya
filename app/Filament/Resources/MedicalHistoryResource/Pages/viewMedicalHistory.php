@@ -33,7 +33,7 @@ class ViewMedicalHistory extends ViewRecord
                 ->color('danger')
                 ->requiresConfirmation()
                 ->modalHeading('Удалить запись')
-                ->visible(fn () => $this->record->bed_meal_status_payment_id == 1)
+                ->visible(fn () => $this->record->status_payment_id == 1)
                 ->modalDescription('Вы уверены, что хотите удалить эту запись? Это действие нельзя отменить.')
                 ->modalSubmitActionLabel('Да, удалить'),
                 // ->action(fn () => $this->deleteRecord()),
@@ -50,7 +50,7 @@ class ViewMedicalHistory extends ViewRecord
                 ->color('success')
                 ->requiresConfirmation()
                 ->modalHeading('Отправить в кассу')
-                ->visible(fn () => $this->record->bed_meal_status_payment_id == 1)
+                ->visible(fn () => $this->record->status_payment_id == 1)
                 ->modalDescription('Отправить данные в кассу для оплаты?')
                 ->modalSubmitActionLabel('Да, отправить')
                 ->action(fn () => $this->sendToKassa()),
@@ -65,7 +65,7 @@ class ViewMedicalHistory extends ViewRecord
     {
         // Kassaga yuborish logikasi
         $this->record->update([
-            'bed_meal_status_payment_id' => '2',
+            'status_payment_id' => '2',
         ]);
         
         \Filament\Notifications\Notification::make()

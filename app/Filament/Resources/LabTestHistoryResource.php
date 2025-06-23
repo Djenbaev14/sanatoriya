@@ -51,6 +51,7 @@ class LabTestHistoryResource extends Resource
                                                 ->required()
                                                 ->columnSpan(12),
                                             Select::make('medical_history_id')
+                                                ->required()
                                                 ->label('История болезно')
                                                 ->options(
                                                     \App\Models\MedicalHistory::all()->pluck('created_at', 'id')->mapWithKeys(function ($createdAt, $id) {

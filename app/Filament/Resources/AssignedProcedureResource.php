@@ -64,6 +64,7 @@ class AssignedProcedureResource extends Resource
                             ->required()
                             ->columnSpan(12),
                         Select::make('medical_history_id')
+                            ->required()
                             ->label('История болезно')
                             ->reactive()
                             ->options(
@@ -109,10 +110,10 @@ class AssignedProcedureResource extends Resource
                                                                     return;
                                                                 }
 
-                                                                $isForeign = Patient::find($patientId)?->is_foreign ?? 0;
+                                                                $isForeign = Patient::find($patientId)?->is_foreign;
 
                                                                 $procedure = Procedure::find($state);
-                                                                $price = $isForeign == 1 ? $procedure?->price_foreign : $procedure?->price;
+                                                                $price = $isForeign == 1 ? $procedure->price_foreign : $procedure->price_per_day;
 
                                                                 $set('price', $price ?? 0);
                                                                 $set('total_price', $price * ($get('sessions') ?? 1));
@@ -169,23 +170,6 @@ class AssignedProcedureResource extends Resource
                     ])->columnSpan(12)->columns(12),
             ]);
     }
-    public function saveMedicalBed(array $data, int $medicalHistoryId)
-    {
-        MedicalBed::updateOrCreate(
-            ['medical_history_id' => $medicalHistoryId],
-            [
-                'tariff_id' => $data['tariff_id'] ?? null,
-                'ward_id' => $data['ward_id'] ?? null,
-                'bed_id' => $data['bed_id'] ?? null,
-            ]
-        );
-    }
-    public static function afterCreate(Form $form, AssignedProcedure $record): void
-{
-    $data = $form->getRawState();
-    Log::info($data);
-    self::saveMedicalBed($data, $record->medical_history_id);
-}
 //     public static function afterCreate(Form $form, AssignedProcedure $record): void
 //     {
 //         // medical_history_id orqali MedicalBed mavjud bo‘lsa, yangilaymiz

@@ -14,16 +14,16 @@ class Bed extends Model
     {
         return $this->belongsTo(Ward::class);
     }
-    public function medicalBeds()
+    public function accommodations()
     {
-        return $this->hasMany(MedicalBed::class);
+        return $this->hasMany(Accommodation::class);
     }
     
     
     // Bo'sh koygalarni aniqlash uchun scope
     public function scopeAvailableBeds($query)
     {
-        return $query->whereDoesntHave('medicalBeds', function ($subQuery) {
+        return $query->whereDoesntHave('accommodations', function ($subQuery) {
             $subQuery->whereHas('MedicalHistory', function ($historyQuery) {
                 $historyQuery->where(function ($dateQuery) {
                     // Aktiv (chiqmagan) Пациентlar
@@ -36,7 +36,7 @@ class Bed extends Model
     // Koyga band yoki yo'qligini tekshirish
     public function isAvailable()
     {
-        return !$this->medicalBeds()
+        return !$this->accommodations()
             ->whereHas('assignedProcedure', function ($query) {
                 $query->where(function ($dateQuery) {
                     $dateQuery->whereNull('discharge_date')
@@ -48,7 +48,7 @@ class Bed extends Model
     // Hozirgi Пациентni olish
     public function currentPatient()
     {
-        return $this->medicalBeds()
+        return $this->accommodations()
             ->whereHas('assignedProcedure', function ($query) {
                 $query->where(function ($dateQuery) {
                     $dateQuery->whereNull('discharge_date')

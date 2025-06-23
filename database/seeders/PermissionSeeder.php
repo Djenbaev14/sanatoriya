@@ -67,6 +67,7 @@ class PermissionSeeder extends Seeder
             'просмотр медицинских осмотров',
             'просмотреть лабораторные тесты',
             'просмотр процедур',
+            'Условия размещения',
         ];
 
         foreach ($permissions as $permission) {

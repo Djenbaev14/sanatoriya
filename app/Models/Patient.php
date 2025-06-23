@@ -21,6 +21,9 @@ class Patient extends Model
     public function medicalHistories(){
         return $this->hasMany(MedicalHistory::class);
     }
+    public function accommodations(){
+        return $this->hasMany(Accommodation::class);
+    }
     public function medicalInspections(){
         return $this->hasMany(MedicalInspection::class);
     }

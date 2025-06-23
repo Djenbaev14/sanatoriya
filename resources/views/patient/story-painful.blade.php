@@ -16,11 +16,11 @@
             <thead>
                 <tr style="background-color: #f3f4f6;">
                     <th style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">№</th>
-                    <th style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">Дата поступления</th>
+                    {{-- <th style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">Дата поступления</th>
                     <th style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">Дата выписки</th>
                     <th style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">День</th>
                     <th style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">Койка и питание сумма</th>
-                    <th style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">Статус</th>
+                    <th style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">Статус</th> --}}
                     <th style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">Дата создания</th>
                     <th style="border: 1px solid #d1d5db; padding: 12px;">Действия</th>
                 </tr>
@@ -29,11 +29,11 @@
                 @foreach($medicalHistories as $key => $history)
                 <tr style="border-bottom: 1px solid #929292;">
                     <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $history->id }}</td>
-                    <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $history->admission_date }}</td>
+                    {{-- <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $history->admission_date }}</td>
                     <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $history->discharge_date }}</td>
                     <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $history->calculateDays() }} день</td>
                     <td style="border: 1px solid #d1d5db; padding: 12px;">{{ number_format($history->getBedAndMealCost()) }} сум</td>
-                    <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $history->BedMealstatusPayment->name }}</td>
+                    <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $history->BedMealstatusPayment->name }}</td> --}}
                     <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $history->created_at }}</td>
                     <td style="border: 1px solid #d1d5db; padding: 12px;"><a href="/admin/medical-histories/{{$history->id}}" style="color: #094ecd">Просмотр</a></td>
                 </tr>

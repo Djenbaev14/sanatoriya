@@ -27,7 +27,8 @@
                             <td style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">{{ $procedure->statusPayment->name}}</td>
                             <td style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">{{ number_format($procedure->getTotalCost()) .' сум'}}</td>
                             <td style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">{{ $procedure->created_at}}</td>
-                            <td style="border: 1px solid #d1d5db; padding: 12px; text-align: left;"><a href="/admin/assigned-procedures/{{$procedure->id}}" style="color: #094ecd">Просмотр</a></td>
+                            <td style="border: 1px solid #d1d5db; padding: 12px; text-align: left;"><a href="/admin/assigned-procedures/{{$procedure->id}}" style="color: #094ecd">Просмотр</a>
+                           <a href="/admin/returned-procedures/create?assigned-procedure={{$procedure->id}}" style="color: #dd0c0c;margin-left:15px;">Возврат</a></td>
                         </tr>
                 @endforeach
             </tbody>

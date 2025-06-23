@@ -24,7 +24,7 @@ class LabTestResource extends Resource
 {
     protected static ?string $model = LabTest::class;
     
-    protected static ?string $navigationGroup = 'Услуги';
+    protected static ?string $navigationGroup = 'Настройка';
     protected static ?int $navigationSort = 1;
 
 
@@ -42,7 +42,11 @@ class LabTestResource extends Resource
                     TextInput::make('price')
                         ->label('Цена')
                         ->required()
-                        ->maxLength(255)->columnSpan(12)
+                        ->maxLength(255)->columnSpan(12),
+                    TextInput::make('price_foreign')
+                        ->label('Иностранная цена')
+                        ->required()
+                        ->maxLength(255)->columnSpan(12),
                 ])->columns(12)->columnSpan(12)
             ]);
     }
@@ -53,22 +57,13 @@ class LabTestResource extends Resource
             
             ->headerActions([
                 CreateAction::make()
-                    ->form([
-                        Forms\Components\TextInput::make('name')
-                            ->required()
-                            ->label('Название')
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('price')
-                            ->required()
-                            ->label('Цена за сутки')
-                            ->numeric(),
-                    ])
                     ->slideOver()
                     ->modalWidth(MaxWidth::Medium)
                     ->action(function (array $data) {
                             LabTest::create([
                                 'name' => $data['name'],
                                 'price' => $data['price'],
+                                'price_foreign'=> $data['price_foreign'],
                             ]);
 
                             Notification::make()
@@ -96,6 +91,16 @@ class LabTestResource extends Resource
                         'class' => 'text-gray-500 dark:text-gray-300 text-xs'
                     ])
                     ->columnSpan(3),
+                Tables\Columns\TextColumn::make('price_foreign')
+                    ->label('Иностранная цена')
+                    ->searchable()
+                    ->formatStateUsing(function ($state) {
+                        return number_format($state, 0, '.', ' ') . " сум";  // Masalan, 1000.50 ni 1,000.50 formatida
+                    })
+                    ->extraAttributes([
+                        'class' => 'text-gray-500 dark:text-gray-300 text-xs'
+                    ])
+                    ->columnSpan(3),
             ])
             ->defaultSort('id','desc')
             ->defaultPaginationPageOption(50)
@@ -113,6 +118,7 @@ class LabTestResource extends Resource
                         $record->update([
                             'name' => $data['name'],
                             'price' => $data['price'],
+                                'price_foreign'=> $data['price_foreign'],
                         ]);
 
                         Notification::make()

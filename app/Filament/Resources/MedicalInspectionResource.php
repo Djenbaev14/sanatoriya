@@ -48,7 +48,7 @@ class MedicalInspectionResource extends Resource
             ->schema([
                 Section::make()
                     ->schema([
-                        Hidden::make('doctor_id')
+                        Hidden::make('initial_doctor_id')
                             ->default(fn () => auth()->user()->id)
                             ->dehydrated(true),
                         Select::make('patient_id')
@@ -60,6 +60,7 @@ class MedicalInspectionResource extends Resource
                             ->columnSpan(12),
                         Select::make('medical_history_id')
                             ->label('История болезно')
+                            ->required()
                             ->options(function (Get $get) {
                                 $patientId = $get('patient_id');
 
@@ -74,57 +75,35 @@ class MedicalInspectionResource extends Resource
                             })
                             ->required()
                             ->columnSpan(6),
+                        Select::make('assigned_doctor_id')
+                            ->label('Врач')
+                            ->options(function (Get $get) {
+                                return \App\Models\User::whereHas('roles', function (Builder $query)  {
+                                    $query->where('name', 'Доктор');
+                                })->pluck('name', 'id');
+                            })
+                            ->required()
+                            ->columnSpan(6),
                         Textarea::make('admission_diagnosis')
                             ->label('Диагноз')
-                            ->placeholder('Masalan: O‘ng o‘pkaning pastki bo‘limining pnevmoniyasi')
-                            ->columnSpan(6),
-                        Repeater::make('inspectionDetails')
-                                                ->label('Осмотр')
-                                                ->relationship('inspectionDetails')
-                                                ->defaultItems(0)
-                                                ->schema([
-                                                    Select::make('inspection_id')
-                                                        ->label('Тип осмотр')
-                                                        ->options(function (Get $get, $state, $context) {
-                                                            // Foydalanuvchi tanlagan barcha inspection_id larni to'plab olamiz
-                                                            $selectedIds = collect($get('../../inspectionDetails'))
-                                                                ->pluck('inspection_id')
-                                                                ->filter()
-                                                                ->toArray();
-                                                            if ($state) {
-                                                                $selectedIds = array_diff($selectedIds, [$state]);
-                                                            }
-
-                                                            // Tanlanmagan inspection larni qaytaramiz
-                                                            return Inspection::query()
-                                                                ->whereNotIn('id', $selectedIds)
-                                                                ->pluck('name', 'id');
-                                                        })
-                                                        ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
-                                                            $patientId = $get('../../patient_id'); // yoki `request()->get('patient_id')`
-                                                                if (!$patientId || !$state) {
-                                                                    $set('price', 0);
-                                                                    return;
-                                                                }
-
-                                                                $isForeign = Patient::find($patientId)?->is_foreign ?? 0;
-
-                                                                $inspection = Inspection::find($state);
-                                                                $price = $isForeign == 1 ? $inspection?->price_foreign : $inspection?->price;
-
-                                                                $set('price', $price ?? 0);
-                                                        })
-                                                        ->reactive()
-                                                        ->columnSpan(4),
-
-                                                    TextInput::make('price')
-                                                        ->label('Цена')
-                                                        ->readOnly()
-                                                        ->numeric()
-                                                        ->columnSpan(3),
-
-                                                ])
-                                                ->columns(12)->columnSpan(12),
+                            ->rows(3)
+                            ->columnSpan(12),
+                        Textarea::make('complaints')
+                            ->label('Жалобы')
+                            ->rows(3)
+                            ->columnSpan(12),
+                        Textarea::make('medical_history')
+                            ->label('Анамнез')
+                            ->rows(3)
+                            ->columnSpan(12),
+                        Textarea::make('objectively')
+                            ->label('Объективно')
+                            ->rows(3)
+                            ->columnSpan(12),
+                        Textarea::make('treatment')
+                            ->label('Лечение')
+                            ->rows(3)
+                            ->columnSpan(12),
                     ])->columns(12)->columnSpan(12)
             ]);
     }
@@ -132,12 +111,6 @@ class MedicalInspectionResource extends Resource
     public static function shouldRegisterNavigation(): bool
     {
         return false;
-    }
-    protected static function recalculateTotalSum(Get $get, Set $set): void
-    {
-        $items = $get('inspectionDetails') ?? [];
-        $total = collect($items)->sum('price');
-        $set('total_sum', $total);
     }
     public static function table(Table $table): Table
     {

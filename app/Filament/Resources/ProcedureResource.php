@@ -24,7 +24,7 @@ class ProcedureResource extends Resource
 {
     protected static ?string $model = Procedure::class;
     
-    protected static ?string $navigationGroup = 'Услуги';
+    protected static ?string $navigationGroup = 'Настройка';
     protected static ?int $navigationSort = 2;
 
 
@@ -41,7 +41,11 @@ class ProcedureResource extends Resource
                     TextInput::make('price_per_day')
                         ->label('Цена')
                         ->required()
-                        ->maxLength(255)->columnSpan(12)
+                        ->maxLength(255)->columnSpan(12),
+                    TextInput::make('price_foreign')
+                        ->label('Иностранная цена')
+                        ->required()
+                        ->maxLength(255)->columnSpan(12),
                 ])->columns(12)->columnSpan(12)
             ]);
     }
@@ -52,23 +56,13 @@ class ProcedureResource extends Resource
             
             ->headerActions([
                 CreateAction::make()
-                    ->form([
-                        Forms\Components\TextInput::make('name')
-                            ->required()
-                            ->label('Название')
-                            ->unique(ignoreRecord: true)
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('price_per_day')
-                            ->required()
-                            ->label('Цена за сутки')
-                            ->numeric(),
-                    ])
                     ->slideOver()
                     ->modalWidth(MaxWidth::Medium)
                     ->action(function (array $data) {
                             Procedure::create([
                                 'name' => $data['name'],
                                 'price_per_day' => $data['price_per_day'],
+                                'price_foreign'=> $data['price_foreign'],
                             ]);
 
                             Notification::make()
@@ -95,6 +89,16 @@ class ProcedureResource extends Resource
                         'class' => 'text-gray-500 dark:text-gray-300 text-xs'
                     ])
                     ->columnSpan(3),
+                Tables\Columns\TextColumn::make('price_foreign')
+                    ->label('Иностранная цена')
+                    ->searchable()
+                    ->formatStateUsing(function ($state) {
+                        return number_format($state, 0, '.', ' ') . " сум";  // Masalan, 1000.50 ni 1,000.50 formatida
+                    })
+                    ->extraAttributes([
+                        'class' => 'text-gray-500 dark:text-gray-300 text-xs'
+                    ])
+                    ->columnSpan(3),
             ])
             ->defaultSort('id','desc')
             ->defaultPaginationPageOption(50)
@@ -112,6 +116,7 @@ class ProcedureResource extends Resource
                         $record->update([
                             'name' => $data['name'],
                             'price_per_day' => $data['price_per_day'],
+                                'price_foreign'=> $data['price_foreign'],
                         ]);
 
                         Notification::make()

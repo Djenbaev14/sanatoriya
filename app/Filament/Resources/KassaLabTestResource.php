@@ -131,14 +131,20 @@ class KassaLabTestResource extends Resource
                                 ]),
                         ])
                         ->action(function (array $data, $record) {
-                            // To'lovni saqlash
-                            \App\Models\Payment::create([
+                            try {
+                                $payment = Payment::create([
+                                    'amount' => $data['amount'],
+                                    'payment_type_id' => $data['payment_type_id'],
+                                    'description' => $data['description'],
+                                    'user_id' => Filament::auth()->id(),
+                                    'lab_test_history_id' => $record->id,
                                 'patient_id' => $record->patient_id,
-                                'lab_test_history_id' => $record->id,
-                                'amount' => $data['amount'],
-                                'payment_type_id' => $data['payment_type_id'],
-                                'description' => $data['description'] ?? null,
-                            ]);
+                                ]);
+                                // agar barcha to'lovlar amalga oshirilgan bo'lsa, statusni yangilash
+                                if ($record->getTotalPaidAmount() == $record->getTotalCost()) {
+                                    $record->update(['status_payment_id' => 3]); // 1 - to'langan
+                                }
+                                
 
                             // Muvaffaqiyat xabari
                             Notification::make()
@@ -146,6 +152,20 @@ class KassaLabTestResource extends Resource
                                 ->success()
                                 ->body("Оплата: " . number_format($data['amount'], 2) . " сум")
                                 ->send();
+
+                                // Update the total paid amount in the lab test history
+                                $record->updateTotalPaidAmount();
+
+                                Notification::make()
+                                    ->title('Оплата успешно добавлена')
+                                    ->success()
+                                    ->send();
+                            } catch (\Exception $e) {
+                                Notification::make()
+                                    ->title('Ошибка при добавлении оплаты: ' . $e->getMessage())
+                                    ->danger()
+                                    ->send();
+                            }
                         })
                         ->modalHeading('Оплата')
                         ->modalSubmitActionLabel('Сохранить')

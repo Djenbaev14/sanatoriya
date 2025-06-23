@@ -16,6 +16,23 @@ class ReturnedProcedure extends Model
     protected $guarded=['id'];
     protected static $logName = 'returned_procedure';
     protected static $logOnlyDirty = true;
+    
+    public function patient()
+    {
+        return $this->belongsTo(Patient::class);
+    }
+    public function medicalHistory()
+    {
+        return $this->belongsTo(MedicalHistory::class);
+    }
+    public function assignedProcedure()
+    {
+        return $this->belongsTo(AssignedProcedure::class);
+    }
+    public function returnedProcedureDetails()
+    {
+        return $this->hasMany(ReturnedProcedureDetail::class);
+    }
 
     public function getActivitylogOptions(): LogOptions
     {

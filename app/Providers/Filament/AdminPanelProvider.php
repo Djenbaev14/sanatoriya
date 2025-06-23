@@ -38,12 +38,13 @@ class AdminPanelProvider extends PanelProvider
             ->navigationGroups([
                 NavigationGroup::make()
                     ->label('Касса')
-                    ->icon('fas-wallet'),
+                    ->icon('fas-cash-register'),
                 NavigationGroup::make()
-                    ->label('Услуги')
-                    ->icon('fas-vials'),
+                    ->label('Настройка')
+                    ->icon('fas-gear'),
                 NavigationGroup::make()
-                    ->label('Роли и разрешения'),
+                    ->label('Роли и разрешения')
+                    ->icon('fas-users-cog'),
             ])
             ->plugins([
                 ActivitylogPlugin::make()

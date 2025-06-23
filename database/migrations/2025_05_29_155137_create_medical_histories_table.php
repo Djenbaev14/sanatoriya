@@ -15,14 +15,9 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('patient_id');
             $table->foreign('patient_id')->references('id')->on('patients');
-            $table->unsignedBigInteger('doctor_id');
-            $table->foreign('doctor_id')->references('id')->on('users');
             
-            $table->dateTime('admission_date')->nullable(); // Qabul qilingan sana
-            $table->date('discharge_date')->nullable(); // Chiqish sanasi
-            
-            $table->unsignedBigInteger('bed_meal_status_payment_id')->default(1);
-            $table->foreign('bed_meal_status_payment_id')->references('id')->on('status_payments');
+            $table->unsignedBigInteger('created_id');
+            $table->foreign('created_id')->references('id')->on('users');
             
             $table->string('height')->nullable();
             $table->string('weight')->nullable();

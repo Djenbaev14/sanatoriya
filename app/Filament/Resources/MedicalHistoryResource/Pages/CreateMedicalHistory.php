@@ -15,8 +15,8 @@ class CreateMedicalHistory extends CreateRecord
     protected static string $resource = MedicalHistoryResource::class;
     protected function getRedirectUrl(): string
     {
-        return MedicalHistoryResource::getUrl('view', [
-            'record' => $this->record->id,
+        return PatientResource::getUrl('view', [
+            'record' => $this->record->patient_id,
         ]);
     }
 }

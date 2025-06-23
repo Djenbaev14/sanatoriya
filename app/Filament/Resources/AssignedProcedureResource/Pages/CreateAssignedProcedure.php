@@ -12,8 +12,8 @@ class CreateAssignedProcedure extends CreateRecord
     protected static string $resource = AssignedProcedureResource::class;
     protected function getRedirectUrl(): string
     {
-        return PatientResource::getUrl('view', [
-            'record' => $this->record->patient_id,
+        return AssignedProcedureResource::getUrl('view', [
+            'record' => $this->record->id,
         ]);
     }
 }

@@ -23,12 +23,14 @@ class MedicalInspection extends Model
             ->logAll()
             ->useLogName('medical_inspection');
     }
-    public function inspectionDetails()
-    {
-        return $this->hasMany(\App\Models\InspectionDetail::class, 'medical_inspection_id');
-    }
     public function patient(){
         return $this->belongsTo(Patient::class);
+    }
+    public function initalDoctor(){
+        return $this->belongsTo(User::class,'initial_doctor_id');
+    }  
+    public function assignedDoctor(){
+        return $this->belongsTo(User::class,'assigned_doctor_id');
     }    
     public function payments(){
         return $this->hasMany(Payment::class);
@@ -36,15 +38,10 @@ class MedicalInspection extends Model
     public function statusPayment(){
         return $this->belongsTo(StatusPayment::class);
     }
-    public function medical_history(){
-        return $this->belongsTo(MedicalHistory::class);
+    public function medicalHistory(){
+        return $this->belongsTo(MedicalHistory::class,'medical_history_id');
     }
     
-    public function getTotalCost()
-    {
-        return $this->inspectionDetails()
-            ->sum('price');
-    }
     public function getTotalPaidAmount()
     {
         return $this->payments()->sum('amount');

@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\KassaKoykaResource\Pages;
 use App\Filament\Resources\KassaKoykaResource\RelationManagers;
+use App\Models\Accommodation;
 use App\Models\KassaKoyka;
 use App\Models\MedicalHistory;
 use App\Models\PaymentType;
@@ -25,13 +26,13 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class KassaKoykaResource extends Resource
 {
-    protected static ?string $model = MedicalHistory::class;
+    protected static ?string $model = Accommodation::class;
 
     protected static ?string $navigationGroup = 'Касса';
     protected static ?int $navigationSort = 4;
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::where('bed_meal_status_payment_id',2)->count();
+        return static::getModel()::where('status_payment_id',2)->count();
     }
 
     public static function form(Form $form): Form
@@ -59,7 +60,7 @@ class KassaKoykaResource extends Resource
                     ->color('success')
                     ->badge()
                     ->getStateUsing(function ($record) {
-                        $remaining = $record->getTotalPaidBedAndMealAmount();
+                        $remaining = $record->getTotalPaid();
                         return number_format($remaining, 0, '.', ' ') . ' сум';
                     }),
                 TextColumn::make('total_debt')
@@ -67,7 +68,7 @@ class KassaKoykaResource extends Resource
                     ->color('danger')
                     ->badge()
                     ->getStateUsing(function ($record) {
-                        $remaining = $record->getBedAndMealCost() - $record->getTotalPaidBedAndMealAmount();
+                        $remaining = $record->getBedAndMealCost() - $record->getTotalPaid();
                         return number_format($remaining, 0, '.', thousands_separator: ' ') . ' сум';
                     }),
                 TextColumn::make('created_at')->searchable()->label('Дата')->sortable(),
@@ -89,8 +90,8 @@ class KassaKoykaResource extends Resource
                                         ->suffix('сум')
                                         ->placeholder('0.00')
                                         ->live()
-                                        ->afterStateUpdated(function ($state, $set, $record) {
-                                            $remaining = $record->getBedAndMealCost() - $record->getTotalPaidBedAndMealAmount();
+                                        ->afterStateUpdated(function ($state, $set, $record): void {
+                                            $remaining = $record->getBedAndMealCost() - $record->getTotalPaid();
                                             if ($state > $remaining) {
                                                 $set('amount', $remaining);
                                             }

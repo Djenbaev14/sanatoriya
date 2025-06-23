@@ -7,6 +7,7 @@ use App\Filament\Resources\KassaProcedureResource\RelationManagers;
 use App\Models\AssignedProcedure;
 use App\Models\KassaProcedure;
 use App\Models\PaymentType;
+use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
@@ -157,21 +158,33 @@ class KassaProcedureResource extends Resource
                                 ]),
                         ])
                         ->action(function (array $data, $record) {
-                            // To'lovni saqlash
-                            \App\Models\Payment::create([
-                                'patient_id' => $record->patient_id,
-                                'assigned_procedure_id' => $record->id,
-                                'amount' => $data['amount'],
-                                'payment_type_id' => $data['payment_type_id'],
-                                'description' => $data['description'] ?? null,
-                            ]);
+                            try {
+                                $record->payments()->create([
+                                    'amount' => $data['amount'],
+                                    'payment_type_id' => $data['payment_type_id'],
+                                    'description' => $data['description'],
+                                    'user_id' => Filament::auth()->id(),
+                                    'assigned_procedure_id' => $record->id,
+                                ]);
+                                
+                                // agar barcha to'lovlar amalga oshirilgan bo'lsa, statusni yangilash
+                                $totalCost = $record->getTotalCost();
+                                $totalPaid = $record->getTotalPaidAmount();
+                                if ($totalPaid == $totalCost) {
+                                    $record->update(['status_payment_id' => 3]); // 3 - to'liq to'langan
+                                }
 
-                            // Muvaffaqiyat xabari
-                            Notification::make()
-                                ->title('Выплата успешно добавлена!')
-                                ->success()
-                                ->body("Оплата: " . number_format($data['amount'], 2) . " сум")
-                                ->send();
+                                Notification::make()
+                                    ->title('Оплата успешно добавлена')
+                                    ->success()
+                                    ->send();
+                            } catch (\Exception $e) {
+                                Notification::make()
+                                    ->title('Ошибка при добавлении оплаты')
+                                    ->body($e->getMessage())
+                                    ->danger()
+                                    ->send();
+                            }
                         })
                         ->modalHeading('Оплата')
                         ->modalSubmitActionLabel('Сохранить')
