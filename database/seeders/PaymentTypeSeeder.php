@@ -18,7 +18,7 @@ class PaymentTypeSeeder extends Seeder
                 'name'=>'Нак',
             ],
             [
-                'name'=>'Клик',
+                'name'=>'Терминал',
             ],
         ];
 

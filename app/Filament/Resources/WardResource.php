@@ -49,7 +49,7 @@ class WardResource extends Resource
                             ->required()
                             ->columnSpan(12),
                         Repeater::make('beds')
-                            ->label('Койкы')
+                            ->label('Койка')
                             ->relationship('beds')
                             ->schema([
                                 TextInput::make('number')
@@ -136,15 +136,15 @@ class WardResource extends Resource
     }
     public static function getNavigationLabel(): string
     {
-        return 'Койкы'; // Rus tilidagi nom
+        return 'Койка'; // Rus tilidagi nom
     }
     public static function getModelLabel(): string
     {
-        return 'Койкы'; // Rus tilidagi yakka holdagi nom
+        return 'Койка'; // Rus tilidagi yakka holdagi nom
     }
     public static function getPluralModelLabel(): string
     {
-        return 'Койкы'; // Rus tilidagi ko'plik shakli
+        return 'Койка'; // Rus tilidagi ko'plik shakli
     }
 
     public static function getPages(): array

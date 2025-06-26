@@ -164,7 +164,7 @@ class PatientResource extends Resource
                                 'profession' => $data['profession'],
                                 'phone' => $data['phone'],
                                 'is_accomplice' => $data['is_accomplice'],
-                                'main_patient_id' => $data['main_patient_id'],
+                                'main_patient_id' => array_key_exists('main_patient_id', $data) ? $data['main_patient_id'] : null,
                                 'is_foreign' => $data['is_foreign'],
                             ]);
 
