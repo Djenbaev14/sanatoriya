@@ -26,7 +26,7 @@ class MedicalInspection extends Model
     public function patient(){
         return $this->belongsTo(Patient::class);
     }
-    public function initalDoctor(){
+    public function initialDoctor(){
         return $this->belongsTo(User::class,'initial_doctor_id');
     }  
     public function assignedDoctor(){

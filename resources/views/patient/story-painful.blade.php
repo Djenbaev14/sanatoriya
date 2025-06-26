@@ -28,11 +28,11 @@
             <tbody>
                 @foreach($medicalHistories as $key => $history)
                 <tr style="border-bottom: 1px solid #929292;">
-                    <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $history->id }}</td>
+                    <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $history->number }}</td>
                     {{-- <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $history->admission_date }}</td>
                     <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $history->discharge_date }}</td>
                     <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $history->calculateDays() }} день</td>
-                    <td style="border: 1px solid #d1d5db; padding: 12px;">{{ number_format($history->getBedAndMealCost()) }} сум</td>
+                    <td style="border: 1px solid #d1d5db; padding: 12px;">{{ number_format($history->getTotalCost()) }} сум</td>
                     <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $history->BedMealstatusPayment->name }}</td> --}}
                     <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $history->created_at }}</td>
                     <td style="border: 1px solid #d1d5db; padding: 12px;"><a href="/admin/medical-histories/{{$history->id}}" style="color: #094ecd">Просмотр</a></td>

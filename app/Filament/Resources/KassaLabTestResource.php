@@ -90,7 +90,36 @@ class KassaLabTestResource extends Resource
                     ->color('danger')
                     ->badge()
                     ->getStateUsing(function ($record) {
-                        $remaining = $record->getTotalCost() - $record->getTotalPaidAmount();
+                        $remaining = $record->getTotalCost() - $record->getTotalPaidAndReturned();
+                        return number_format($remaining, 0, '.', thousands_separator: ' ') . ' сум';
+                    }),
+                    
+                TextColumn::make('total_debt')
+                    ->label('Долг')
+                    ->color('danger')
+                    ->badge()
+                    ->getStateUsing(function ($record) {
+                        $remaining = $record->getTotalCost() - $record->getTotalPaidAndReturned();
+                        $remaining = max(0, $remaining); // agar minus bo‘lsa 0 bo‘ladi
+                        return number_format($remaining, 0, '.', thousands_separator: ' ') . ' сум';
+                    }),
+                TextColumn::make('advance_payment')
+                    ->label('Возврат')
+                    ->color('success')
+                    ->badge()
+                    ->getStateUsing(function ($record) {
+                        $remaining = $record->getTotalReturned() ;
+                        $remaining = max(0, $remaining); // agar minus bo‘lsa 0 bo‘ladi
+                        return number_format($remaining, 0, '.', thousands_separator: ' ') . ' сум';
+                    }),
+                    
+                TextColumn::make('returning_balance')
+                    ->label('Остаток к возврату')
+                    ->color('danger')
+                    ->badge()
+                    ->getStateUsing(function ($record) {
+                        $remaining = $record->getTotalPaidAndReturned()  - $record->getTotalCost();
+                        $remaining = max(0, $remaining); // agar minus bo‘lsa 0 bo‘ladi
                         return number_format($remaining, 0, '.', thousands_separator: ' ') . ' сум';
                     }),
                 TextColumn::make('created_at')->searchable()->label('Дата')->sortable(),
@@ -102,6 +131,13 @@ class KassaLabTestResource extends Resource
                         ->icon('heroicon-o-credit-card')
                         ->color('success')
                         ->modalWidth(MaxWidth::TwoExtraLarge)
+                        ->visible(function ($record) {
+                            return $record->getTotalCost() > $record->getTotalPaidAndReturned();
+                        })
+                        ->modalDescription(function ($record) {
+                            $overpaid = $record->getTotalCost() - $record->getTotalPaidAmount();
+                            return 'Сумма: ' . number_format($overpaid, 0, '.', ' ') . ' сум';
+                        })
                         ->form([
                             Section::make('')
                                 ->schema([
@@ -112,8 +148,11 @@ class KassaLabTestResource extends Resource
                                         ->suffix('сум')
                                         ->placeholder('0.00')
                                         ->live()
+                                        ->default(function ($record) {
+                                            return $record->getTotalCost() - $record->getTotalPaidAndReturned();
+                                        })
                                         ->afterStateUpdated(function ($state, $set, $record) {
-                                            $remaining = $record->getTotalCost() - $record->getTotalPaidAmount();
+                                            $remaining = $record->getTotalCost() - $record->getTotalPaidAndReturned();
                                             if ($state > $remaining) {
                                                 $set('amount', $remaining);
                                             }
@@ -138,7 +177,7 @@ class KassaLabTestResource extends Resource
                                     'description' => $data['description'],
                                     'user_id' => Filament::auth()->id(),
                                     'lab_test_history_id' => $record->id,
-                                'patient_id' => $record->patient_id,
+                                    'patient_id' => $record->patient_id,
                                 ]);
                                 // agar barcha to'lovlar amalga oshirilgan bo'lsa, statusni yangilash
                                 if ($record->getTotalPaidAmount() == $record->getTotalCost()) {
@@ -170,26 +209,82 @@ class KassaLabTestResource extends Resource
                         ->modalHeading('Оплата')
                         ->modalSubmitActionLabel('Сохранить')
                         ->modalCancelActionLabel('Отмена'),
-                     Action::make('return_status')
-                        ->label('Вы уверены?')
-                        ->icon('heroicon-o-arrow-uturn-left')
-                        ->color('danger')
-                        ->modalWidth(MaxWidth::TwoExtraLarge)
-                        ->modalDescription('Отправить данные в кассу для оплаты?')
-                        ->modalSubmitActionLabel('Да, отправить')
-                        ->action(function (array $data, $record) {
-                        
-                        // Kassaga yuborish logikasi
-                        $record->update([
-                            'status_payment_id' => '1',
+                Action::make('return_overpayment')
+                    ->label('Возврат')
+                    ->icon('heroicon-o-banknotes')
+                    ->color('danger')
+                    ->visible(function ($record) {
+                        return $record->getTotalPaidAndReturned() > $record->getTotalCost();
+                    })
+                    ->modalHeading('Возврат средств')
+                    ->modalDescription(function ($record) {
+                        $overpaid = $record->getTotalPaidAndReturned() - $record->getTotalCost();
+                        return 'Сумма возврата: ' . number_format($overpaid, 0, '.', ' ') . ' сум';
+                    })
+                    ->form([
+                        Section::make('')
+                            ->schema([
+                                TextInput::make('amount')
+                                    ->label('Сумма возврата')
+                                    ->numeric()
+                                    ->required()
+                                    ->suffix('сум')
+                                    ->default(function ($record) {
+                                        return $record->getTotalPaidAndReturned() - $record->getTotalCost();
+                                    })
+                                    ->maxValue(fn ($record) => $record->getTotalPaidAndReturned() - $record->getTotalCost()),
+                                    
+                                Select::make('payment_type_id')
+                                    ->label('Тип оплаты')
+                                    ->options(PaymentType::all()->pluck('name', 'id'))
+                                    ->required(),
+                                Textarea::make('description')
+                                    ->label('Комментарий')
+                                    ->rows(3),
+                            ])
+                    ])
+                    ->action(function (array $data, $record) {
+                        // Kiritilgan summani "minus" to‘lov sifatida yozamiz
+                        \App\Models\Payment::create([
+                            'patient_id' => $record->patient_id,
+                            'lab_test_history_id' => $record->id,
+                            'amount' => -1 * abs($data['amount']), // minus yoziladi
+                            'payment_type_id' => $data['payment_type_id'],
+                            'description' => $data['description'] ?? 'Возврат средств',
                         ]);
+                        
+                        if ($record->getTotalPaidAndReturned() == $record->getTotalCost()) {
+                                $record->update(['status_payment_id' => 3]); // 1 - to'langan
+                        }
 
                         Notification::make()
-                            ->title('Запись успешно удалена')
+                            ->title('Сумма успешно возвращена!')
                             ->success()
+                            ->body("Возврат: " . number_format($data['amount'], 0, '.', ' ') . " сум")
                             ->send();
+                    })
+                    ->modalSubmitActionLabel('Подтвердить')
+                    ->modalCancelActionLabel('Отмена'),
+                    //  Action::make('return_status')
+                    //     ->label('Вы уверены?')
+                    //     ->icon('heroicon-o-arrow-uturn-left')
+                    //     ->color('danger')
+                    //     ->modalWidth(MaxWidth::TwoExtraLarge)
+                    //     ->modalDescription('Отправить данные в кассу для оплаты?')
+                    //     ->modalSubmitActionLabel('Да, отправить')
+                    //     ->action(function (array $data, $record) {
+                        
+                    //     // Kassaga yuborish logikasi
+                    //     $record->update([
+                    //         'status_payment_id' => '1',
+                    //     ]);
 
-                    }),
+                    //     Notification::make()
+                    //         ->title('Запись успешно удалена')
+                    //         ->success()
+                    //         ->send();
+
+                    // }),
             ])
             ->filters([
                 //

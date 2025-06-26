@@ -11,20 +11,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('medical_beds', function (Blueprint $table) {
+        Schema::create('accommodation_accomplices', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('accommodation_id');
+            $table->foreign('accommodation_id')->references('id')->on('accommodations');
+            $table->unsignedBigInteger('partner_id');
+            $table->foreign('partner_id')->references('id')->on('patients');
             
-            $table->unsignedBigInteger('medical_history_id');
-            $table->foreign('medical_history_id')->references('id')->on('medical_histories');
-
             $table->unsignedBigInteger('ward_id');
             $table->foreign('ward_id')->references('id')->on('wards');
-            
             $table->unsignedBigInteger('bed_id');
             $table->foreign('bed_id')->references('id')->on('beds');
-
             $table->unsignedBigInteger('tariff_id');
             $table->foreign('tariff_id')->references('id')->on('tariffs');
+            
+            $table->unsignedBigInteger('meal_type_id');
+            $table->foreign('meal_type_id')->references('id')->on('meal_types');
+            
+            $table->dateTime('admission_date')->nullable(); // Qabul qilingan sana
+            $table->date('discharge_date')->nullable(); // Chiqish sanasi
             $table->softDeletes();
             $table->timestamps();
         });
@@ -35,6 +40,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('medical_beds');
+        Schema::dropIfExists('accommodation_accomplices');
     }
 };

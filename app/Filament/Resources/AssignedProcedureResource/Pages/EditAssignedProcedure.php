@@ -16,4 +16,20 @@ class EditAssignedProcedure extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+    
+    protected function getRedirectUrl(): string
+    {
+        return AssignedProcedureResource::getUrl('view', [
+            'record' => $this->record->id,
+        ]);
+    }
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        if($this->record->getTotalCost() < $this->record->getTotalPaidAndReturned()) {
+            $data['status_payment_id'] = 1; 
+        }else{
+            $data['status_payment_id'] = 2; 
+        }
+        return $data;
+    }
 }

@@ -157,7 +157,7 @@
         <div>Tel: +998 XX XXX XX XX</div>
         
         <div class="receipt-title">TO'LOV KVITANSIYASI</div>
-        <div class="receipt-number">№ {{ $medicalHistory->id }}/{{ $generatedAt->format('Y') }}</div>
+        <div class="receipt-number">№ {{ $medicalHistory->number }}/{{ $generatedAt->format('Y') }}</div>
         <div>Sana: {{ $generatedAt->format('d.m.Y H:i') }}</div>
     </div>
 

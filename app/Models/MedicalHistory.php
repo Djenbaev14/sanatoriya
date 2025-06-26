@@ -27,8 +27,14 @@ class MedicalHistory extends Model
             ->logAll()
             ->useLogName('medical_history');
     }
+    public function departmentInspection(){
+        return $this->hasOne(DepartmentInspection::class);
+    }
     public function BedMealstatusPayment(){
         return $this->belongsTo(StatusPayment::class,'status_payment_id');
+    }
+    public function createdBy(){
+        return $this->belongsTo(User::class,'created_id');
     }
     public function patient(){
         return $this->belongsTo(Patient::class);
@@ -36,8 +42,8 @@ class MedicalHistory extends Model
     public function doctor(){
         return $this->belongsTo(User::class);
     }
-    public function assignedProcedures(){
-        return $this->hasMany(AssignedProcedure::class);
+    public function assignedProcedure(){
+        return $this->hasOne(AssignedProcedure::class);
     }
     public function returnedProcedures(){
         return $this->hasMany(ReturnedProcedure::class);
@@ -48,6 +54,13 @@ class MedicalHistory extends Model
     public function medicalInspection()
     {
         return $this->hasOne(\App\Models\MedicalInspection::class, 'medical_history_id');
+    }
+    public function accommodation()
+    {
+        return $this->hasOne(\App\Models\Accommodation::class, 'medical_history_id');
+    }
+    public function getMedicalInspectionAttribute(){
+        return $this->medicalInspection()->first();
     }
     
 
@@ -150,12 +163,8 @@ class MedicalHistory extends Model
 
         return $medicalBed->tariff->daily_price * $days;
     }
-    public function getTotalCost()
-    {
-        return $this->calculateTotalCost()['total_cost'];
-    }
     
-    public function getBedAndMealCost()
+    public function getTotalCost()
     {
         return $this->calculateBedCost()+$this->calculateMealCost();
     }

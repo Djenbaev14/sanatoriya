@@ -46,6 +46,7 @@ use Filament\Support\Enums\MaxWidth;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -55,8 +56,7 @@ use Illuminate\Support\HtmlString;
 class MedicalHistoryResource extends Resource
 {
     protected static ?string $model = MedicalHistory::class;
-    protected static ?string $navigationGroup = 'Касса';
-    protected static ?int $navigationSort = 3;
+    protected static ?string $navigationIcon = 'fas-file-medical';
     public static function form(Form $form): Form{
         return $form
             ->schema([
@@ -72,7 +72,11 @@ class MedicalHistoryResource extends Resource
                         Hidden::make('created_id')
                             ->default(fn () => auth()->user()->id)
                             ->dehydrated(true),
-                            
+                        TextInput::make('number')
+                            ->label('Номер')
+                            ->default(fn () =>MedicalHistory::max('number') + 1)
+                            ->required()
+                            ->columnSpan(4),
                         TextInput::make('height')
                             ->label('рост')
                             ->required()
@@ -146,128 +150,73 @@ class MedicalHistoryResource extends Resource
     }
     public static function shouldRegisterNavigation(): bool
     {
-        return false;
+        return true;
     }
 
     
-    // public static function table(Table $table): Table
-    // {
-    //     return $table
-    //         ->columns([
-    //             TextColumn::make('patient.full_name')->label('ФИО')->searchable()->sortable(),
-    //             TextColumn::make('total_paid')
-    //                 ->label('Обшый сумма')
-    //                 ->getStateUsing(function ($record) {
-    //                     return number_format($record->getTotalCost(),0,'.',' ').' сум';
-    //                 }),
-    //             TextColumn::make('created_at')->searchable()->sortable(),
-    //         ])
-    //         ->filters([
-    //             //
-    //         ])
-    //         ->actions([
-    //             Action::make('add_payment')
-    //                     ->label('Оплата')
-    //                     ->icon('heroicon-o-credit-card')
-    //                     ->color('success')
-    //                     ->modalWidth(MaxWidth::TwoExtraLarge)
-    //                     ->form([
-    //                         Section::make('Данные платежа')
-    //                             ->schema([
-    //                                 Grid::make(2)
-    //                                     ->schema([
-    //                                         TextInput::make('total_cost')
-    //                                             ->label('Общие')
-    //                                             ->disabled()
-    //                                             ->default(function ($record) {
-    //                                                 return number_format($record->getTotalCost(), 0, '.', ' ') . ' сум';
-    //                                             }),
-                                                
-    //                                         TextInput::make('total_paid')
-    //                                             ->label('Оплачено')
-    //                                             ->disabled()
-    //                                             ->default(function ($record) {
-    //                                                 return number_format($record->getTotalPaidAmount(), 0, '.', ' ') . ' сум';
-    //                                             }),
-    //                                     ]),
-                                        
-    //                                 TextInput::make('remaining')
-    //                                     ->label('Остаток')
-    //                                     ->disabled()
-    //                                     ->default(function ($record) {
-    //                                         $remaining = $record->getTotalCost() - $record->getTotalPaidAmount();
-    //                                         return number_format($remaining, 0, '.', ' ') . ' сум';
-    //                                     }),
-    //                             ]),
-                                
-    //                         Section::make('')
-    //                             ->schema([
-    //                                 TextInput::make('amount')
-    //                                     ->label('Сумма')
-    //                                     ->numeric()
-    //                                     ->required()
-    //                                     ->minValue(0.01)
-    //                                     ->step(0.01)
-    //                                     ->suffix('сум')
-    //                                     ->placeholder('0.00')
-    //                                     ->live()
-    //                                     ->afterStateUpdated(function ($state, $set, $record) {
-    //                                         $remaining = $record->getTotalCost() - $record->getTotalPaidAmount();
-    //                                         if ($state > $remaining) {
-    //                                             $set('amount', $remaining);
-    //                                         }
-    //                                     }),
-    //                                 Select::make('payment_type_id')
-    //                                     ->label('Тип оплаты')
-    //                                     ->options(PaymentType::all()->pluck('name', 'id'))
-    //                                     ->required(),
-                                        
-    //                                 Textarea::make('description')
-    //                                     ->label('Izoh')
-    //                                     ->placeholder('Коммент')
-    //                                     ->maxLength(255)
-    //                                     ->rows(3),
-    //                             ]),
-    //                     ])
-    //                     ->action(function (array $data, $record) {
-    //                         // To'lovni saqlash
-    //                         \App\Models\Payment::create([
-    //                             'patient_id' => $record->patient_id,
-    //                             'lab_test_history_id' => $record->id,
-    //                             'amount' => $data['amount'],
-    //                             'payment_type_id' => $data['payment_type_id'],
-    //                             'description' => $data['description'] ?? null,
-    //                         ]);
-
-    //                         // Muvaffaqiyat xabari
-    //                         Notification::make()
-    //                             ->title('Выплата успешно добавлена!')
-    //                             ->success()
-    //                             ->body("Оплата: " . number_format($data['amount'], 2) . " сум")
-    //                             ->send();
-    //                     })
-    //                     ->modalHeading('Оплата')
-    //                     ->modalSubmitActionLabel('Сохранить')
-    //                     ->modalCancelActionLabel('Отмена'),
-    //         ])
-    //         ->bulkActions([
-    //             Tables\Actions\BulkActionGroup::make([
-    //                 Tables\Actions\DeleteBulkAction::make(),
-    //             ]),
-    //         ]);
-    // }
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                TextColumn::make('number')->label('Номер')->searchable()->sortable(),
+                TextColumn::make('patient.full_name')->label('ФИО')->searchable()->sortable(),
+                IconColumn::make('medicalInspection')
+                    ->label('Медицинский осмотр')
+                    ->boolean()
+                    ->getStateUsing(fn ($record) => !is_null($record->medicalInspection))
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-check-circle')
+                    ->trueColor('success')
+                    ->falseColor('danger'),
+                IconColumn::make('labTestHistory')
+                    ->label('Анализы')
+                    ->boolean()
+                    ->getStateUsing(fn ($record) => !is_null($record->labTestHistory))
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('danger'),
+                IconColumn::make('accommodation')
+                    ->label('Информация о палате')
+                    ->boolean()
+                    ->getStateUsing(fn ($record) => !is_null($record->accommodation))
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('danger'),
+                IconColumn::make('assignedProcedure')
+                    ->label('Назначенные процедуры')
+                    ->boolean()
+                    ->getStateUsing(fn ($record) => !is_null($record->assignedProcedure))
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('danger'),
+                TextColumn::make('created_at')->label('Дата')->dateTime()->sortable(),
+                // TextColumn::make('accommodation.discharge_date')->label('Дата выписки')->dateTime()->sortable(),,
+            ])
+            ->defaultSort('number', 'desc')
+            ->filters([
+                //
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
 
     public static function getNavigationLabel(): string
     {
-        return 'Истории'; // Rus tilidagi nom
+        return 'Истории болезно'; // Rus tilidagi nom
     }
     public static function getModelLabel(): string
     {
-        return 'Истории'; // Rus tilidagi yakka holdagi nom
+        return 'Истории болезно'; // Rus tilidagi yakka holdagi nom
     }
     public static function getPluralModelLabel(): string
     {
-        return 'Истории'; // Rus tilidagi ko'plik shakli
+        return 'Истории болезно'; // Rus tilidagi ko'plik shakli
     }
     public static function getRelations(): array
     {

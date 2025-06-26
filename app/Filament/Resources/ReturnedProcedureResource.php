@@ -7,6 +7,7 @@ use App\Filament\Resources\ReturnedProcedureResource\RelationManagers;
 use App\Models\AssignedProcedure;
 use App\Models\MedicalHistory;
 use App\Models\Patient;
+use App\Models\Procedure;
 use App\Models\ProcedureDetail;
 use App\Models\ReturnedProcedure;
 use Filament\Forms;
@@ -35,23 +36,26 @@ class ReturnedProcedureResource extends Resource
 {
     return $form
         ->schema([
-            TextInput::make('patient_id')
+            Hidden::make('patient_id')
                 ->default(fn () => AssignedProcedure::find(request()->get('assigned-procedure'))->patient_id)
                 ->dehydrated(true),
-            TextInput::make('medical_history_id')
+            Hidden::make('medical_history_id')
                 ->default(fn () => AssignedProcedure::find(request()->get('assigned-procedure'))->medical_history_id)
                 ->dehydrated(true),
-            Select::make('assigned_procedure_id')
-                ->label('Назначенная процедура')
-                ->default(request()->get('assigned-procedure'))
-                ->options(
-                    \App\Models\AssignedProcedure::all()->pluck('created_at', 'id')->mapWithKeys(function ($createdAt, $id) {
-                        $formattedId = str_pad('№'.$id, 10); // 10 ta belgigacha bo‘sh joy qo‘shiladi
-                            return [$id => $formattedId . \Carbon\Carbon::parse($createdAt)->format('d.m.Y H:i')];
-                        })
-                )
-                ->required()
-                ->reactive(),
+            Hidden::make('assigned_procedure_id')
+                ->default(fn () => request()->get('assigned-procedure'))
+                ->dehydrated(true),
+            // Select::make('assigned_procedure_id')
+            //     ->label('Назначенная процедура')
+            //     ->default(request()->get('assigned-procedure'))
+            //     ->options(
+            //         \App\Models\AssignedProcedure::all()->pluck('created_at', 'number')->mapWithKeys(function ($createdAt, $id,$number) {
+            //             $formattedId = str_pad('№'.$number, 10); // 10 ta belgigacha bo‘sh joy qo‘shiladi
+            //                 return [$id => $formattedId . \Carbon\Carbon::parse($createdAt)->format('d.m.Y H:i')];
+            //             })
+            //     )
+            //     ->required()
+            //     ->reactive(),
 
             // Qaytariladigan protseduralar
             Repeater::make('returnedProcedureDetails')
@@ -68,6 +72,24 @@ class ReturnedProcedureResource extends Resource
                                 ->with('procedure')
                                 ->get()
                                 ->mapWithKeys(fn ($detail) => [$detail->procedure_id => $detail->procedure->name]);
+                        })
+                        ->reactive()
+                        ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
+                            $patientId = $get('../../patient_id'); // yoki `request()->get('patient_id')`
+                                if (!$patientId || !$state) {
+                                    $set('price', 0);
+                                    return;
+                                }
+
+                                $isForeign = Patient::find($patientId)?->is_foreign;
+
+                                $procedure = Procedure::find($state);
+                                $price = $isForeign == 1 ? $procedure->price_foreign : $procedure->price_per_day;
+
+                                $set('price', $price ?? 0);
+                                $set('total_price', $price * ($get('sessions') ?? 1));
+                                
+                                static::recalculateTotalSum($get, $set);
                         })
                         ->columnSpan(4),
 

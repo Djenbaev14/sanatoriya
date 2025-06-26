@@ -17,11 +17,32 @@ use Filament\Actions\Action;
 use Illuminate\Support\HtmlString;
 class ViewAssignedProcedure extends ViewRecord
 {
+    
     protected static string $resource = AssignedProcedureResource::class;
-    protected static string $view = 'filament.pages.view-assigned-procedure';
+    // protected static string $view = 'filament.pages.view-lab-test-history';
+    
+    // public LabTestHistory $record;
+    public $patient;
+    public $labTestDetails;
+    public $totalAmount = 0;
 
-
-    protected function getHeaderActions(): array
+    // public function mount($record): void
+    // {
+    //     $this->record = AssignedProcedureResource::with([
+    //         'patient', 
+    //         'doctor', 
+    //         'labTestDetails.lab_test'
+    //     ])->findOrFail($record);
+        
+    //     $this->patient = $this->record->patient;
+    //     $this->labTestDetails = $this->record->labTestDetails;
+        
+    //     // Umumiy summani hisoblash
+    //     $this->totalAmount = $this->labTestDetails->sum(function ($detail) {
+    //         return $detail->price * $detail->sessions;
+    //     });
+    // }
+    protected function getActions(): array
     {
         return [
             Action::make('delete')
@@ -32,15 +53,15 @@ class ViewAssignedProcedure extends ViewRecord
                 ->modalHeading('Удалить запись')
                 ->modalDescription('Вы уверены, что хотите удалить эту запись? Это действие нельзя отменить.')
                 ->modalSubmitActionLabel('Да, удалить')
-                ->visible(fn () => $this->record->status_payment_id == 1),
-                // ->action(fn () => $this->deleteRecord()),
+                ->visible(fn () => $this->record->status_payment_id == 1)
+                ->action(fn () => $this->deleteRecord()),
 
             Action::make('edit')
                 ->label('Редактировать')
                 ->icon('heroicon-o-pencil')
                 ->color('warning')
                 ->visible(fn () => $this->record->status_payment_id == 1)
-                ->url(fn () => route('filament.admin.resources.lab-test-histories.edit', $this->record)),
+                ->url(fn () => route('filament.admin.resources.assigned-procedures.edit', $this->record)),
 
             Action::make('send_to_kassa')
                 ->label('Отправить кассе')
@@ -52,14 +73,18 @@ class ViewAssignedProcedure extends ViewRecord
                 ->modalSubmitActionLabel('Да, отправить')
                 ->visible(fn () => $this->record->status_payment_id == 1)
                 ->action(fn () => $this->sendToKassa()),
-            Action::make('print')
-                ->label('Печать')
-                ->icon('heroicon-o-printer')
-                ->color('success')
-                ->action(function () {
-                    // Add print functionality here
-                    $this->js('window.print()');
-                }),
+            Action::make('back')
+                ->label('Назад')
+                ->icon('heroicon-o-arrow-uturn-left')
+                ->color('danger')
+                ->url(fn () => route('filament.admin.resources.patients.view', $this->record->patient_id)),
+
+
+            // Action::make('print')
+            //     ->label('Печать')
+            //     ->icon('heroicon-o-printer')
+            //     ->color('info')
+            //     ->action(fn () => $this->printRecord()),
         ];
     }
     public function sendToKassa()
@@ -75,12 +100,15 @@ class ViewAssignedProcedure extends ViewRecord
             ->success()
             ->send();
     }
-
-    public function getViewData(): array
+    public function printRecord()
     {
-        return [
-            'record' => $this->record,
-            'totalAmount' => $this->record->calculateProceduresCost(),
-        ];
+        $this->dispatch('print-page');
+        
+        \Filament\Notifications\Notification::make()
+            ->title('Подготовлено к печати')
+            ->body('Документ готов к печати')
+            ->success()
+            ->send();
     }
+
 }

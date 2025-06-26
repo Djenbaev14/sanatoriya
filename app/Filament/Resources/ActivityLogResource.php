@@ -66,7 +66,9 @@ class ActivityLogResource extends Resource
                     ->html()
                     ->wrap(),
                 TextColumn::make('created_at')->label('Vaqt')->dateTime('d.m.Y H:i'),
-            ]);
+            ])
+            ->defaultSort('created_at', 'desc')
+            ->defaultPaginationPageOption(50);
     }
 
     public static function getPages(): array

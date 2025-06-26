@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->decimal('daily_price', 10, 2); 
+            $table->decimal('partner_daily_price', 10, 2); 
             $table->timestamps();
         });
     }

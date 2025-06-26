@@ -61,17 +61,24 @@ class MedicalInspectionResource extends Resource
                         Select::make('medical_history_id')
                             ->label('История болезно')
                             ->required()
-                            ->options(function (Get $get) {
+                            ->options(function (Get $get, $state) {
                                 $patientId = $get('patient_id');
 
-                                return \App\Models\MedicalHistory::where('patient_id', $patientId)
-                                    // ->doesntHave('medicalInspection') // agar faqat bog‘lanmaganlar kerak bo‘lsa
-                                    ->get()
-                                    ->mapWithKeys(function ($history) {
-                                        $formattedId = str_pad('№'.$history->id, 10);
-                                        $formattedDate = \Carbon\Carbon::parse($history->created_at)->format('d.m.Y H:i');
-                                        return [$history->id => $formattedId . ' - ' . $formattedDate];
-                                    });
+                                if (!$patientId) return [];
+
+                                $query = \App\Models\MedicalHistory::where('patient_id', $patientId)
+                                    ->doesntHave('medicalInspection');
+
+                                // 👇 edit holatida tanlangan qiymat chiqsin
+                                if ($state) {
+                                    $query->orWhere('id', $state); // yoki ->orWhere('id', $state) agar 'id' saqlanayotgan bo‘lsa
+                                }
+
+                                return $query->get()->mapWithKeys(function ($history) {
+                                    $formattedId = str_pad('№' . $history->number, 10);
+                                    $formattedDate = \Carbon\Carbon::parse($history->created_at)->format('d.m.Y H:i');
+                                    return [$history->id => $formattedId . ' - ' . $formattedDate];
+                                });
                             })
                             ->required()
                             ->columnSpan(6),
@@ -84,24 +91,36 @@ class MedicalInspectionResource extends Resource
                             })
                             ->required()
                             ->columnSpan(6),
-                        Textarea::make('admission_diagnosis')
-                            ->label('Диагноз')
-                            ->rows(3)
-                            ->columnSpan(12),
                         Textarea::make('complaints')
                             ->label('Жалобы')
                             ->rows(3)
                             ->columnSpan(12),
                         Textarea::make('medical_history')
-                            ->label('Анамнез')
+                            ->label('ANAMNEZIS  MORBI')
+                            ->rows(3)
+                            ->columnSpan(12),
+                        Textarea::make('history_life')
+                            ->label('ANAMNEZIS  VITAE')
+                            ->rows(3)
+                            ->columnSpan(12),
+                        Textarea::make('epidemiological_history')
+                            ->label('Эпидемиологический анамнез')
                             ->rows(3)
                             ->columnSpan(12),
                         Textarea::make('objectively')
-                            ->label('Объективно')
+                            ->label('STATUS PREZENS OBJECTIVUS')
                             ->rows(3)
                             ->columnSpan(12),
-                        Textarea::make('treatment')
-                            ->label('Лечение')
+                        Textarea::make('local_state')
+                            ->label('STATUS LOCALIS')
+                            ->rows(3)
+                            ->columnSpan(12),
+                        Textarea::make('admission_diagnosis')
+                            ->label('Диагноз')
+                            ->rows(3)
+                            ->columnSpan(12),
+                        Textarea::make('recommended')
+                            ->label('Рекомендовано')
                             ->rows(3)
                             ->columnSpan(12),
                     ])->columns(12)->columnSpan(12)
@@ -244,6 +263,19 @@ class MedicalInspectionResource extends Resource
         ];
     }
 
+    
+    public static function getNavigationLabel(): string
+    {
+        return 'Осмотр'; // Rus tilidagi nom
+    }
+    public static function getModelLabel(): string
+    {
+        return 'Осмотр'; // Rus tilidagi yakka holdagi nom
+    }
+    public static function getPluralModelLabel(): string
+    {
+        return 'Осмотр'; // Rus tilidagi ko'plik shakli
+    }
     public static function getPages(): array
     {
         return [

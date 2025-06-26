@@ -49,7 +49,29 @@ class LabTestHistory extends Model
     }
     public function getTotalPaidAmount()
     {
-        return $this->payments()->sum('amount');
+        return $this->payments()->where('amount', '>', 0)->sum('amount');
+    }
+    public function getTotalReturned()
+    {
+        return abs($this->payments()->where('amount', '<', 0)->sum('amount'));
+    }
+    public function getTotalPaidAndReturned()
+    {
+        return $this->getTotalPaidAmount() - $this->getTotalReturned();
+    }
+    public function getTotalCostAttribute()
+    {
+        return $this->getTotalCost(); // oldingi metoddan foydalandik
+    }
+    
+
+    public function getTotalPaidAmountAttribute()
+    {
+        return $this->getTotalPaidAmount();
+    }
+    public function getTotalDebtAmountAttribute()
+    {
+        return $this->getTotalCost() - $this->getTotalPaidAmount();
     }
 
     protected static function booted()

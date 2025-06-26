@@ -22,4 +22,11 @@ class EditAccommodation extends EditRecord
             'record' => $this->record->id,
         ]);
     }
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        // dd($data);
+        $data['status_payment_id'] = 1;
+
+        return $data;
+    }
 }

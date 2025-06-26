@@ -19,6 +19,9 @@ return new class extends Migration
             $table->foreign('region_id')->references('id')->on('regions');
             $table->unsignedBigInteger('district_id');
             $table->foreign('district_id')->references('id')->on('districts');
+            $table->unsignedBigInteger('main_patient_id')->nullable();
+            $table->foreign('main_patient_id')->references('id')->on('patients');
+            $table->boolean('is_accomplice')->default(false);
             $table->string('full_name');
             $table->date('birth_date');
             $table->enum('gender', ['male', 'female']);

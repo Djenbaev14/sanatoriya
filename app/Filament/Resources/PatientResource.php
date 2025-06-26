@@ -108,6 +108,25 @@ class PatientResource extends Resource
                             ->reactive() 
                             ->required()
                             ->columnSpan(6), 
+                        // is_accomplice uchun 
+                        Radio::make('is_accomplice')
+                            ->label('Партнёр?')
+                            ->options([
+                                0 => 'Нет',
+                                1 => 'Да',
+                            ])
+                            ->inline()
+                            ->live()
+                            ->columnSpan(6),
+                        Select::make('main_patient_id')
+                            ->label('Асосий беморни танланг')
+                            ->options(
+                                \App\Models\Patient::where('is_accomplice', false)->pluck('full_name', 'id')
+                            )
+                            ->searchable()
+                            ->required(fn (Get $get) => $get('is_accomplice') == 1)
+                            ->visible(fn (Get $get) => $get('is_accomplice') == 1)
+                            ->columnSpan(6),
                         Textarea::make('address')
                                 ->label('Адрес')
                                 ->columnSpan(12),
@@ -144,6 +163,8 @@ class PatientResource extends Resource
                                 'address' => $data['address'],
                                 'profession' => $data['profession'],
                                 'phone' => $data['phone'],
+                                'is_accomplice' => $data['is_accomplice'],
+                                'main_patient_id' => $data['main_patient_id'],
                                 'is_foreign' => $data['is_foreign'],
                             ]);
 

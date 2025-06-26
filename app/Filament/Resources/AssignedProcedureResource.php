@@ -67,12 +67,25 @@ class AssignedProcedureResource extends Resource
                             ->required()
                             ->label('История болезно')
                             ->reactive()
-                            ->options(
-                                \App\Models\MedicalHistory::all()->pluck('created_at', 'id')->mapWithKeys(function ($createdAt, $id) {
-                                    $formattedId = str_pad('№'.$id, 10); // 10 ta belgigacha bo‘sh joy qo‘shiladi
-                                        return [$id => $formattedId . \Carbon\Carbon::parse($createdAt)->format('d.m.Y H:i')];
-                                    })
-                            )
+                            ->options(function (Get $get, $state) {
+                                $patientId = $get('patient_id');
+
+                                if (!$patientId) return [];
+
+                                $query = \App\Models\MedicalHistory::where('patient_id', $patientId)
+                                    ->doesntHave('assignedProcedure');
+
+                                // 👇 edit holatida tanlangan qiymat chiqsin
+                                if ($state) {
+                                    $query->orWhere('id', $state); // yoki ->orWhere('id', $state) agar 'id' saqlanayotgan bo‘lsa
+                                }
+
+                                return $query->get()->mapWithKeys(function ($history) {
+                                    $formattedId = str_pad('№' . $history->number, 10);
+                                    $formattedDate = \Carbon\Carbon::parse($history->created_at)->format('d.m.Y H:i');
+                                    return [$history->id => $formattedId . ' - ' . $formattedDate];
+                                });
+                            })
                             ->required()
                             ->columnSpan(4),
                         Repeater::make('procedureDetails')
@@ -291,6 +304,18 @@ class AssignedProcedureResource extends Resource
             ]);
     }
 
+    public static function getNavigationLabel(): string
+    {
+        return 'Процедуры'; // Rus tilidagi nom
+    }
+    public static function getModelLabel(): string
+    {
+        return 'Процедуры'; // Rus tilidagi yakka holdagi nom
+    }
+    public static function getPluralModelLabel(): string
+    {
+        return 'Процедуры'; // Rus tilidagi ko'plik shakli
+    }
     public static function getRelations(): array
     {
         return [

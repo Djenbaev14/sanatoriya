@@ -27,6 +27,9 @@ class Patient extends Model
     public function medicalInspections(){
         return $this->hasMany(MedicalInspection::class);
     }
+    public function departmentInspections(){
+        return $this->hasMany(DepartmentInspection::class);
+    }
     public function assignedProcedures(){
         return $this->hasMany(AssignedProcedure::class);
     }

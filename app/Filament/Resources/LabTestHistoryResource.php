@@ -53,12 +53,25 @@ class LabTestHistoryResource extends Resource
                                             Select::make('medical_history_id')
                                                 ->required()
                                                 ->label('История болезно')
-                                                ->options(
-                                                    \App\Models\MedicalHistory::all()->pluck('created_at', 'id')->mapWithKeys(function ($createdAt, $id) {
-                                                        $formattedId = str_pad('№'.$id, 10); // 10 ta belgigacha bo‘sh joy qo‘shiladi
-                                                            return [$id => $formattedId . \Carbon\Carbon::parse($createdAt)->format('d.m.Y H:i')];
-                                                        })
-                                                )
+                                                ->options(function (Get $get, $state) {
+                                                    $patientId = $get('patient_id');
+
+                                                    if (!$patientId) return [];
+
+                                                    $query = \App\Models\MedicalHistory::where('patient_id', $patientId)
+                                                        ->doesntHave('labTestHistory');
+
+                                                    // 👇 edit holatida tanlangan qiymat chiqsin
+                                                    if ($state) {
+                                                        $query->orWhere('id', $state); // yoki ->orWhere('id', $state) agar 'id' saqlanayotgan bo‘lsa
+                                                    }
+
+                                                    return $query->get()->mapWithKeys(function ($history) {
+                                                        $formattedId = str_pad('№' . $history->number, 10);
+                                                        $formattedDate = \Carbon\Carbon::parse($history->created_at)->format('d.m.Y H:i');
+                                                        return [$history->id => $formattedId . ' - ' . $formattedDate];
+                                                    });
+                                                })
                                                 ->required()
                                                 ->columnSpan(4),
                                                 
@@ -181,14 +194,19 @@ class LabTestHistoryResource extends Resource
         return false;
     }
     
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()
-            ->where('status_payment_id', 2); // faqat status 1 bo'lganlar
-    }
+    // public static function getEloquentQuery(): Builder
+    // {
+    //     return static::getModel()::query()
+    //         ->where('status_payment_id', 2); // faqat status 1 bo'lganlar
+    // }
     public static function table(Table $table): Table
     {
         return $table
+        
+            ->query(
+                LabTestHistory::query()
+                    ->where('status_payment_id', 2)
+            )
             ->columns([
                 TextColumn::make('patient.full_name')->label('ФИО')->searchable()->sortable(),
                 TextColumn::make('total_paid')

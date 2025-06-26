@@ -109,7 +109,7 @@ class ViewPatient extends ViewRecord
                                 :null,
                                 
                             auth()->user()->can('просмотр медицинских осмотров') ?
-                                Tab::make("Осмотр")
+                                Tab::make("Приемный Осмотр")
                                     ->schema([
                                         Components\Group::make([
                                             Components\TextEntry::make('full_name')
@@ -117,6 +117,28 @@ class ViewPatient extends ViewRecord
                                                 ->formatStateUsing(function ($record) {
                                                     return view('patient.treatment-plan', [
                                                         'medicalInspections' => $record->medicalInspections,
+                                                        'patient' => $record,
+                                                    ])->render();
+                                                })
+                                                ->html()
+                                                ->columnSpanFull() // To'liq ustunni egallash
+                                                ->extraAttributes([
+                                                    'style' => 'width: 100% !important; display: block !important;'
+                                                ]),
+                                        ])->columnSpan(12)->columns(12),
+                                    ])->columnSpan(12)->columns(12)
+                                :null,
+                                
+                                
+                            auth()->user()->can('просмотр медицинских осмотров') ?
+                                Tab::make("Отделение Осмотр")
+                                    ->schema([
+                                        Components\Group::make([
+                                            Components\TextEntry::make('full_name')
+                                                ->label(false)
+                                                ->formatStateUsing(function ($record) {
+                                                    return view('patient.department_inspection', [
+                                                        'departmentInspections' => $record->departmentInspections,
                                                         'patient' => $record,
                                                     ])->render();
                                                 })

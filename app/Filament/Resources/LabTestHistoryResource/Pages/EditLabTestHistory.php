@@ -16,4 +16,16 @@ class EditLabTestHistory extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+    protected function getRedirectUrl(): string
+    {
+        return LabTestHistoryResource::getUrl('view', [
+            'record' => $this->record->id,
+        ]);
+    }
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $data['status_payment_id'] = 1;
+
+        return $data;
+    }
 }

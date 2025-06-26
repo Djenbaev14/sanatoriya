@@ -17,11 +17,13 @@ class TariffSeeder extends Seeder
         $tariffs=[
             [
                 'name'=>'4-ўринли хона',
-                'daily_price'=>'60000'
+                'daily_price'=>'60000',
+                'partner_daily_price'=>'30000'
             ],
             [
                 'name'=>'2-ўринли хона',
-                'daily_price'=>'85000'
+                'daily_price'=>'85000',
+                'partner_daily_price'=>'42500'
             ],
         ];
 
@@ -29,6 +31,7 @@ class TariffSeeder extends Seeder
             Tariff::create([
                 'name'=>$tariff['name'],
                 'daily_price'=>$tariff['daily_price'],
+                'partner_daily_price'=>$tariff['partner_daily_price'],
             ]);
         }
     }

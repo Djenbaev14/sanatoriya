@@ -13,8 +13,7 @@
         <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
             <thead>
                 <tr class="bg-gray-100" style="white-space: nowrap">
-                    <th style="border: 1px solid #d1d5db; padding: 12px;">ID</th>
-                    <th style="border: 1px solid #d1d5db; padding: 12px;">Название</th>
+                    <th style="border: 1px solid #d1d5db; padding: 12px;">История болезно</th>
                     <th style="border: 1px solid #d1d5db; padding: 12px;">Доктор</th>
                     <th style="border: 1px solid #d1d5db; padding: 12px;">Статус</th>
                     <th style="border: 1px solid #d1d5db; padding: 12px;">Сумма</th>
@@ -25,13 +24,15 @@
             <tbody>
                 @foreach($labTestHistories as $key => $history)
                         <tr style="border-bottom:1px solid #929292;white-space: nowrap;">
-                            <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $history->id}}</td>
-                            <td style="border: 1px solid #d1d5db; padding: 12px;"></td>
+                    <td style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">{{str_pad('№'.$history->medical_history->number, 10) }}</td>
                             <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $history->doctor->name}}</td>
                             <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $history->statusPayment->name}}</td>
                             <td style="border: 1px solid #d1d5db; padding: 12px;">{{ number_format($history->labTestDetails->sum('price')) .' сум'}}</td>
                             <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $history->created_at}}</td>
-                            <td style="border: 1px solid #d1d5db; padding: 12px;"><a href="/admin/lab-test-histories/{{$history->id}}" style="color: #094ecd">Просмотр</a></td>
+                            <td style="border: 1px solid #d1d5db; padding: 12px;">
+                                <a href="/admin/lab-test-histories/{{$history->id}}" style="color: #094ecd">Просмотр</a>
+                                <a href="/admin/lab-test-histories/{{$history->id}}/edit" style="color: #cd0909;margin-left:10px">Редактировать</a>
+                            </td>
                         </tr>
                 @endforeach
             </tbody>

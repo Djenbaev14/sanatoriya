@@ -23,6 +23,15 @@ class Accommodation extends Model
     public function medicalHistory(){
         return $this->belongsTo(MedicalHistory::class);
     }
+    public function createdBy(){
+        return $this->belongsTo(User::class,'created_id');
+    }
+    // accommodationAccomplice orqali bir nechta Пациентlar bo'lishi mumkin
+    public function accommodationAccomplicy(){
+        return $this->hasMany(AccommodationAccomplice::class);
+    }
+    
+    
     public function tariff(){
         return $this->belongsTo(Tariff::class);
     }
@@ -35,12 +44,15 @@ class Accommodation extends Model
     public function mealType(){
         return $this->belongsTo(MealType::class);
     }
+    public function returnedAccommodation(){
+        return $this->hasOne(ReturnedAccommodation::class);
+    }
     public function calculateDays()
     {
             $admissionDate = \Carbon\Carbon::parse($this->admission_date);
             $dischargeDate = \Carbon\Carbon::parse($this->discharge_date);
                 
-            $days = $admissionDate->diffInDays($dischargeDate) + 1;
+            $days = is_null($dischargeDate) ? 0 : $dischargeDate->diffInDays($admissionDate) + 1;
             // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
             if ($admissionDate->format('H:i') > '12:00' && $days > 0) {
                 $days -= 1;
@@ -50,18 +62,12 @@ class Accommodation extends Model
     }
     public function calculateBedCost()
     {
-        if (!$this->admission_date) {
-            return 0;
-        }
 
         $medicalBed = $this->with('tariff')->first();
 
         if (!$medicalBed || !$medicalBed->tariff) {
             return 0;
         }
-
-            $admissionDate = \Carbon\Carbon::parse($this->admission_date);
-            $dischargeDate = \Carbon\Carbon::parse($this->discharge_date);
                 
 
         return $medicalBed->tariff->daily_price * $this->calculateDays();
@@ -69,27 +75,11 @@ class Accommodation extends Model
     public function calculateMealCost()
     {
         try {
-            if (!$this->admission_date) {
-                return 0;
-            }
-
             $medicalMeal = $this->with('mealType')->first();
             if (!$medicalMeal || !$medicalMeal->mealType) {
                 return 0;
             }
             
-
-
-            $admissionDate = \Carbon\Carbon::parse($this->admission_date);
-            $dischargeDate = \Carbon\Carbon::parse($this->discharge_date);
-                
-            $days = $admissionDate->diffInDays($dischargeDate) + 1;
-            // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
-            if ($admissionDate->format('H:i') > '12:00' && $days > 0) {
-                $days -= 1;
-            }
-            
-            $days = max($days, 1);
 
             $totalCost = $medicalMeal->mealType->daily_price * $this->calculateDays();
             
@@ -100,12 +90,21 @@ class Accommodation extends Model
             return 0;
         }
     }
-    public function getBedAndMealCost()
+    public function getTotalCost()
     {
         return $this->calculateBedCost()+$this->calculateMealCost();
     }
     public function getTotalPaid()
     {
-        return $this->payments()->sum('amount');
+        return $this->payments()->where('amount', '>', 0)->sum('amount');
+    }
+    public function getTotalReturned()
+    {
+        return abs($this->payments()->where('amount', '<', 0)->sum('amount'));
+    }
+    // getTotalPaid bilan getTotalReturned ni ayirsa umumiy to'langan summani beradi
+    public function getTotalPaidAndReturned()
+    {
+        return $this->getTotalPaid() - $this->getTotalReturned();
     }
 }

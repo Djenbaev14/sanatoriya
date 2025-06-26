@@ -13,7 +13,7 @@
         <table style="width: 100%; border-collapse: collapse; table-layout: fixed;" >
             <thead>
                 <tr class="bg-gray-100" style="white-space: nowrap">
-                    <th style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">ID</th>
+                    <th style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">История болезно</th>
                     <th style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">Статус</th>
                     <th style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">Сумма</th>
                     <th style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">Дата создания</th>
@@ -23,12 +23,15 @@
             <tbody>
                 @foreach($assignedProcedures as $key => $procedure)
                         <tr style="border-bottom:1px solid #929292;white-space: nowrap;">
-                            <td style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">{{ $procedure->id}}</td>
+                    <td style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">{{str_pad('№'.$procedure->medicalHistory->number, 10) }}</td>
                             <td style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">{{ $procedure->statusPayment->name}}</td>
                             <td style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">{{ number_format($procedure->getTotalCost()) .' сум'}}</td>
                             <td style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">{{ $procedure->created_at}}</td>
-                            <td style="border: 1px solid #d1d5db; padding: 12px; text-align: left;"><a href="/admin/assigned-procedures/{{$procedure->id}}" style="color: #094ecd">Просмотр</a>
-                           <a href="/admin/returned-procedures/create?assigned-procedure={{$procedure->id}}" style="color: #dd0c0c;margin-left:15px;">Возврат</a></td>
+                            <td style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">
+                                <a href="/admin/assigned-procedures/{{$procedure->id}}" style="color: #094ecd">Просмотр</a>
+                                <a href="/admin/assigned-procedures/{{$procedure->id}}/edit" style="color: #cd0909;margin-left:10px">Редактировать</a>
+                                {{-- <a href="/admin/returned-procedures/create?assigned-procedure={{$procedure->id}}" style="color: #dd0c0c;margin-left:15px;">Возврат</a> --}}
+                            </td>
                         </tr>
                 @endforeach
             </tbody>

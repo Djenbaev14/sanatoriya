@@ -358,7 +358,7 @@
                 <h3 class="section-header">План</h3>
                 <div class="info-item">
                     <span class="info-label">Номер:</span>
-                    <span class="info-value plan-number">{{ str_pad($medicalHistory->id, 5, '0', STR_PAD_LEFT) }}</span>
+                    <span class="info-value plan-number">{{ str_pad($medicalHistory->number, 5, '0', STR_PAD_LEFT) }}</span>
                 </div>
                 <div class="info-item">
                     <span class="info-label">Дата создания:</span>
