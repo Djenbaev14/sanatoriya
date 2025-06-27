@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\AccommodationResource\Pages;
 
 use App\Filament\Resources\AccommodationResource;
+use App\Models\Accommodation;
 use Carbon\Carbon;
 use Filament\Actions;
 use Filament\Infolists\Components\Section;
@@ -75,7 +76,9 @@ class ViewAccommodation extends ViewRecord
         $this->record->update([
             'status_payment_id' => '2',
         ]);
-        
+        // agar chu record id ga teng main_accommodation_id bo'lsa, status_payment_id ni 2 ga o'zgartirish
+        Accommodation::where('main_accommodation_id', $this->record->id)
+            ->update(['status_payment_id' => '2']);        
         \Filament\Notifications\Notification::make()
             ->title('Отправлено в кассу')
             ->body('Данные успешно отправлены в кассу')

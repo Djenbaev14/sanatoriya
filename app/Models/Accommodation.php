@@ -27,8 +27,8 @@ class Accommodation extends Model
         return $this->belongsTo(User::class,'created_id');
     }
     // accommodationAccomplice orqali bir nechta Пациентlar bo'lishi mumkin
-    public function accommodationAccomplicy(){
-        return $this->hasMany(AccommodationAccomplice::class);
+    public function partner(){
+        return $this->hasOne(Accommodation::class,'main_accommodation_id');
     }
     
     
@@ -60,39 +60,40 @@ class Accommodation extends Model
             
             return $days;
     }
+    public function calculatePartnerDays()
+    {
+            $admissionDate = \Carbon\Carbon::parse($this->partner->admission_date);
+            $dischargeDate = \Carbon\Carbon::parse($this->partner->discharge_date);
+                
+            $days = is_null($dischargeDate) ? 0 : $dischargeDate->diffInDays($admissionDate) + 1;
+            // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
+            if ($admissionDate->format('H:i') > '12:00' && $days > 0) {
+                $days -= 1;
+            }
+            
+            return $days;
+    }
     public function calculateBedCost()
     {
-
-        $medicalBed = $this->with('tariff')->first();
-
-        if (!$medicalBed || !$medicalBed->tariff) {
-            return 0;
-        }
-                
-
-        return $medicalBed->tariff->daily_price * $this->calculateDays();
+        return $this->tariff_price * $this->calculateDays();
     }
     public function calculateMealCost()
     {
-        try {
-            $medicalMeal = $this->with('mealType')->first();
-            if (!$medicalMeal || !$medicalMeal->mealType) {
-                return 0;
-            }
-            
-
-            $totalCost = $medicalMeal->mealType->daily_price * $this->calculateDays();
-            
-            return $totalCost;
-            
-        } catch (\Exception $e) {
-            \Log::error('calculateMealCost error: ' . $e->getMessage());
-            return 0;
-        }
+        return $this->meal_price * $this->calculateDays();
     }
+    public function calculatePartnerBedCost()
+    {
+        return $this->partner->tariff_price * $this->calculatePartnerDays();
+    }
+    public function calculatePartnerMealCost()
+    {
+        return $this->partner->meal_price * $this->calculatePartnerDays();
+    }
+    
     public function getTotalCost()
     {
-        return $this->calculateBedCost()+$this->calculateMealCost();
+        return $this->calculateBedCost()+$this->calculateMealCost() +
+            $this->calculatePartnerBedCost()+$this->calculatePartnerMealCost();
     }
     public function getTotalPaid()
     {

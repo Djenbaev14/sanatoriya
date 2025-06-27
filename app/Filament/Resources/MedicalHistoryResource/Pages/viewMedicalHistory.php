@@ -45,21 +45,21 @@ class ViewMedicalHistory extends ViewRecord
                                             ->icon('heroicon-o-identification')
                                             ->schema([
                                                 TextEntry::make('patient.full_name')
-                                                    ->label('FIO')
+                                                    ->label('ФИО')
                                                     ->weight(FontWeight::Bold),
                                                     
                                                 TextEntry::make('patient.birth_date')
-                                                    ->label('Tug\'ilgan sana')
+                                                    ->label('Дата рождения')
                                                     ->date('d.m.Y')
-                                                    ->placeholder('Kiritilmagan'),
+                                                    ->placeholder('Не добавлено'),
                                                     
                                                 TextEntry::make('patient.phone')
-                                                    ->label('Telefon')
-                                                    ->placeholder('Kiritilmagan'),
+                                                    ->label('Телефон')
+                                                    ->placeholder('Не добавлено'),
                                                     
                                                 TextEntry::make('patient.address')
-                                                    ->label('Manzil')
-                                                    ->placeholder('Kiritilmagan'),
+                                                    ->label('Адрес')
+                                                    ->placeholder('Не добавлено'),
                                             ])
                                             ->columnSpan(1),
                                             
@@ -67,32 +67,32 @@ class ViewMedicalHistory extends ViewRecord
                                             ->icon('heroicon-o-heart')
                                             ->schema([
                                                 TextEntry::make('height')
-                                                    ->label('Bo\'yi (sm)')
+                                                    ->label('Рост (см)')
                                                     ->suffix(' sm')
-                                                    ->placeholder('O\'lchanmagan'),
+                                                    ->placeholder('Неизмеренный'),
                                                 TextEntry::make('weight')
-                                                    ->label('Vazni (kg)')
+                                                    ->label('Вес (кг)')
                                                     ->suffix(' kg')
-                                                    ->placeholder('O\'lchanmagan'),
+                                                    ->placeholder('Неизмеренный'),
                                                     
                                                 TextEntry::make('temperature')
-                                                    ->label('Harorat (°C)')
+                                                    ->label('Температура')
                                                     ->suffix(' °C')
-                                                    ->placeholder('O\'lchanmagan'),
+                                                    ->placeholder('Неизмеренный'),
                                                     
                                                 TextEntry::make('disability_types')
-                                                    ->label('Nogironlik turlari')
+                                                    ->label('Виды инвалидности')
                                                     ->formatStateUsing(function ($state) {
                                                         if (empty($state)) {
-                                                            return 'Yo\'q';
+                                                            return 'Нет';
                                                         }
                                                         return is_array($state) ? implode(', ', $state) : $state;
                                                     })
-                                                    ->placeholder('Yo\'q'),
+                                                    ->placeholder('Нет'),
                                                     
                                                 TextEntry::make('side_effects')
-                                                    ->label('Yon ta\'sirlar')
-                                                    ->placeholder('Yo\'q')
+                                                    ->label('Побочные эффекты')
+                                                    ->placeholder('Нет')
                                                     ->columnSpanFull(),
                                             ])
                                             ->columnSpan(1),
@@ -104,13 +104,13 @@ class ViewMedicalHistory extends ViewRecord
                                             ->icon('heroicon-o-information-circle')
                                             ->schema([
                                                 TextEntry::make('is_emergency')
-                                                    ->label('Shoshilinch holat')
-                                                    ->formatStateUsing(fn($state) => $state ? 'Ha' : 'Yo\'q')
+                                                    ->label('Экстренное положение')
+                                                    ->formatStateUsing(fn($state) => $state ? 'Да' : 'Нет')
                                                     ->color(fn($state) => $state ? Color::Red : Color::Green)
                                                     ->weight(FontWeight::Bold),
                                                     
                                                 TextEntry::make('transport_type')
-                                                    ->label('Transport turi')
+                                                    ->label('Тип транспорта')
                                                     ->formatStateUsing(function ($state) {
                                                         return match($state) {
                                                             'ambulance' => 'Tez yordam',
@@ -118,13 +118,13 @@ class ViewMedicalHistory extends ViewRecord
                                                             'self' => 'O\'zi',
                                                             'taxi' => 'Taksi',
                                                             'other' => 'Boshqa',
-                                                            default => 'Kiritilmagan'
+                                                            default => 'Не добавлено'
                                                         };
                                                     })
-                                                    ->placeholder('Kiritilmagan'),
+                                                    ->placeholder('Не добавлено'),
                                                     
                                                 TextEntry::make('referred_from')
-                                                    ->label('Qayerdan yuborilgan')
+                                                    ->label('Откуда отправлено')
                                                     ->formatStateUsing(function ($state) {
                                                         return match($state) {
                                                             'clinic' => 'Poliklinika',
@@ -132,10 +132,10 @@ class ViewMedicalHistory extends ViewRecord
                                                             'emergency' => 'Tez yordam',
                                                             'self' => 'O\'zi murojaat',
                                                             'other' => 'Boshqa',
-                                                            default => 'Kiritilmagan'
+                                                            default => 'Не добавлено'
                                                         };
                                                     })
-                                                    ->placeholder('Kiritilmagan'),
+                                                    ->placeholder('Не добавлено'),
                                             ])
                                             ->columnSpan(2),
                                             
@@ -155,15 +155,15 @@ class ViewMedicalHistory extends ViewRecord
                                         Grid::make(3)
                                             ->schema([
                                                 TextEntry::make('createdBy.name')
-                                                    ->label('Yaratgan foydalanuvchi')
-                                                    ->placeholder('Noma\'lum'),
+                                                    ->label('Создатель')
+                                                    ->placeholder('Неизвестный'),
                                                     
                                                 TextEntry::make('created_at')
-                                                    ->label('Yaratilgan sana')
+                                                    ->label('Дата создания')
                                                     ->dateTime('d.m.Y H:i'),
                                                     
                                                 TextEntry::make('updated_at')
-                                                    ->label('O\'zgartirilgan sana')
+                                                    ->label('Дата изменения')
                                                     ->dateTime('d.m.Y H:i'),
                                             ])
                                     ])
@@ -176,9 +176,9 @@ class ViewMedicalHistory extends ViewRecord
                             ->icon('heroicon-o-clipboard-document-check')
                             ->schema([
                                 Section::make('')
-                                    ->label('Tibbiy ko\'riklar')
+                                    ->label('Медицинские осмотры')
                                     ->schema([
-                                                Grid::make(3)
+                                                Grid::make(2)
                                                     ->schema([
                                                     TextEntry::make('medicalInspection.id')
                                                         ->label('Скачать осмотр')
@@ -188,51 +188,67 @@ class ViewMedicalHistory extends ViewRecord
                                                         ->icon('heroicon-o-arrow-down-tray')
                                                         ->color(Color::Gray),
                                                         TextEntry::make('medicalInspection.initialDoctor.name')
-                                                            ->label('Dastlabki shifokor')
+                                                            ->label('Приемный  врач')
                                                             ->weight(FontWeight::Bold)
                                                             ->color(Color::Blue)
-                                                            ->placeholder('Tayinlanmagan'),
+                                                            ->placeholder('Не назначено'),
                                                             
                                                         TextEntry::make('medicalInspection.assignedDoctor.name')
-                                                            ->label('Tayinlangan shifokor')
+                                                            ->label('Назначенный врач')
                                                             ->weight(FontWeight::Bold)
                                                             ->color(Color::Green)
-                                                            ->placeholder('Tayinlanmagan'),
+                                                            ->placeholder('Не назначено'),
                                                     ]),
                                                     
                                                 TextEntry::make('medicalInspection.admission_diagnosis')
-                                                    ->label('Dastlabki diagnoz')
-                                                    ->placeholder('Kiritilmagan')
+                                                    ->label('Диагноз')
+                                                    ->placeholder('Не добавлено')
                                                     ->columnSpanFull(),
                                                     
                                                 TextEntry::make('medicalInspection.complaints')
-                                                    ->label('Shikoyatlar')
-                                                    ->placeholder('Yo\'q')
+                                                    ->label('Жалобы')
+                                                    ->placeholder('Нет')
                                                     ->columnSpanFull(),
                                                     
                                                 TextEntry::make('medicalInspection.medical_history')
-                                                    ->label('Kasallik tarixi')
-                                                    ->placeholder('Kiritilmagan')
+                                                    ->label('ANAMNEZIS MORBI')
+                                                    ->placeholder('Не добавлено')
+                                                    ->columnSpanFull(),
+                                                    
+                                                TextEntry::make('medicalInspection.history_life')
+                                                    ->label('ANAMNEZIS  VITAE')
+                                                    ->placeholder('Не добавлено')
+                                                    ->columnSpanFull(),
+                                                    
+                                                TextEntry::make('medicalInspection.epidemiological_history')
+                                                    ->label('Эпидемиологический анамнез')
+                                                    ->placeholder('Не добавлено')
+                                                    ->columnSpanFull(),
+                                                    
+                                                TextEntry::make('medicalInspection.local_state')
+                                                    ->label('STATUS LOCALIS')
+                                                    ->placeholder('Не добавлено')
                                                     ->columnSpanFull(),
                                                     
                                                 TextEntry::make('medicalInspection.objectively')
-                                                    ->label('Ob\'ektiv ko\'rik')
-                                                    ->placeholder('Kiritilmagan')
+                                                    ->label('STATUS PREZENS OBJECTIVUS')
+                                                    ->placeholder('Не добавлено')
                                                     ->columnSpanFull(),
                                                     
-                                                TextEntry::make('medicalInspection.treatment')
-                                                    ->label('Davolash')
-                                                    ->placeholder('Tayinlanmagan')
+                                                TextEntry::make('medicalInspection.recommended')
+                                                    ->label('Рекомендовано')
+                                                    ->placeholder('Не добавлено')
                                                     ->columnSpanFull(),
+                                                    
                                                     
                                                 Grid::make(2)
                                                     ->schema([
                                                         TextEntry::make('medicalInspection.created_at')
-                                                            ->label('Yaratilgan')
+                                                            ->label('Дата создания')
                                                             ->dateTime('d.m.Y H:i'),
                                                             
                                                         TextEntry::make('medicalInspection.updated_at')
-                                                            ->label('O\'zgartirilgan')
+                                                            ->label('Дата изменения')
                                                             ->dateTime('d.m.Y H:i'),
                                                     ])
                                     ]),
@@ -247,32 +263,31 @@ class ViewMedicalHistory extends ViewRecord
                                                 Grid::make(3)
                                                     ->schema([
                                                         TextEntry::make('labTestHistory.doctor.name')
-                                                            ->label('Buyurgan shifokor')
+                                                            ->label('Назначенный врач')
                                                             ->weight(FontWeight::Bold)
                                                             ->color(Color::Blue)
-                                                            ->placeholder('Noma\'lum'),
+                                                            ->placeholder('Неизвестный'),
                                                             
                                                         TextEntry::make('labTestHistory.statusPayment.name')
-                                                            ->label('To\'lov holati')
+                                                            ->label('Статус платежа')
                                                             ->badge()
                                                             ->color(fn($state) => match($state) {
-                                                                'To\'langan' => Color::Green,
-                                                                'To\'lanmagan' => Color::Red,
-                                                                'Qisman to\'langan' => Color::Orange,
-                                                                default => Color::Gray
+                                                                'завершенный' => Color::Green,
+                                                                'в ожидании' => Color::Red,
+                                                                'В кассе' => Color::Orange,
+                                                                'отменённый' => Color::Red
                                                             }),
                                                         TextEntry::make('labTestHistory.created_at')
-                                                            ->label('Buyurilgan sana')
+                                                            ->label('Дата создания')
                                                             ->dateTime('d.m.Y H:i'),
                                                     ]),
                                                 RepeatableEntry::make('labTestHistory.labTestDetails')
                                                         ->label('')
                                                         ->schema([
                                                             TextEntry::make('lab_test.name')->label('Название анализа'),
-                                                            TextEntry::make('sessions')->label('Seanslar'),
-                                                            TextEntry::make('price')->label('Narxi')->formatStateUsing(fn($state) => number_format($state, 0) . ' so‘m'),
-                                                            TextEntry::make('result')->label('Natija')->placeholder('Yo‘q'),
-                                                            TextEntry::make('created_at')->label('Yaratilgan')->dateTime('d.m.Y H:i'),
+                                                            TextEntry::make('sessions')->label('Сеансы'),
+                                                            TextEntry::make('price')->label('Цена')->formatStateUsing(fn($state) => number_format($state, 0) . ' so‘m'),
+                                                            TextEntry::make('result')->label('Результат')->placeholder('Yo‘q'),
                                                         ])
                                                         ->columns(5)
                                                         ->default([]),
@@ -280,19 +295,19 @@ class ViewMedicalHistory extends ViewRecord
                                                 Grid::make(3)
                                                     ->schema([
                                                         TextEntry::make('labTestHistory.total_cost')
-                                                            ->label('Umumiy summa')
+                                                            ->label('Общая сумма')
                                                             ->color(Color::Blue)
                                                             ->badge()
                                                             ->formatStateUsing(fn($state) => number_format($state, 0, '.', ' ') . ' сум'),
 
                                                         TextEntry::make('labTestHistory.total_paid_amount')
-                                                            ->label('To‘langan')
+                                                            ->label('Оплачено')
                                                             ->color(Color::Green)
                                                             ->badge()
                                                             ->formatStateUsing(fn($state) => number_format($state, 0, '.', ' ') . ' сум'),
                                                             
                                                         TextEntry::make('labTestHistory.total_debt_amount')
-                                                            ->label('Qarzdorlik')
+                                                            ->label('Долг')
                                                             ->color(Color::Red)
                                                             ->badge()
                                                             ->formatStateUsing(fn($state) => number_format($state, 0, '.', ' ') . ' сум'),
@@ -306,20 +321,19 @@ class ViewMedicalHistory extends ViewRecord
                             ->schema([
                                 Section::make()
                                     ->schema([
-                                                    
                                                 Grid::make(3)
                                                     ->schema([
                                                         TextEntry::make('assignedProcedure.created_at')
-                                                            ->label('Buyurilgan sana')
+                                                            ->label('Дата создания')
                                                             ->dateTime('d.m.Y H:i'),
                                                         TextEntry::make('assignedProcedure.statusPayment.name')
-                                                            ->label('To\'lov holati')
+                                                            ->label('Статус платежа')
                                                             ->badge()
                                                             ->color(fn($state) => match($state) {
-                                                                'To\'langan' => Color::Green,
-                                                                'To\'lanmagan' => Color::Red,
-                                                                'Qisman to\'langan' => Color::Orange,
-                                                                default => Color::Gray
+                                                                'завершенный' => Color::Green,
+                                                                'в ожидании' => Color::Red,
+                                                                'В кассе' => Color::Orange,
+                                                                'отменённый' => Color::Red
                                                             }),
                                                     ]),
                                                 RepeatableEntry::make('assignedProcedure.procedureDetails')
@@ -336,19 +350,19 @@ class ViewMedicalHistory extends ViewRecord
                                                 Grid::make(3)
                                                     ->schema([
                                                         TextEntry::make('assignedProcedure.total_cost')
-                                                            ->label('Umumiy summa')
+                                                            ->label('Общая сумма')
                                                             ->color(Color::Blue)
                                                             ->badge()
                                                             ->formatStateUsing(fn($state) => number_format($state, 0, '.', ' ') . ' сум'),
 
                                                         TextEntry::make('assignedProcedure.total_paid_amount')
-                                                            ->label('To‘langan')
+                                                            ->label('Оплачено')
                                                             ->color(Color::Green)
                                                             ->badge()
                                                             ->formatStateUsing(fn($state) => number_format($state, 0, '.', ' ') . ' сум'),
                                                             
                                                         TextEntry::make('assignedProcedure.total_debt_amount')
-                                                            ->label('Qarzdorlik')
+                                                            ->label('Долг')
                                                             ->color(Color::Red)
                                                             ->badge()
                                                             ->formatStateUsing(fn($state) => number_format($state, 0, '.', ' ') . ' сум'),
@@ -364,68 +378,63 @@ class ViewMedicalHistory extends ViewRecord
                                     ->schema([
                                         Section::make()
                                             ->schema([
-                                                
                                                 Grid::make(3)
                                                     ->schema([
                                                         TextEntry::make('accommodation.admission_date')
-                                                            ->label('Kelgan sana')
+                                                            ->label('Дата поступления')
                                                             ->dateTime('d.m.Y H:i')
-                                                            ->placeholder('Kiritilmagan'),
+                                                            ->placeholder('Не добавлено'),
                                                             
                                                         TextEntry::make('accommodation.discharge_date')
-                                                            ->label('Chiqish sanasi')
+                                                            ->label('Дата выхода')
                                                             ->date('d.m.Y')
-                                                            ->placeholder('Belgilanmagan'),
+                                                            ->placeholder('Не отмечено'),
                                                     ]),
                                                 Grid::make(3)
                                                     ->schema([
                                                         TextEntry::make('accommodation.ward.name')
-                                                            ->label('Palata')
+                                                            ->label('Палата')
                                                             ->weight(FontWeight::Bold)
                                                             ->color(Color::Blue)
-                                                            ->placeholder('Tayinlanmagan'),
+                                                            ->placeholder('Не назначено'),
                                                             
                                                         TextEntry::make('accommodation.bed.number')
-                                                            ->label('Karavot raqami')
+                                                            ->label('Номер кровати')
                                                             ->weight(FontWeight::Bold)
                                                             ->color(Color::Green)
-                                                            ->placeholder('Tayinlanmagan'),
+                                                            ->placeholder('Не назначено'),
                                                             
                                                         TextEntry::make('accommodation.tariff.name')
-                                                            ->label('Tarif')
+                                                            ->label('Тариф')
                                                             ->badge()
                                                             ->color(Color::Orange)
-                                                            ->placeholder('Tayinlanmagan'),
+                                                            ->placeholder('Не назначено'),
                                                     ]),
                                                     
                                                     
                                                 Grid::make(1)
                                                     ->schema([
                                                         TextEntry::make('accommodation.mealType.daily_price')
-                                                            ->label('Ovqatlanish turi')
+                                                            ->label('Питание (суточная цена)')
                                                             ->badge()
                                                             ->color(Color::Purple)
-                                                            ->placeholder('Tayinlanmagan'),
+                                                            ->placeholder('Не назначено'),
                                                     ]),
                                                     
                                                 Grid::make(3)
                                                     ->schema([
                                                         TextEntry::make('accommodation.statusPayment.name')
-                                                            ->label('To\'lov holati')
+                                                            ->label('Статус платежа')
                                                             ->badge()
                                                             ->color(fn($state) => match($state) {
-                                                                'To\'langan' => Color::Green,
-                                                                'To\'lanmagan' => Color::Red,
-                                                                'Qisman to\'langan' => Color::Orange,
-                                                                default => Color::Gray
+                                                                'завершенный' => Color::Green,
+                                                                'в ожидании' => Color::Red,
+                                                                'В кассе' => Color::Orange,
+                                                                'отменённый' => Color::Red
                                                             }),
                                                         TextEntry::make('created_at')
-                                                            ->label('Yaratilgan')
+                                                            ->label('Дата создания')
                                                             ->dateTime('d.m.Y H:i'),
-                                                            
-                                                        TextEntry::make('accommodation.createdBy.name')
-                                                            ->label('Yaratgan')
-                                                            ->placeholder('Noma\'lum'),
                                                     ])
                                             ])
                                     ]),

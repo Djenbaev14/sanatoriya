@@ -32,13 +32,14 @@ class KassaKoykaResource extends Resource
     protected static ?int $navigationSort = 4;
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::where('status_payment_id',2)->count();
+        return static::getModel()::where('main_accommodation_id', null)->where('status_payment_id',2)->count();
     }
     
     
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
+            ->where('main_accommodation_id', null) // faqat status 1 bo'lganlar
             ->where('status_payment_id', 2); // faqat status 1 bo'lganlar
     }
 
@@ -157,6 +158,7 @@ class KassaKoykaResource extends Resource
                             ]);
                             if ($record->getTotalPaidAndReturned() == $record->getTotalCost()) {
                                     $record->update(['status_payment_id' => 3]); // 1 - to'langan
+                                    $record->partner?->update(['status_payment_id' => 3]); // agar hamkor bo'lsa, u ham to'langan deb belgilanadi
                             }
 
                             // Muvaffaqiyat xabari

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->longText('description');
             $table->decimal('daily_price', 10, 2); 
+            $table->decimal('daily_price_foreign', 10, 2);
             $table->timestamps();
         });
     }
