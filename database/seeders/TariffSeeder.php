@@ -29,7 +29,7 @@ class TariffSeeder extends Seeder
                 'foreign_daily_price'=>'127500',
             ],
         ];
-        $meal_types=[
+        $meal_types=[   
             [
                 'name'=>'Питание',
                 'daily_price'=>'38000',
