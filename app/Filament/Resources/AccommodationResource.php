@@ -89,19 +89,26 @@ class AccommodationResource extends Resource
                             ->columnSpan(6),
                         Group::make()
                             ->schema([
-                                
-                                    Select::make('tariff_id') 
-                                        ->label('Тарифф') 
-                                        ->options(function () { 
-                                            return Tariff::all()->mapWithKeys(function ($tariff) { 
-                                                return [$tariff->id => $tariff->name . ' - ' . number_format($tariff->daily_price, 0) . ' сум']; 
-                                            }); 
-                                        }) 
-                                        ->reactive() 
+                                    Select::make('tariff_id')
+                                        ->label('Тариф')
+                                        ->options(function (callable $get) {
+                                            $patientId = $get('patient_id');
+                                            $isForeign = \App\Models\Patient::find($patientId)?->is_foreign ?? false;
+
+                                            return \App\Models\Tariff::all()->mapWithKeys(function ($tariff) use ($isForeign) {
+                                                $price = $isForeign ? $tariff->foreign_daily_price : $tariff->daily_price;
+                                                $label = $tariff->name . ' - ' . number_format($price, 0, '.', ' ') . ' сум';
+                                                return [$tariff->id => $label];
+                                            });
+                                        })
+                                        ->reactive()
                                         ->required()
-                                        ->afterStateUpdated(function ($state, callable $set) {
-                                            // Tarif tanlanganda uning narxini tarif_price inputga yozamiz
-                                            $price = \App\Models\Tariff::find($state)?->daily_price ?? 0;
+                                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                            $tariff = \App\Models\Tariff::find($state);
+                                            $patientId = $get('patient_id');
+                                            $isForeign = \App\Models\Patient::find($patientId)?->is_foreign ?? false;
+
+                                            $price = $isForeign ? $tariff?->foreign_daily_price : $tariff?->daily_price;
                                             $set('tariff_price', $price);
                                         })
                                         ->columnSpan(4), 
@@ -164,16 +171,23 @@ class AccommodationResource extends Resource
                             ])->columns(12)->columnSpan(12),
                                 Select::make('meal_type_id')
                                     ->label('Питание')
-                                    ->options(function () {
-                                        return MealType::all()
-                                            ->mapWithKeys(function ($meal_type) {
-                                                return [$meal_type->id => $meal_type->name . ' - ' . number_format($meal_type->daily_price, 0, '.', ' ') . ' сум/kun'];
+                                    ->options(function (callable $get) {
+                                            $patientId = $get('patient_id');
+                                            $isForeign = \App\Models\Patient::find($patientId)?->is_foreign ?? false;
+
+                                            return \App\Models\MealType::all()->mapWithKeys(function ($meal_type) use ($isForeign) {
+                                                $price = $isForeign ? $meal_type->foreign_daily_price : $meal_type->daily_price;
+                                                $label = $meal_type->name . ' - ' . number_format($price, 0, '.', ' ') . ' сум';
+                                                return [$meal_type->id => $label];
                                             });
-                                    })
+                                        })
                                     ->reactive()
-                                    ->afterStateUpdated(function ($state, callable $set) {
-                                        // Tarif tanlanganda uning narxini tarif_price inputga yozamiz
-                                        $price = \App\Models\MealType::find($state)?->daily_price ?? 0;
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        $tariff = \App\Models\MealType::find($state);
+                                        $patientId = $get('patient_id');
+                                        $isForeign = \App\Models\Patient::find($patientId)?->is_foreign ?? false;
+
+                                        $price = $isForeign ? $tariff?->foreign_daily_price : $tariff?->daily_price;
                                         $set('meal_price', $price);
                                     })
                                     ->columnSpan(4), 
@@ -378,7 +392,7 @@ class AccommodationResource extends Resource
                                         })
                                         ->reactive()
                                         ->required()
-                                        ->visible(fn (Get $get) => filled($get('tariff_id')))
+                                        ->visible(fn (Get $get) => filled($get('accomplice_tariff_id')))
                                         ->columnSpan(4),
                                 Select::make('accomplice_bed_id')
                                         ->label('На пустой койке')
@@ -414,13 +428,13 @@ class AccommodationResource extends Resource
                                     ->options(function () {
                                         return MealType::all()
                                             ->mapWithKeys(function ($meal_type) {
-                                                return [$meal_type->id => $meal_type->name . ' - ' . number_format($meal_type->daily_price_foreign, 0, '.', ' ') . ' сум/kun'];
+                                                return [$meal_type->id => $meal_type->name . ' - ' . number_format($meal_type->partner_daily_price, 0, '.', ' ') . ' сум/kun'];
                                             });
                                     })
                                     ->reactive()
                                     ->afterStateUpdated(function ($state, callable $set) {
                                         // Tarif tanlanganda uning narxini tarif_price inputga yozamiz
-                                        $price = \App\Models\MealType::find($state)?->daily_price_foreign ?? 0;
+                                        $price = \App\Models\MealType::find($state)?->partner_daily_price ?? 0;
                                         $set('accomplice_meal_price', $price);
                                     })
                                     ->columnSpan(4), 
@@ -558,7 +572,7 @@ class AccommodationResource extends Resource
                                                 return '0 сум (питание не найдено)';
                                             }
 
-                                            $dailyPrice = $mealType->daily_price_foreign;
+                                            $dailyPrice = $mealType->partner_daily_price;
                                             
 
                                             $admission = \Carbon\Carbon::parse($admissionDate);
@@ -587,7 +601,8 @@ class AccommodationResource extends Resource
                                             $bedId = $get('bed_id');
                                             $admissionDate = $get('admission_date');
                                             $dischargeDate = $get('discharge_date');
-
+                                            $patientId = $get('patient_id');
+                                            $isForeign = \App\Models\Patient::find($patientId)?->is_foreign ?? false;
                                             if ($bedId && $admissionDate && $dischargeDate) {
                                                 $bed = \App\Models\Bed::with('ward.tariff')->find($bedId);
                                                 if ($bed) {
@@ -602,7 +617,8 @@ class AccommodationResource extends Resource
                                                     }
                                                     // Kamida 1 kun hisoblash
                                                     $days = max($days, 1);
-                                                    $bedTotal = $bed->ward->tariff->daily_price * $days;
+                                                    $bedPrice=$isForeign ? $bed->ward->tariff->foreign_daily_price : $bed->ward->tariff->daily_price;
+                                                    $bedTotal = $bedPrice * $days;
                                                 }
                                             }
 
@@ -625,7 +641,8 @@ class AccommodationResource extends Resource
                                                     }
                                                     // Kamida 1 kun hisoblash
                                                     $days = max($days, 1);
-                                                    $mealTotal = $mealType->daily_price * $days;
+                                                    $mealPrice=$isForeign ? $mealType->foreign_daily_price : $mealType->daily_price;
+                                                    $mealTotal = $mealPrice * $days;
                                                 }
                                             }
                                             
@@ -672,7 +689,7 @@ class AccommodationResource extends Resource
                                                     }
                                                     // Kamida 1 kun hisoblash
                                                     $days = max($days, 1);
-                                                    $partnerMealTotal = $mealType->daily_price_foreign * $days;
+                                                    $partnerMealTotal = $mealType->partner_daily_price * $days;
                                                 }
                                             }
 

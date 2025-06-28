@@ -92,6 +92,11 @@ class Accommodation extends Model
     
     public function getTotalCost()
     {
+        // agar this partner bo'lmasa, partnerning hisob-kitoblarini hisoblamaymiz
+        if (!$this->partner) {
+            return $this->calculateBedCost() + $this->calculateMealCost();
+        }
+        
         return $this->calculateBedCost()+$this->calculateMealCost() +
             $this->calculatePartnerBedCost()+$this->calculatePartnerMealCost();
     }

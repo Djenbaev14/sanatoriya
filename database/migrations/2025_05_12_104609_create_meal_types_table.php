@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('meal_types', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->longText('description');
+            $table->longText('description')->nullable();
             $table->decimal('daily_price', 10, 2); 
-            $table->decimal('daily_price_foreign', 10, 2);
+            $table->decimal('partner_daily_price', 10, 2); 
+            $table->decimal('foreign_daily_price', 10, 2);
             $table->timestamps();
         });
     }
