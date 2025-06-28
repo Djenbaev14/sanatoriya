@@ -26,7 +26,7 @@
                     <td style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">{{ $inspection->assignedDoctor->name}}</td>
                     <td style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">{{ $inspection->created_at}}</td>
                     <td style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">
-                        <a href="{{route('filament.admin.resources.department-inspections.view', $inspection->id)}}" style="color: #094ecd">Просмотр</a>
+                        <a href="/admin/department-inspections/{{$inspection->id}}" style="color: #094ecd">Просмотр</a>
                         <a href="{{route('download.department.inspection', $inspection->id)}}" style="color: green;margin-left: 16px;" target="_blank">Скачать</a>
                     </td>
                 </tr>
