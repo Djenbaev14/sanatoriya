@@ -139,6 +139,7 @@ class DepartmentInspectionResource extends Resource
             'index' => Pages\ListDepartmentInspections::route('/'),
             'create' => Pages\CreateDepartmentInspection::route('/create'),
             'edit' => Pages\EditDepartmentInspection::route('/{record}/edit'),
+            'view' => Pages\ViewDepartmentInspection::route('/{record}'),
         ];
     }
 }
