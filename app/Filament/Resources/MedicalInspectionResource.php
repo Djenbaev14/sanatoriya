@@ -60,7 +60,7 @@ class MedicalInspectionResource extends Resource
                             ->columnSpan(12),
                         Select::make('medical_history_id')
                             ->label('История болезно')
-                            ->required()
+                            ->default(request()->get('medical_history_id'))
                             ->options(function (Get $get, $state) {
                                 $patientId = $get('patient_id');
 

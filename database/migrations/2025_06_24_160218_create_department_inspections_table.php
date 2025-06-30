@@ -30,6 +30,7 @@ return new class extends Migration
             $table->text('local_state')->nullable();
             $table->text('admission_diagnosis')->nullable();
             $table->text('recommended')->nullable();
+            $table->text('treatment')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

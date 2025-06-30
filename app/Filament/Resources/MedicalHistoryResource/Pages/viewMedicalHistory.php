@@ -4,6 +4,7 @@ namespace App\Filament\Resources\MedicalHistoryResource\Pages;
 
 use App\Filament\Resources\MedicalHistoryResource;
 use Filament\Actions;
+use Filament\Infolists\Components\Actions\Action;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\TextEntry;
@@ -20,14 +21,6 @@ class ViewMedicalHistory extends ViewRecord
 {
     protected static string $resource = MedicalHistoryResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\EditAction::make()
-                ->label('Tahrirlash')
-                ->icon('heroicon-o-pencil'),
-        ];
-    }
 
     public function infolist(Infolist $infolist): Infolist
     {
@@ -171,12 +164,128 @@ class ViewMedicalHistory extends ViewRecord
                                     ->collapsed(),
                             ]),
                             
+                        // Yashash joyi tab
+                        Tabs\Tab::make('Условия размещения')
+                            ->icon('heroicon-o-home')
+                            ->schema([
+                                    Section::make('Условия размещения')
+                                        ->visible(fn ($record) => is_null($record->accommodation))
+                                        ->schema([
+                                            \Filament\Infolists\Components\Actions::make([
+                                                
+                                                Action::make('createAccommodation')
+                                                ->label('Создать Условия размещения')
+                                                ->icon('heroicon-o-plus')
+                                                ->button()
+                                                ->color('primary')
+                                                ->url(fn ($record) => "/admin/accommodations/create?patient_id={$record->patient->id}&medical_history_id={$record->id}" )
+                                            ])
+                                        ]),
+                                        Grid::make(2)
+                                            ->schema([
+                                                // Asosiy bemor
+                                                Section::make('Основной пациент')
+                                                    ->visible(fn ($record) => $record->accommodation !== null)
+                                                    ->schema([
+                                                        Grid::make(2)->schema([
+                                                            TextEntry::make('accommodation.patient.full_name')
+                                                                ->label('Пациент')
+                                                                ->weight(FontWeight::Bold)
+                                                                ->color(Color::Blue),
+
+                                                            TextEntry::make('accommodation.statusPayment.name')
+                                                                ->label('Статус платежа')
+                                                                ->badge()
+                                                                ->color(fn ($state) => match($state) {
+                                                                    'завершенный' => Color::Green,
+                                                                    'в ожидании' => Color::Red,
+                                                                    'В кассе' => Color::Orange,
+                                                                    'отменённый' => Color::Red,
+                                                                    default => Color::Gray
+                                                                }),
+
+                                                            TextEntry::make('accommodation.ward.name')->label('Палата'),
+                                                            TextEntry::make('accommodation.bed.number')->label('Койка'),
+
+                                                            TextEntry::make('accommodation.admission_date')
+                                                                ->label('Дата поступления')
+                                                                ->date('d.m.Y'),
+
+                                                            TextEntry::make('accommodation.discharge_date')
+                                                                ->label('Дата выхода')
+                                                                ->date('d.m.Y'),
+
+                                                            TextEntry::make('accommodation_days')
+                                                                ->label('Кол-во дней')
+                                                                ->default(fn ($record) => \Carbon\Carbon::parse($record->accommodation->admission_date)->diffInDays(
+                                                                    $record->accommodation->discharge_date ?? now()
+                                                                )),
+
+                                                            TextEntry::make('accommodation.mealType.daily_price')
+                                                                ->label('Питание')
+                                                                ->badge()
+                                                                ->color(Color::Purple),
+                                                        ])
+                                                    ])->columnSpan(6),
+
+                                                // Qarovchi
+                                                Section::make('Уход за пациентом')
+                                                    ->visible(fn ($record) => $record->accommodation?->partner !== null)
+                                                    ->schema([
+                                                        Grid::make(2)->schema([
+                                                            TextEntry::make('accommodation.partner.patient.full_name')
+                                                                ->label('Уходящий')
+                                                                ->weight(FontWeight::Bold)
+                                                                ->color(Color::Blue),
+
+                                                            TextEntry::make('accommodation.partner.ward.name')->label('Палата'),
+                                                            TextEntry::make('accommodation.partner.bed.number')->label('Койка'),
+
+                                                            TextEntry::make('accommodation.partner.admission_date')
+                                                                ->label('Дата поступления')
+                                                                ->date('d.m.Y'),
+
+                                                            TextEntry::make('accommodation.partner.discharge_date')
+                                                                ->label('Дата выхода')
+                                                                ->date('d.m.Y'),
+
+                                                            TextEntry::make('partner_days')
+                                                                ->label('Кол-во дней')
+                                                                ->default(fn ($record) => \Carbon\Carbon::parse($record->accommodation->partner->admission_date)->diffInDays(
+                                                                    $record->accommodation->partner->discharge_date ?? now()
+                                                                )),
+
+                                                            TextEntry::make('accommodation.partner.mealType.daily_price')
+                                                                ->label('Питание')
+                                                                ->badge()
+                                                                ->color(Color::Purple),
+                                                        ])
+                                                    ])->columnSpan(6),
+                                            ])->columnSpan(12)->columns(12)
+       
+
+                            ]),
+                            
                         // Tibbiy ko'rik tab
-                        Tabs\Tab::make('Медицинский осмотр')
+                        Tabs\Tab::make('Приемный Осмотр')
                             ->icon('heroicon-o-clipboard-document-check')
                             ->schema([
+                                Section::make('Приемный Осмотр')
+                                    ->visible(fn ($record) => is_null($record->medicalInspection))
+                                    ->schema([
+                                        \Filament\Infolists\Components\Actions::make([
+                                            
+                                            Action::make('createMedicalInspection')
+                                            ->label('Создать Приемный Осмотр')
+                                            ->icon('heroicon-o-plus')
+                                            ->button()
+                                            ->color('primary')
+                                            ->url(fn ($record) => "/admin/medical-inspections/create?patient_id={$record->patient->id}&medical_history_id={$record->id}" )
+                                        ])
+                                    ]),
                                 Section::make('')
-                                    ->label('Медицинские осмотры')
+                                    ->label('Приемный Осмотр')
+                                    ->visible(fn ($record) => $record->medicalInspection !== null) // 👈 Bu muhim
                                     ->schema([
                                                 Grid::make(2)
                                                     ->schema([
@@ -185,18 +294,13 @@ class ViewMedicalHistory extends ViewRecord
                                                         ->visible(fn ($record) => $record->medicalInspection !== null)
                                                         ->url(fn ($state) => route('download.inspection', $state))
                                                         ->openUrlInNewTab()
+                                                        ->formatStateUsing(fn($state) => 'Приемный осмотр №' . $state)
                                                         ->icon('heroicon-o-arrow-down-tray')
                                                         ->color(Color::Gray),
                                                         TextEntry::make('medicalInspection.initialDoctor.name')
                                                             ->label('Приемный  врач')
                                                             ->weight(FontWeight::Bold)
                                                             ->color(Color::Blue)
-                                                            ->placeholder('Не назначено'),
-                                                            
-                                                        TextEntry::make('medicalInspection.assignedDoctor.name')
-                                                            ->label('Назначенный врач')
-                                                            ->weight(FontWeight::Bold)
-                                                            ->color(Color::Green)
                                                             ->placeholder('Не назначено'),
                                                     ]),
                                                     
@@ -254,11 +358,117 @@ class ViewMedicalHistory extends ViewRecord
                                     ]),
                             ]),
                             
+                        // Tibbiy ko'rik tab
+                        Tabs\Tab::make('Отделение Осмотр')
+                            ->icon('heroicon-o-clipboard-document-check')
+                            ->schema([
+                                Section::make('Отделение Осмотр')
+                                    ->visible(fn ($record) => is_null($record->departmentInspection))
+                                    ->schema([
+                                        \Filament\Infolists\Components\Actions::make([
+                                            
+                                            Action::make('createDepartmentInspection')
+                                            ->label('Создать Отделение Осмотр')
+                                            ->icon('heroicon-o-plus')
+                                            ->button()
+                                            ->color('primary')
+                                            ->url(fn ($record) => "/admin/department-inspections/create?patient_id={$record->patient->id}&medical_history_id={$record->id}" )
+                                        ])
+                                    ]),
+                                Section::make('')
+                                    ->label('Отделение Осмотр')
+                                    ->visible(fn ($record) => $record->departmentInspection !== null) // 👈 Bu muhim
+                                    ->schema([
+                                                Grid::make(2)
+                                                    ->schema([
+                                                        TextEntry::make('departmentInspection.id')
+                                                            ->label('Скачать осмотр')
+                                                            ->visible(fn ($record) => $record->departmentInspection !== null)
+                                                            ->url(fn ($state) => route('download.department.inspection', $state))
+                                                            ->openUrlInNewTab()
+                                                            ->formatStateUsing(fn($state) => 'Отделение осмотр №' . $state)
+                                                            ->icon('heroicon-o-arrow-down-tray')
+                                                            ->color(Color::Gray),
+                                                    ]),
+                                                    
+                                                TextEntry::make('departmentInspection.admission_diagnosis')
+                                                    ->label('Диагноз')
+                                                    ->placeholder('Не добавлено')
+                                                    ->columnSpanFull(),
+                                                    
+                                                TextEntry::make('departmentInspection.complaints')
+                                                    ->label('Жалобы')
+                                                    ->placeholder('Нет')
+                                                    ->columnSpanFull(),
+                                                    
+                                                TextEntry::make('departmentInspection.medical_history')
+                                                    ->label('ANAMNEZIS MORBI')
+                                                    ->placeholder('Не добавлено')
+                                                    ->columnSpanFull(),
+                                                    
+                                                TextEntry::make('departmentInspection.history_life')
+                                                    ->label('ANAMNEZIS  VITAE')
+                                                    ->placeholder('Не добавлено')
+                                                    ->columnSpanFull(),
+                                                    
+                                                TextEntry::make('departmentInspection.epidemiological_history')
+                                                    ->label('Эпидемиологический анамнез')
+                                                    ->placeholder('Не добавлено')
+                                                    ->columnSpanFull(),
+                                                    
+                                                TextEntry::make('departmentInspection.local_state')
+                                                    ->label('STATUS LOCALIS')
+                                                    ->placeholder('Не добавлено')
+                                                    ->columnSpanFull(),
+                                                    
+                                                TextEntry::make('departmentInspection.objectively')
+                                                    ->label('STATUS PREZENS OBJECTIVUS')
+                                                    ->placeholder('Не добавлено')
+                                                    ->columnSpanFull(),
+                                                    
+                                                TextEntry::make('departmentInspection.treatment')
+                                                    ->label('Лечение')
+                                                    ->placeholder('Не добавлено')
+                                                    ->columnSpanFull(),
+                                                    
+                                                TextEntry::make('departmentInspection.recommended')
+                                                    ->label('Рекомендовано')
+                                                    ->placeholder('Не добавлено')
+                                                    ->columnSpanFull(),
+                                                    
+                                                    
+                                                Grid::make(2)
+                                                    ->schema([
+                                                        TextEntry::make('departmentInspection.created_at')
+                                                            ->label('Дата создания')
+                                                            ->dateTime('d.m.Y H:i'),
+                                                            
+                                                        TextEntry::make('departmentInspection.updated_at')
+                                                            ->label('Дата изменения')
+                                                            ->dateTime('d.m.Y H:i'),
+                                                    ])
+                                    ]),
+                            ]),
+                            
                         // Laboratoriya testlari tab
                         Tabs\Tab::make('Анализы')
                             ->icon('heroicon-o-beaker')
                             ->schema([
-                                Section::make('')
+                                Section::make('Анализы')
+                                    ->visible(fn ($record) => is_null($record->labTestHistory))
+                                    ->schema([
+                                        \Filament\Infolists\Components\Actions::make([
+                                            
+                                            Action::make('createLabTestHistory')
+                                            ->label('Создать Анализы')
+                                            ->icon('heroicon-o-plus')
+                                            ->button()
+                                            ->color('primary')
+                                            ->url(fn ($record) => "/admin/lab-test-histories/create?patient_id={$record->patient->id}&medical_history_id={$record->id}" )
+                                        ])
+                                    ]),
+                                Section::make('Анализы')
+                                    ->visible(fn ($record) => $record->labTestHistory !== null) // 👈 Bu muhim
                                     ->schema([
                                                 Grid::make(3)
                                                     ->schema([
@@ -319,7 +529,21 @@ class ViewMedicalHistory extends ViewRecord
                         Tabs\Tab::make('Процедуры')
                             ->icon('heroicon-o-wrench-screwdriver')
                             ->schema([
+                                Section::make('Процедуры')
+                                    ->visible(fn ($record) => is_null($record->assignedProcedure))
+                                    ->schema([
+                                        \Filament\Infolists\Components\Actions::make([
+                                            
+                                            Action::make('createAssignedProcedure')
+                                            ->label('Создать Процедуры')
+                                            ->icon('heroicon-o-plus')
+                                            ->button()
+                                            ->color('primary')
+                                            ->url(fn ($record) => "/admin/assigned-procedures/create?patient_id={$record->patient->id}&medical_history_id={$record->id}" )
+                                        ])
+                                    ]),
                                 Section::make()
+                                    ->visible(fn ($record) => $record->assignedProcedure !== null)
                                     ->schema([
                                                 Grid::make(3)
                                                     ->schema([
@@ -370,75 +594,6 @@ class ViewMedicalHistory extends ViewRecord
                                     ]),
                             ]),
                             
-                        // Yashash joyi tab
-                        Tabs\Tab::make('Информация о палате')
-                            ->icon('heroicon-o-home')
-                            ->schema([
-                                Section::make('')
-                                    ->schema([
-                                        Section::make()
-                                            ->schema([
-                                                Grid::make(3)
-                                                    ->schema([
-                                                        TextEntry::make('accommodation.admission_date')
-                                                            ->label('Дата поступления')
-                                                            ->dateTime('d.m.Y H:i')
-                                                            ->placeholder('Не добавлено'),
-                                                            
-                                                        TextEntry::make('accommodation.discharge_date')
-                                                            ->label('Дата выхода')
-                                                            ->date('d.m.Y')
-                                                            ->placeholder('Не отмечено'),
-                                                    ]),
-                                                Grid::make(3)
-                                                    ->schema([
-                                                        TextEntry::make('accommodation.ward.name')
-                                                            ->label('Палата')
-                                                            ->weight(FontWeight::Bold)
-                                                            ->color(Color::Blue)
-                                                            ->placeholder('Не назначено'),
-                                                            
-                                                        TextEntry::make('accommodation.bed.number')
-                                                            ->label('Номер кровати')
-                                                            ->weight(FontWeight::Bold)
-                                                            ->color(Color::Green)
-                                                            ->placeholder('Не назначено'),
-                                                            
-                                                        TextEntry::make('accommodation.tariff.name')
-                                                            ->label('Тариф')
-                                                            ->badge()
-                                                            ->color(Color::Orange)
-                                                            ->placeholder('Не назначено'),
-                                                    ]),
-                                                    
-                                                    
-                                                Grid::make(1)
-                                                    ->schema([
-                                                        TextEntry::make('accommodation.mealType.daily_price')
-                                                            ->label('Питание (суточная цена)')
-                                                            ->badge()
-                                                            ->color(Color::Purple)
-                                                            ->placeholder('Не назначено'),
-                                                    ]),
-                                                    
-                                                Grid::make(3)
-                                                    ->schema([
-                                                        TextEntry::make('accommodation.statusPayment.name')
-                                                            ->label('Статус платежа')
-                                                            ->badge()
-                                                            ->color(fn($state) => match($state) {
-                                                                'завершенный' => Color::Green,
-                                                                'в ожидании' => Color::Red,
-                                                                'В кассе' => Color::Orange,
-                                                                'отменённый' => Color::Red
-                                                            }),
-                                                        TextEntry::make('created_at')
-                                                            ->label('Дата создания')
-                                                            ->dateTime('d.m.Y H:i'),
-                                                    ])
-                                            ])
-                                    ]),
-                            ]),
                     ])->columnspan(12)
                     ->activeTab(1)
                     ->persistTabInQueryString()

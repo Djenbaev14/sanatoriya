@@ -25,9 +25,6 @@ return new class extends Migration
             $table->unsignedBigInteger('lab_test_history_id')->nullable();
             $table->foreign('lab_test_history_id')->references('id')->on('lab_test_histories');
             
-            $table->unsignedBigInteger('medical_inspection_id')->nullable();
-            $table->foreign('medical_inspection_id')->references('id')->on('medical_inspections');
-            
             $table->unsignedBigInteger('payment_type_id');
             $table->foreign('payment_type_id')->references('id')->on('payment_types');
 

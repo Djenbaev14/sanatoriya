@@ -22,4 +22,28 @@ class Payment extends Model
             ->logAll()
             ->useLogName('payment');
     }
+    public function patient() {
+        return $this->belongsTo(Patient::class);
+    }
+
+    public function paymentType() {
+        return $this->belongsTo(PaymentType::class);
+    }
+
+    public function getPaymentReasonAttribute(): string
+    {
+        if ($this->accommodation_id) {
+            return 'Палата (койка)';
+        }
+
+        if ($this->assigned_procedure_id) {
+            return 'Лечение (лечение процедуры)';
+        }
+
+        if ($this->lab_test_history_id) {
+            return 'Анализ (лаборатория)';
+        }
+
+        return $this->description ?? 'Неизвестно';
+    }
 }

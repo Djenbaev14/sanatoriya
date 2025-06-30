@@ -36,7 +36,11 @@ class UserResource extends Resource
                             ->label('Логин'),
                         TextInput::make('password')
                             ->password()
-                            ->label('Парол'),
+                            ->label('Парол')
+                            ->maxLength(255)
+                            ->dehydrateStateUsing(fn ($state) => filled($state) ? bcrypt($state) : null)
+                            ->dehydrated(fn ($state) => filled($state)) // Faqat kiritilgan bo‘lsa update qiladi
+                            ->required(fn (string $context): bool => $context === 'create'),
                         Select::make('roles')
                             ->relationship(name: 'roles', titleAttribute: 'name')
                             ->label('Ролы')

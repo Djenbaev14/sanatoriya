@@ -64,11 +64,16 @@ class MedicalHistoryResource extends Resource
                     ->schema([
                         Select::make('patient_id')
                             ->label('Пациент')
-                            ->disabled()
-                            ->relationship('patient', 'full_name') // yoki kerakli atribut
-                            ->default(request()->get('patient_id'))
+                            ->relationship('patient', 'full_name') // Eager load orqali
                             ->required()
-                            ->columnSpan(12),
+                            ->columnSpan(12)
+                            ->searchable(   )
+                            ->default(fn () => request()->get('patient_id'))
+                            ->options(function () {
+                                // Agar URL orqali kelgan bo‘lmasa, barcha bemorlar ro'yxatini chiqaramiz
+                                return \App\Models\Patient::pluck('full_name', 'id');
+                            })
+                            ->disabled(fn () => filled(request()->get('patient_id'))), // Faqat URLda bo‘lsa bloklanadi
                         Hidden::make('created_id')
                             ->default(fn () => auth()->user()->id)
                             ->dehydrated(true),
@@ -160,26 +165,34 @@ class MedicalHistoryResource extends Resource
             ->columns([
                 TextColumn::make('number')->label('Номер')->searchable()->sortable(),
                 TextColumn::make('patient.full_name')->label('ФИО')->searchable()->sortable(),
+                IconColumn::make('accommodation')
+                    ->label('Условия размещения')
+                    ->boolean()
+                    ->getStateUsing(fn ($record) => !is_null($record->accommodation))
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('danger'),
                 IconColumn::make('medicalInspection')
-                    ->label('Медицинский осмотр')
+                    ->label('Приемный Осмотр')
                     ->boolean()
                     ->getStateUsing(fn ($record) => !is_null($record->medicalInspection))
                     ->trueIcon('heroicon-o-check-circle')
-                    ->falseIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('danger'),
+                IconColumn::make('departmentInspection')
+                    ->label('Отделение Осмотр')
+                    ->boolean()
+                    ->getStateUsing(fn ($record) => !is_null($record->departmentInspection))
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
                     ->trueColor('success')
                     ->falseColor('danger'),
                 IconColumn::make('labTestHistory')
                     ->label('Анализы')
                     ->boolean()
                     ->getStateUsing(fn ($record) => !is_null($record->labTestHistory))
-                    ->trueIcon('heroicon-o-check-circle')
-                    ->falseIcon('heroicon-o-x-circle')
-                    ->trueColor('success')
-                    ->falseColor('danger'),
-                IconColumn::make('accommodation')
-                    ->label('Информация о палате')
-                    ->boolean()
-                    ->getStateUsing(fn ($record) => !is_null($record->accommodation))
                     ->trueIcon('heroicon-o-check-circle')
                     ->falseIcon('heroicon-o-x-circle')
                     ->trueColor('success')

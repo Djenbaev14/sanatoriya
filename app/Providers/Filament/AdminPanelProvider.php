@@ -37,13 +37,17 @@ class AdminPanelProvider extends PanelProvider
             ->plugin(FilamentSpatieRolesPermissionsPlugin::make())
             ->navigationGroups([
                 NavigationGroup::make()
+                    ->label('Платежи по направлениям')
+                    ->icon('heroicon-o-receipt-refund'),
+                NavigationGroup::make()
                     ->label('Касса')
-                    ->icon('fas-cash-register'),
+                    ->icon('heroicon-o-banknotes'),
                 NavigationGroup::make()
                     ->label('Настройка')
                     ->icon('fas-gear'),
                 NavigationGroup::make()
-                    ->label('Роли и разрешения'),
+                    ->label('Роли и разрешения')
+                    ->icon('heroicon-o-shield-check'),
             ])
             ->plugins([
                 ActivitylogPlugin::make()

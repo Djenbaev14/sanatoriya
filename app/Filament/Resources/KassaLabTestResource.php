@@ -12,6 +12,7 @@ use App\Models\User;
 use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -32,7 +33,7 @@ class KassaLabTestResource extends Resource
     
     protected static ?string $model = LabTestHistory::class;
 
-    protected static ?string $navigationGroup = 'Касса';
+    protected static ?string $navigationGroup = 'Платежи по направлениям';
     protected static ?int $navigationSort = 2;
     public static function getNavigationBadge(): ?string
     {
@@ -50,15 +51,15 @@ class KassaLabTestResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return 'Для анализа'; // Rus tilidagi nom
+        return 'Анализы'; // Rus tilidagi nom
     }
     public static function getModelLabel(): string
     {
-        return 'Для анализа'; // Rus tilidagi yakka holdagi nom
+        return 'Анализы'; // Rus tilidagi yakka holdagi nom
     }
     public static function getPluralModelLabel(): string
     {
-        return 'Для анализа'; // Rus tilidagi ko'plik shakli
+        return 'Анализы'; // Rus tilidagi ko'plik shakli
     }
     
     public static function getEloquentQuery(): Builder
@@ -160,7 +161,13 @@ class KassaLabTestResource extends Resource
                                     Select::make('payment_type_id')
                                         ->label('Тип оплаты')
                                         ->options(PaymentType::all()->pluck('name', 'id'))
-                                        ->required(),
+                                        ->required()
+                                        ->afterStateUpdated(function ($state, callable $set) {
+                                            $paymentType = \App\Models\PaymentType::find($state);
+                                            $set('is_submitted_to_bank', $paymentType && $paymentType->name === 'Терминал');
+                                        }),
+                                    Hidden::make('is_submitted_to_bank')
+                                        ->dehydrated(true),
                                         
                                     Textarea::make('description')
                                         ->label('Izoh')
@@ -174,6 +181,7 @@ class KassaLabTestResource extends Resource
                                 $payment = Payment::create([
                                     'amount' => $data['amount'],
                                     'payment_type_id' => $data['payment_type_id'],
+                                    'is_submitted_to_bank' => $data['is_submitted_to_bank'] ?? false,
                                     'description' => $data['description'],
                                     'user_id' => Filament::auth()->id(),
                                     'lab_test_history_id' => $record->id,

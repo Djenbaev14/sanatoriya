@@ -52,6 +52,7 @@ class LabTestHistoryResource extends Resource
                                                 ->columnSpan(12),
                                             Select::make('medical_history_id')
                                                 ->required()
+                                                ->default(request()->get('medical_history_id'))
                                                 ->label('История болезно')
                                                 ->options(function (Get $get, $state) {
                                                     $patientId = $get('patient_id');

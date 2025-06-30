@@ -63,6 +63,7 @@ class AccommodationResource extends Resource
                             ->dehydrated(true),
                         Select::make('medical_history_id')
                             ->label('История болезно')
+                            ->default(request()->get('medical_history_id'))
                             ->required()
                             ->options(function (Get $get) {
                                 $patientId = $get('patient_id');

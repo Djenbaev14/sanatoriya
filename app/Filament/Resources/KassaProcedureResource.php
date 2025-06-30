@@ -10,6 +10,7 @@ use App\Models\PaymentType;
 use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -29,7 +30,7 @@ class KassaProcedureResource extends Resource
 {
     protected static ?string $model = AssignedProcedure::class;
 
-    protected static ?string $navigationGroup = 'Касса';
+    protected static ?string $navigationGroup = 'Платежи по направлениям';
     protected static ?int $navigationSort = 1;
     public static function getNavigationBadge(): ?string
     {
@@ -45,15 +46,15 @@ class KassaProcedureResource extends Resource
     }
     public static function getNavigationLabel(): string
     {
-        return 'Для процедуры'; // Rus tilidagi nom
+        return 'Процедуры'; // Rus tilidagi nom
     }
     public static function getModelLabel(): string
     {
-        return 'Для процедуры'; // Rus tilidagi yakka holdagi nom
+        return 'Процедуры'; // Rus tilidagi yakka holdagi nom
     }
     public static function getPluralModelLabel(): string
     {
-        return 'Для процедуры'; // Rus tilidagi ko'plik shakli
+        return 'Процедуры'; // Rus tilidagi ko'plik shakli
     }
 
     public static function getEloquentQuery(): Builder
@@ -150,7 +151,13 @@ class KassaProcedureResource extends Resource
                                     Select::make('payment_type_id')
                                         ->label('Тип оплаты')
                                         ->options(PaymentType::all()->pluck('name', 'id'))
-                                        ->required(),
+                                        ->required()
+                                        ->afterStateUpdated(function ($state, callable $set) {
+                                            $paymentType = \App\Models\PaymentType::find($state);
+                                            $set('is_submitted_to_bank', $paymentType && $paymentType->name === 'Терминал');
+                                        }),
+                                    Hidden::make('is_submitted_to_bank')
+                                        ->dehydrated(true),
                                         
                                     Textarea::make('description')
                                         ->label('Izoh')
@@ -165,6 +172,7 @@ class KassaProcedureResource extends Resource
                                     'patient_id' => $record->patient_id,
                                     'amount' => $data['amount'],
                                     'payment_type_id' => $data['payment_type_id'],
+                                    'is_submitted_to_bank' => $data['is_submitted_to_bank'] ?? false,
                                     'description' => $data['description'],
                                     'user_id' => Filament::auth()->id(),
                                     'assigned_procedure_id' => $record->id,
@@ -189,26 +197,6 @@ class KassaProcedureResource extends Resource
                         ->modalHeading('Оплата')
                         ->modalSubmitActionLabel('Сохранить')
                         ->modalCancelActionLabel('Отмена'),
-                    //  Action::make('return_status')
-                    //     ->label('Вы уверены?')
-                    //     ->icon('heroicon-o-arrow-uturn-left')
-                    //     ->color('danger')
-                    //     ->modalWidth(MaxWidth::TwoExtraLarge)
-                    //     ->modalDescription('Отправить данные в кассу для оплаты?')
-                    //     ->modalSubmitActionLabel('Да, отправить')
-                    //     ->action(function (array $data, $record) {
-                        
-                    //     // Kassaga yuborish logikasi
-                    //     $record->update([
-                    //         'status_payment_id' => '1',
-                    //     ]);
-
-                    //     Notification::make()
-                    //         ->title('Запись успешно удалена')
-                    //         ->success()
-                    //         ->send();
-
-                    // }),
                 Action::make('return_overpayment')
                     ->label('Возврат')
                     ->icon('heroicon-o-banknotes')

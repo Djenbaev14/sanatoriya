@@ -9,6 +9,7 @@ use App\Models\KassaKoyka;
 use App\Models\MedicalHistory;
 use App\Models\PaymentType;
 use Filament\Forms;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -28,7 +29,7 @@ class KassaKoykaResource extends Resource
 {
     protected static ?string $model = Accommodation::class;
 
-    protected static ?string $navigationGroup = 'Касса';
+    protected static ?string $navigationGroup = 'Платежи по направлениям';
     protected static ?int $navigationSort = 4;
     public static function getNavigationBadge(): ?string
     {
@@ -138,8 +139,14 @@ class KassaKoykaResource extends Resource
                                     Select::make('payment_type_id')
                                         ->label('Тип оплаты')
                                         ->options(PaymentType::all()->pluck('name', 'id'))
-                                        ->required(),
-                                        
+                                        ->required()
+                                        ->reactive()
+                                        ->afterStateUpdated(function ($state, callable $set) {
+                                            $paymentType = \App\Models\PaymentType::find($state);
+                                            $set('is_submitted_to_bank', $paymentType && $paymentType->name === 'Терминал');
+                                        }),
+                                    Hidden::make('is_submitted_to_bank')
+                                        ->dehydrated(true),
                                     Textarea::make('description')
                                         ->label('Izoh')
                                         ->placeholder('Коммент')
@@ -154,6 +161,7 @@ class KassaKoykaResource extends Resource
                                 'accommodation_id' => $record->id,
                                 'amount' => $data['amount'],
                                 'payment_type_id' => $data['payment_type_id'],
+                                'is_submitted_to_bank' => $data['is_submitted_to_bank'] ?? false,
                                 'description' => $data['description'] ?? null,
                             ]);
                             if ($record->getTotalPaidAndReturned() == $record->getTotalCost()) {
@@ -171,27 +179,6 @@ class KassaKoykaResource extends Resource
                         ->modalHeading('Оплата')
                         ->modalSubmitActionLabel('Сохранить')
                         ->modalCancelActionLabel('Отмена'),
-                    //  Action::make('return_status')
-                    //     ->label('Вы уверены?')
-                    //     ->icon('heroicon-o-arrow-uturn-left')
-                    //     ->color('danger')
-                    //     ->modalWidth(MaxWidth::TwoExtraLarge)
-                    //     ->modalDescription('Отправить данные в кассу для оплаты?')
-                    //     ->visible(fn ($record) => $record->payments()->count() == 0)
-                    //     ->modalSubmitActionLabel('Да, отправить')
-                    //     ->action(function (array $data, $record) {
-                        
-                    //     // Kassaga yuborish logikasi
-                    //     $record->update([
-                    //         'status_payment_id' => '1',
-                    //     ]);
-
-                    //     Notification::make()
-                    //         ->title('Запись успешно удалена')
-                    //         ->success()
-                    //         ->send();
-
-                    // }),
                 Action::make('return_overpayment')
                     ->label('Возврат')
                     ->icon('heroicon-o-banknotes')
@@ -219,7 +206,8 @@ class KassaKoykaResource extends Resource
                                     
                                 Select::make('payment_type_id')
                                     ->label('Тип оплаты')
-                                    ->options(PaymentType::all()->pluck('name', 'id'))
+                                    // faqad name Нак bolganni chiqarmoqchiman
+                                    ->options(PaymentType::where('name', 'Нак')->pluck('name', 'id'))
                                     ->required(),
                                 Textarea::make('description')
                                     ->label('Комментарий')
@@ -256,15 +244,15 @@ class KassaKoykaResource extends Resource
     }
     public static function getNavigationLabel(): string
     {
-        return 'Для койка и питание'; // Rus tilidagi nom
+        return 'Койка и питание'; // Rus tilidagi nom
     }
     public static function getModelLabel(): string
     {
-        return 'Для койка и питание'; // Rus tilidagi yakka holdagi nom
+        return 'Койка и питание'; // Rus tilidagi yakka holdagi nom
     }
     public static function getPluralModelLabel(): string
     {
-        return 'Для койка и питание'; // Rus tilidagi ko'plik shakli
+        return 'Койка и питание'; // Rus tilidagi ko'plik shakli
     }
 
     public static function getRelations(): array

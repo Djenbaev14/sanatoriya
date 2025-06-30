@@ -10,6 +10,7 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\View;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Resources\Resource;
@@ -17,6 +18,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Components\Actions\Action;
 
 class DepartmentInspectionResource extends Resource
 {
@@ -45,6 +47,7 @@ class DepartmentInspectionResource extends Resource
                             ->columnSpan(12),
                         Select::make('medical_history_id')
                             ->label('История болезно')
+                            ->default(request()->get('medical_history_id'))
                             ->required()
                             ->options(function (Get $get, $state) {
                                 $patientId = $get('patient_id');
@@ -71,30 +74,37 @@ class DepartmentInspectionResource extends Resource
                             ->label('Жалобы')
                             ->rows(3)
                             ->columnSpan(12),
+                        View::make('forms.previous-medical-histories')->columnSpan(12),
                         Textarea::make('medical_history')
                             ->label('ANAMNEZIS  MORBI')
                             ->rows(3)
                             ->columnSpan(12),
+                        View::make('forms.previous-history-life')->columnSpan(12),
                         Textarea::make('history_life')
                             ->label('ANAMNEZIS  VITAE')
                             ->rows(3)
                             ->columnSpan(12),
+                        View::make('forms.previous-epidemiological-histories')->columnSpan(12),
                         Textarea::make('epidemiological_history')
                             ->label('Эпидемиологический анамнез')
                             ->rows(3)
                             ->columnSpan(12),
+                        View::make('forms.previous-objectivelies')->columnSpan(12),
                         Textarea::make('objectively')
                             ->label('STATUS PREZENS OBJECTIVUS')
                             ->rows(3)
                             ->columnSpan(12),
+                        View::make('forms.previous-local-states')->columnSpan(12),
                         Textarea::make('local_state')
                             ->label('STATUS LOCALIS')
                             ->rows(3)
                             ->columnSpan(12),
+                        View::make('forms.previous-diagnoses')->columnSpan(12),
                         Textarea::make('admission_diagnosis')
                             ->label('Диагноз')
                             ->rows(3)
                             ->columnSpan(12),
+                        View::make('forms.previous-recommendeds')->columnSpan(12),
                         Textarea::make('recommended')
                             ->label('Рекомендовано')
                             ->rows(3)
