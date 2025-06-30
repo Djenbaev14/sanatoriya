@@ -46,8 +46,7 @@ class AdminPanelProvider extends PanelProvider
                     ->label('Настройка')
                     ->icon('fas-gear'),
                 NavigationGroup::make()
-                    ->label('Роли и разрешения')
-                    ->icon('heroicon-o-shield-check'),
+                    ->label('Роли и разрешения'),
             ])
             ->plugins([
                 ActivitylogPlugin::make()
