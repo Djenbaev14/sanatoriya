@@ -19,13 +19,13 @@ class TariffSeeder extends Seeder
             [
                 'name'=>'4-ўринли хона',
                 'daily_price'=>'60000',
-                'partner_daily_price'=>'30000',
+                'partner_daily_price'=>'60000',
                 'foreign_daily_price'=>'90000',
             ],
             [
                 'name'=>'2-ўринли хона',
                 'daily_price'=>'85000',
-                'partner_daily_price'=>'42500',
+                'partner_daily_price'=>'85000',
                 'foreign_daily_price'=>'127500',
             ],
         ];
