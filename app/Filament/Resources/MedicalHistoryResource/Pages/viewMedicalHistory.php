@@ -602,6 +602,6 @@ class ViewMedicalHistory extends ViewRecord
     
     public function getTitle(): string
     {
-        return 'Истории Болезно: ' . '№'.$this->record->id . ' - '. $this->record->patient->full_name;
+        return 'Истории Болезно: ' . '№'.$this->record->number . ' - '. $this->record->patient->full_name;
     }
 }
