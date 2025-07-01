@@ -208,6 +208,7 @@ class MedicalHistoryResource extends Resource
                 TextColumn::make('created_at')->label('Дата')->dateTime()->sortable(),
                 // TextColumn::make('accommodation.discharge_date')->label('Дата выписки')->dateTime()->sortable(),,
             ])
+            ->defaultPaginationPageOption(50)
             ->defaultSort('number', 'desc')
             ->filters([
                 //
