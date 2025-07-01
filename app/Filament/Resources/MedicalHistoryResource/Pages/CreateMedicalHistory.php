@@ -13,10 +13,14 @@ use Illuminate\Database\Eloquent\Model;
 class CreateMedicalHistory extends CreateRecord
 {
     protected static string $resource = MedicalHistoryResource::class;
+    // protected function getRedirectUrl(): string
+    // {
+    //     return MedicalHistoryResource::getUrl('view', [
+    //         'record' => $this->record->id,
+    //     ]);
+    // }
     protected function getRedirectUrl(): string
     {
-        return PatientResource::getUrl('view', [
-            'record' => $this->record->patient_id,
-        ]);
+        return $this->getResource()::getUrl('index');
     }
 }

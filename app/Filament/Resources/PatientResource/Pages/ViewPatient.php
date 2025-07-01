@@ -66,7 +66,7 @@ class ViewPatient extends ViewRecord
                     ])->compact()->columnSpan(12),
                     Tabs::make()
                         ->tabs(array_filter([
-                            auth()->user()->can('просмотреть истории болезни') ?
+                            // auth()->user()->can('просмотреть истории болезни') ?
                                 Tab::make("История болезно")
                                     ->schema([
                                         Components\Group::make([
@@ -84,10 +84,10 @@ class ViewPatient extends ViewRecord
                                                     'style' => 'width: 100% !important; display: block !important;'
                                                 ])
                                         ])->columnSpan(12)->columns(12)
-                                    ])->columnSpan(12)->columns(12)
-                                : null,
+                                    ])->columnSpan(12)->columns(12),
+                                // : null,
                             
-                            auth()->user()->can('Условия размещения') ?
+                            // auth()->user()->can('Условия размещения') ?
                                 Tab::make("Условия размещения")
                                     ->schema([
                                         Components\Group::make([
@@ -105,10 +105,10 @@ class ViewPatient extends ViewRecord
                                                     'style' => 'width: 100% !important; display: block !important;'
                                                 ]),
                                         ])->columnSpan(12)->columns(12),
-                                    ])->columnSpan(12)->columns(12)
-                                :null,
+                                    ])->columnSpan(12)->columns(12),
+                            //     :null,
                                 
-                            auth()->user()->can('просмотр медицинских осмотров') ?
+                            // auth()->user()->can('просмотр медицинских осмотров') ?
                                 Tab::make("Приемный Осмотр")
                                     ->schema([
                                         Components\Group::make([
@@ -126,11 +126,11 @@ class ViewPatient extends ViewRecord
                                                     'style' => 'width: 100% !important; display: block !important;'
                                                 ]),
                                         ])->columnSpan(12)->columns(12),
-                                    ])->columnSpan(12)->columns(12)
-                                :null,
+                                    ])->columnSpan(12)->columns(12),
+                            //     :null,
                                 
                                 
-                            auth()->user()->can('просмотр медицинских осмотров') ?
+                            // auth()->user()->can('просмотр медицинских осмотров') ?
                                 Tab::make("Отделение Осмотр")
                                     ->schema([
                                         Components\Group::make([
@@ -148,10 +148,10 @@ class ViewPatient extends ViewRecord
                                                     'style' => 'width: 100% !important; display: block !important;'
                                                 ]),
                                         ])->columnSpan(12)->columns(12),
-                                    ])->columnSpan(12)->columns(12)
-                                :null,
+                                    ])->columnSpan(12)->columns(12),
+                            //     :null,
                                 
-                            auth()->user()->can('просмотреть лабораторные тесты') ?
+                            // auth()->user()->can('просмотреть лабораторные тесты') ?
                                 Tab::make('Анализи')
                                     ->schema([
                                         Components\Group::make([
@@ -169,9 +169,9 @@ class ViewPatient extends ViewRecord
                                                     'style' => 'width: 100% !important; display: block !important;'
                                                 ]),
                                         ])->columnSpan(12)->columns(12),
-                                    ])->columnSpan(12)->columns(12)
-                                :null,
-                            auth()->user()->can('просмотр процедур') ?
+                                    ])->columnSpan(12)->columns(12),
+                            //     :null,
+                            // auth()->user()->can('просмотр процедур') ?
                                 Tab::make('Планы лечения')
                                     ->schema([
                                         Components\Group::make([
@@ -190,7 +190,7 @@ class ViewPatient extends ViewRecord
                                                 ]),
                                         ])->columnSpan(12)->columns(12),
                                     ])->columnSpan(12)->columns(12)
-                                :null
+                                // :null
                         ]))->columnSpan(12)->columns(12),
 
             ]);
