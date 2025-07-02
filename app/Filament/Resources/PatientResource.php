@@ -150,32 +150,32 @@ class PatientResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            // ->headerActions([
-            //     CreateAction::make()
-            //         // ->visible(fn () => auth()->user()->can(abilities: 'создать больной'))
-            //         ->modalWidth(MaxWidth::TwoExtraLarge)
-            //         ->action(function (array $data) {
-            //                 $patient = Patient::create([
-            //                     'full_name' => $data['full_name'],
-            //                     'birth_date' => $data['birth_date'],
-            //                     'gender' => $data['gender'],
-            //                     'country_id' => $data['country_id'],
-            //                     'region_id' => $data['region_id'],
-            //                     'district_id' => $data['district_id'],
-            //                     'address' => $data['address'],
-            //                     'profession' => $data['profession'],
-            //                     'phone' => $data['phone'],
-            //                     'is_accomplice' => $data['is_accomplice'],
-            //                     'main_patient_id' => array_key_exists('main_patient_id', $data) ? $data['main_patient_id'] : null,
-            //                     'is_foreign' => $data['is_foreign'],
-            //                 ]);
+            ->headerActions([
+                CreateAction::make()
+                    ->visible(fn () => auth()->user()->can( 'создать больной'))
+                    ->modalWidth(MaxWidth::TwoExtraLarge)
+                    ->action(function (array $data) {
+                            $patient = Patient::create([
+                                'full_name' => $data['full_name'],
+                                'birth_date' => $data['birth_date'],
+                                'gender' => $data['gender'],
+                                'country_id' => $data['country_id'],
+                                'region_id' => $data['region_id'],
+                                'district_id' => $data['district_id'],
+                                'address' => $data['address'],
+                                'profession' => $data['profession'],
+                                'phone' => $data['phone'],
+                                'is_accomplice' => $data['is_accomplice'],
+                                'main_patient_id' => array_key_exists('main_patient_id', $data) ? $data['main_patient_id'] : null,
+                                'is_foreign' => $data['is_foreign'],
+                            ]);
 
-            //                 Notification::make()
-            //                     ->title($patient->full_name.' табыслы жаратылды!')
-            //                     ->success()
-            //                     ->send();
-            //             }),
-            // ])
+                            Notification::make()
+                                ->title($patient->full_name.' табыслы жаратылды!')
+                                ->success()
+                                ->send();
+                        }),
+            ])
             ->columns([
                 Tables\Columns\TextColumn::make('full_name')
                     ->label('ФИО')
