@@ -134,6 +134,10 @@ class WardResource extends Resource
             //
         ];
     }
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('настройки');
+    }
     public static function getNavigationLabel(): string
     {
         return 'Койка'; // Rus tilidagi nom

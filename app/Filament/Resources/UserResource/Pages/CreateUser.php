@@ -13,4 +13,9 @@ class CreateUser extends CreateRecord
     {
         return $this->getResource()::getUrl('index');
     }
+    protected function authorizeAccess(): void
+    {
+        abort_unless(auth()->user()->can('создать пользователя'), 403);
+    }
+
 }

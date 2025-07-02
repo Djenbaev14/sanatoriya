@@ -242,6 +242,10 @@ class KassaKoykaResource extends Resource
                 //
             ]);
     }
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('касса');
+    }
     public static function getNavigationLabel(): string
     {
         return 'Койка и питание'; // Rus tilidagi nom

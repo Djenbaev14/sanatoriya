@@ -30,6 +30,10 @@ class ActivityLogResource extends Resource
                 //
             ]);
     }
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false; // Foydalanuvchi faqat ruxsat berilgan bo'lsa ko'rsatadi
+    }
     
     public static function getNavigationLabel(): string
     {
@@ -75,8 +79,6 @@ class ActivityLogResource extends Resource
     {
         return [
             'index' => Pages\ListActivityLogs::route('/'),
-            'create' => Pages\CreateActivityLog::route('/create'),
-            'edit' => Pages\EditActivityLog::route('/{record}/edit'),
         ];
     }
 }

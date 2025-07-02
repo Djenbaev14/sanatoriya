@@ -121,6 +121,13 @@ class KassaBalanceResource extends Resource
             ])
     ->defaultSort('created_at', 'desc');
     }
+    
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('остаток в кассе');
+    }
+
+
 
     public static function getRelations(): array
     {

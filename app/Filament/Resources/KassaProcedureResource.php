@@ -44,6 +44,10 @@ class KassaProcedureResource extends Resource
                 //
             ]);
     }
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('касса');
+    }
     public static function getNavigationLabel(): string
     {
         return 'Процедуры'; // Rus tilidagi nom

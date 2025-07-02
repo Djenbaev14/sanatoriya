@@ -50,6 +50,10 @@ class UserResource extends Resource
                     ])
             ]);
     }
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('пользователи');
+    }
 
     public static function table(Table $table): Table
     {

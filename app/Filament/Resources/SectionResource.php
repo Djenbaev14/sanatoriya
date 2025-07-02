@@ -5,12 +5,15 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\SectionResource\Pages;
 use App\Filament\Resources\SectionResource\RelationManagers;
 use App\Models\Section;
+use App\Models\User;
 use App\Models\Ward;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -29,9 +32,8 @@ class SectionResource extends Resource
     }
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
-        return parent::getEloquentQuery()->with(['currentAccommodations']);
+        return parent::getEloquentQuery()->with(['currentAccommodations.medicalHistory.medicalInspection']);
     }
-
     public static function table(Table $table): Table
     {
         return $table
@@ -48,8 +50,28 @@ class SectionResource extends Resource
             ])
             ->defaultPaginationPageOption(50)
             ->filters([
-                //
-            ]);
+                
+            SelectFilter::make('doctor')
+                ->label('Врач')
+                ->options(function () {
+                    return \App\Models\User::role('Доктор')
+                        ->pluck('name', 'id')
+                        ->toArray();
+                })
+                ->query(function (Builder $query, array $data): Builder {
+                    if (filled($data['value'])) {
+                        return $query->whereHas('currentAccommodations.medicalHistory.medicalInspection', function ($q) use ($data) {
+                            $q->where('assigned_doctor_id', $data['value']);
+                        });
+                    }
+                    return $query;
+                })
+            ],layout:FiltersLayout::AboveContent);
+            
+    }
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('отделение');
     }
 
     

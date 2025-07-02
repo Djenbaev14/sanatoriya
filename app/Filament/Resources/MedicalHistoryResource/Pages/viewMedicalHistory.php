@@ -169,7 +169,7 @@ class ViewMedicalHistory extends ViewRecord
                             ->icon('heroicon-o-home')
                             ->schema([
                                     Section::make('Условия размещения')
-                                        ->visible(fn ($record) => is_null($record->accommodation))
+                                        ->visible(fn ($record) => is_null($record->accommodation) && auth()->user()->can('создать условия размещения'))
                                         ->schema([
                                             \Filament\Infolists\Components\Actions::make([
                                                 
@@ -271,7 +271,7 @@ class ViewMedicalHistory extends ViewRecord
                             ->icon('heroicon-o-clipboard-document-check')
                             ->schema([
                                 Section::make('Приемный Осмотр')
-                                    ->visible(fn ($record) => is_null($record->medicalInspection))
+                                    ->visible(fn ($record) => is_null($record->medicalInspection) && auth()->user()->can('создать приемный осмотр'))
                                     ->schema([
                                         \Filament\Infolists\Components\Actions::make([
                                             
@@ -363,7 +363,8 @@ class ViewMedicalHistory extends ViewRecord
                             ->icon('heroicon-o-clipboard-document-check')
                             ->schema([
                                 Section::make('Отделение Осмотр')
-                                    ->visible(fn ($record) => is_null($record->departmentInspection))
+                                // auth user medicalInspection dagi bekitilgan assigned_doctor_id teng bolsa kiritsin
+                                    ->visible(fn ($record) => is_null($record->departmentInspection) && auth()->user()->can(abilities: 'создать отделение осмотр') && ($record->medicalInspection?->assigned_doctor_id === auth()->id()))
                                     ->schema([
                                         \Filament\Infolists\Components\Actions::make([
                                             
@@ -455,7 +456,7 @@ class ViewMedicalHistory extends ViewRecord
                             ->icon('heroicon-o-beaker')
                             ->schema([
                                 Section::make('Анализы')
-                                    ->visible(fn ($record) => is_null($record->labTestHistory))
+                                    ->visible(fn ($record) => is_null($record->labTestHistory) && auth()->user()->can(abilities: 'создать анализы') && ($record->medicalInspection?->assigned_doctor_id === auth()->id()))
                                     ->schema([
                                         \Filament\Infolists\Components\Actions::make([
                                             
@@ -530,7 +531,7 @@ class ViewMedicalHistory extends ViewRecord
                             ->icon('heroicon-o-wrench-screwdriver')
                             ->schema([
                                 Section::make('Процедуры')
-                                    ->visible(fn ($record) => is_null($record->assignedProcedure))
+                                    ->visible(fn ($record) => is_null($record->assignedProcedure) && auth()->user()->can(abilities: 'создать процедуры') && ($record->medicalInspection?->assigned_doctor_id === auth()->id()))
                                     ->schema([
                                         \Filament\Infolists\Components\Actions::make([
                                             

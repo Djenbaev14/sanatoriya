@@ -24,22 +24,6 @@ class Ward extends Model
     {
         return $this->beds()->availableBeds()->count();
     }
-    public function currentPatients(): HasManyThrough
-    {
-        return $this->hasManyThrough(
-            \App\Models\Patient::class,
-            \App\Models\Accommodation::class,
-            'ward_id',    // Accommodation jadvalidagi foreign key
-            'id',         // Patient modelining primary key
-            'id',         // Ward modelidagi local key
-            'patient_id'  // Accommodation jadvalidagi foreign key
-        )
-        ->where('admission_date', '<=', now()) // qabul qilingan
-        ->where(function ($query) {
-            $query->whereNull('discharge_date')
-                ->orWhere('discharge_date', '>', now()); // chiqmagan
-        });
-    }
 
     public function currentAccommodations()
     {
@@ -49,33 +33,100 @@ class Ward extends Model
                 $query->whereNull('discharge_date')
                     ->orWhere('discharge_date', '>', now());
             })
-            ->with('patient'); // bemorni ham olish
+            ->with('patient','medicalHistory.medicalInspection'); // bemorni ham olish
+    }
+    public function currentAccommodationsForDoctor($doctorId)
+    {
+        return $this->hasMany(\App\Models\Accommodation::class)
+            ->where('is_accomplice', false)
+            ->where(function ($query) {
+                $query->whereNull('discharge_date')
+                    ->orWhere('discharge_date', '>', now());
+            })
+            ->whereHas('medicalHistory.medicalInspection', function ($query) use ($doctorId) {
+                $query->where('assigned_doctor_id', $doctorId);
+            })
+            ->with('patient');
     }
     public function getCurrentPatientsDisplayAttribute()
     {
+        // Agar filtr mavjud bo'lsa, uni qo'llash
+        $accommodations = $this->currentAccommodations;
+        
+        // Request dan doctor_id ni olish
+        $filters = request()->input('tableFilters', []);
+        $doctorId = data_get($filters, 'doctor.value');
+        
+        if ($doctorId) {
+            $accommodations = $accommodations->filter(function ($accommodation) use ($doctorId) {
+                return $accommodation->medicalHistory && 
+                       $accommodation->medicalHistory->medicalInspection &&
+                       $accommodation->medicalHistory->medicalInspection->assigned_doctor_id == $doctorId;
+            });
+        }
+        
         $main = [];
         $accomplices = [];
-
-        foreach ($this->currentAccommodations as $accommodation) {
+        
+        foreach ($accommodations as $accommodation) {
             $patient = $accommodation->patient;
             if (!$patient) continue;
-
+            
             $name = $patient->full_name ?? 'Nomaʼlum';
-
+            
             if ($patient->is_accomplice) {
                 $accomplices[] = '🤝 ' . $name;
             } else {
                 $main[] = '👤 ' . $name;
             }
         }
-
+        
         return collect($main)
             ->merge($accomplices)
-            ->join(',');
+            ->join(', ');
     }
+    // public function getCurrentPatientsDisplayAttribute()
+    // {
+    //     $main = [];
+    //     $accomplices = [];
+
+    //     foreach ($this->currentAccommodations as $accommodation) {
+    //         $patient = $accommodation->patient;
+    //         if (!$patient) continue;
+
+    //         $name = $patient->full_name ?? 'Nomaʼlum';
+
+    //         if ($patient->is_accomplice) {
+    //             $accomplices[] = '🤝 ' . $name;
+    //         } else {
+    //             $main[] = '👤 ' . $name;
+    //         }
+    //     }
+
+    //     return collect($main)
+    //         ->merge($accomplices)
+    //         ->join(',');
+    // }
         // Jami koygalar soni
     public function getTotalBedsCountAttribute()
     {
         return $this->beds()->count();
     }
+    
+    // public function currentPatients(): HasManyThrough
+    // {
+    //     return $this->hasManyThrough(
+    //         \App\Models\Patient::class,
+    //         \App\Models\Accommodation::class,
+    //         'ward_id',    // Accommodation jadvalidagi foreign key
+    //         'id',         // Patient modelining primary key
+    //         'id',         // Ward modelidagi local key
+    //         'patient_id'  // Accommodation jadvalidagi foreign key
+    //     )
+    //     ->where('admission_date', '<=', now()) // qabul qilingan
+    //     ->where(function ($query) {
+    //         $query->whereNull('discharge_date')
+    //             ->orWhere('discharge_date', '>', now()); // chiqmagan
+    //     });
+    // }
 }

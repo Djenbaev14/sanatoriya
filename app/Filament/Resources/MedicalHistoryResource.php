@@ -219,6 +219,10 @@ class MedicalHistoryResource extends Resource
                 ]),
             ]);
     }
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('история болезни');
+    }
 
     public static function getNavigationLabel(): string
     {

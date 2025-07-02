@@ -110,6 +110,10 @@ class SubmittedPaymentsResource extends Resource
                     ->preload(),
             ],layout: FiltersLayout::AboveContent);
     }
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('сдано в банк');
+    }
 
     public static function getRelations(): array
     {

@@ -2,12 +2,12 @@
     <div class="flex justify-between items-center mb-4" style="width: 100%;">
         <h2 class="text-xl font-bold">Условия размещения</h2>
         
-        <a 
+        {{-- <a 
             href="/admin/accommodations/create?patient_id={{$patient->id}}" 
             class="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition"
         >
             + Условия размещения
-        </a>
+        </a> --}}
     </div>
     
     <!-- Force full width with inline styles -->
@@ -15,7 +15,7 @@
         <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
             <thead>
                 <tr style="background-color: #f3f4f6;">
-                    <th style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">№</th>
+                    <th style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">История болезно</th>
                     <th style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">Дата поступления</th>
                     <th style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">Дата выписки</th>
                     <th style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">День</th>
@@ -28,7 +28,7 @@
             <tbody>
                 @foreach($accommodations as $key => $accommodation)
                 <tr style="border-bottom: 1px solid #929292;">
-                    <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $accommodation->id }}</td>
+                    <td style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">{{str_pad('№'.$accommodation->medicalHistory->number, 10) }}</td>
                     <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $accommodation->admission_date }}</td>
                     <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $accommodation->discharge_date }}</td>
                     <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $accommodation->calculateDays() }} день</td>

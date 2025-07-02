@@ -151,6 +151,7 @@ class PatientResource extends Resource
         return $table
             ->headerActions([
                 CreateAction::make()
+                    ->visible(fn () => auth()->user()?->can('создать больной'))
                     ->modalWidth(MaxWidth::TwoExtraLarge)
                     ->action(function (array $data) {
                             $patient = Patient::create([
@@ -221,6 +222,10 @@ class PatientResource extends Resource
                 //         return $record;
                 //     }),
             ]);
+    }
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('больные');
     }
 
     public static function getRelations(): array

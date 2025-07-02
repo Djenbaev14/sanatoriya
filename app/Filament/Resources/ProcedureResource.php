@@ -130,6 +130,10 @@ class ProcedureResource extends Resource
             ]);
     }
 
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('настройки');
+    }
     public static function getRelations(): array
     {
         return [

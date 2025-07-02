@@ -2,12 +2,12 @@
     <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-bold">Личение</h2>
         
-        <a 
+        {{-- <a 
             href="/admin/assigned-procedures/create?patient_id={{$patient->id}}" 
             class="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition"
         >
             + Добавить Личение
-        </a>
+        </a> --}}
     </div>
     <div style="width: 100%; overflow-x: auto;">
         <table style="width: 100%; border-collapse: collapse; table-layout: fixed;" >
