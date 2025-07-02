@@ -10,10 +10,4 @@ class ListPatients extends ListRecords
 {
     protected static string $resource = PatientResource::class;
 
-    // protected function getHeaderActions(): array
-    // {
-    //     return [
-    //         Actions\CreateAction::make(),
-    //     ];
-    // }
 }
