@@ -153,10 +153,6 @@ class MedicalHistoryResource extends Resource
                     
         ]);
     }
-    public static function shouldRegisterNavigation(): bool
-    {
-        return true;
-    }
 
     
     public static function table(Table $table): Table
@@ -219,7 +215,11 @@ class MedicalHistoryResource extends Resource
                 ]),
             ]);
     }
-    public static function canAccess(): bool
+    // public static function canAccess(): bool
+    // {
+    //     return auth()->user()?->can('история болезни');
+    // }
+    public static function shouldRegisterNavigation(): bool
     {
         return auth()->user()?->can('история болезни');
     }

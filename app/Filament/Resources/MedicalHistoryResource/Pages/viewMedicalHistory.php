@@ -225,7 +225,18 @@ class ViewMedicalHistory extends ViewRecord
                                                                 ->label('Питание')
                                                                 ->badge()
                                                                 ->color(Color::Purple),
-                                                        ])
+                                                            ]),
+                                                        Grid::make(1)->schema([
+                                                            \Filament\Infolists\Components\Actions::make([
+                                                                Action::make('editAccommodation')
+                                                                ->label('Редактировать')
+                                                                ->visible(fn ($record) => $record->accommodation !== null && auth()->user()->can('создать условия размещения'))
+                                                                ->icon('heroicon-o-pencil')
+                                                                ->button()
+                                                                ->color('warning')
+                                                                ->url(fn ($record) => "/admin/accommodations/{$record->accommodation->id}/edit?patient_id={$record->patient->id}&medical_history_id={$record->id}" )
+                                                            ])
+                                                        ]),
                                                     ])->columnSpan(6),
 
                                                 // Qarovchi
@@ -274,7 +285,6 @@ class ViewMedicalHistory extends ViewRecord
                                     ->visible(fn ($record) => is_null($record->medicalInspection) && auth()->user()->can('создать приемный осмотр'))
                                     ->schema([
                                         \Filament\Infolists\Components\Actions::make([
-                                            
                                             Action::make('createMedicalInspection')
                                             ->label('Создать Приемный Осмотр')
                                             ->icon('heroicon-o-plus')
@@ -287,7 +297,7 @@ class ViewMedicalHistory extends ViewRecord
                                     ->label('Приемный Осмотр')
                                     ->visible(fn ($record) => $record->medicalInspection !== null) // 👈 Bu muhim
                                     ->schema([
-                                                Grid::make(2)
+                                                Grid::make(3)
                                                     ->schema([
                                                     TextEntry::make('medicalInspection.id')
                                                         ->label('Скачать осмотр')
@@ -302,7 +312,16 @@ class ViewMedicalHistory extends ViewRecord
                                                             ->weight(FontWeight::Bold)
                                                             ->color(Color::Blue)
                                                             ->placeholder('Не назначено'),
-                                                    ]),
+                                                        \Filament\Infolists\Components\Actions::make([
+                                                                Action::make('editMedicalInspection')
+                                                                ->label('Редактировать')
+                                                                ->visible(fn ($record) => $record->medicalInspection !== null && auth()->user()->can('создать приемный осмотр'))
+                                                                ->icon('heroicon-o-pencil')
+                                                                ->button()
+                                                                ->color('warning')
+                                                                ->url(fn ($record) => "/admin/medical-inspections/{$record->medicalInspection->id}/edit?patient_id={$record->patient->id}&medical_history_id={$record->id}" )
+                                                        ])
+                                                ]),
                                                     
                                                 TextEntry::make('medicalInspection.admission_diagnosis')
                                                     ->label('Диагноз')
@@ -390,6 +409,16 @@ class ViewMedicalHistory extends ViewRecord
                                                             ->formatStateUsing(fn($state) => 'Отделение осмотр №' . $state)
                                                             ->icon('heroicon-o-arrow-down-tray')
                                                             ->color(Color::Gray),
+                                                            
+                                                        \Filament\Infolists\Components\Actions::make([
+                                                                Action::make('editDepartmentInspection')
+                                                                ->label('Редактировать')
+                                                                ->visible(fn ($record) => $record->departmentInspection !== null && auth()->user()->can(abilities: 'создать отделение осмотр') && ($record->medicalInspection?->assigned_doctor_id === auth()->id()))
+                                                                ->icon('heroicon-o-pencil')
+                                                                ->button()
+                                                                ->color('warning')
+                                                                ->url(fn ($record) => "/admin/department-inspections/{$record->departmentInspection->id}/edit?patient_id={$record->patient->id}&medical_history_id={$record->id}" )
+                                                        ])
                                                     ]),
                                                     
                                                 TextEntry::make('departmentInspection.admission_diagnosis')
@@ -471,7 +500,7 @@ class ViewMedicalHistory extends ViewRecord
                                 Section::make('Анализы')
                                     ->visible(fn ($record) => $record->labTestHistory !== null) // 👈 Bu muhim
                                     ->schema([
-                                                Grid::make(3)
+                                                Grid::make(4)
                                                     ->schema([
                                                         TextEntry::make('labTestHistory.doctor.name')
                                                             ->label('Назначенный врач')
@@ -491,6 +520,17 @@ class ViewMedicalHistory extends ViewRecord
                                                         TextEntry::make('labTestHistory.created_at')
                                                             ->label('Дата создания')
                                                             ->dateTime('d.m.Y H:i'),
+                                                        
+                                                        \Filament\Infolists\Components\Actions::make([
+                                                                Action::make('editLabTestHistory')
+                                                                ->label('Редактировать')
+                                                                ->visible(fn ($record) => $record->labTestHistory !== null ** auth()->user()->can(abilities: 'создать анализы') && ($record->medicalInspection?->assigned_doctor_id === auth()->id()))
+                                                                ->icon('heroicon-o-pencil')
+                                                                ->button()
+                                                                ->color('warning')
+                                                                ->url(fn ($record) => "/admin/lab-test-histories/{$record->labTestHistory->id}/edit?patient_id={$record->patient->id}&medical_history_id={$record->id}" )
+                                                        ])
+                                                            
                                                     ]),
                                                 RepeatableEntry::make('labTestHistory.labTestDetails')
                                                         ->label('')
@@ -560,6 +600,16 @@ class ViewMedicalHistory extends ViewRecord
                                                                 'В кассе' => Color::Orange,
                                                                 'отменённый' => Color::Red
                                                             }),
+                                                            
+                                                        \Filament\Infolists\Components\Actions::make([
+                                                                Action::make('editAssignedProcedure')
+                                                                ->label('Редактировать')
+                                                                ->visible(fn ($record) => $record->assignedProcedure !== null && auth()->user()->can(abilities: 'создать процедуры') && ($record->medicalInspection?->assigned_doctor_id === auth()->id()))
+                                                                ->icon('heroicon-o-pencil')
+                                                                ->button()
+                                                                ->color('warning')
+                                                                ->url(fn ($record) => "/admin/assigned-procedures/{$record->assignedProcedure->id}/edit?patient_id={$record->patient->id}&medical_history_id={$record->id}" )
+                                                        ])
                                                     ]),
                                                 RepeatableEntry::make('assignedProcedure.procedureDetails')
                                                         ->label('')
