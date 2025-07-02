@@ -60,7 +60,7 @@ class ViewAccommodation extends ViewRecord
                 ->label('Назад')
                 ->icon('heroicon-o-arrow-uturn-left')
                 ->color('danger')
-                ->url(fn () => route('filament.admin.resources.patients.view', $this->record->patient_id)),
+                ->url(fn () => route('filament.admin.resources.medical-histories.view', $this->record->medical_history_id)),
 
 
             // Action::make('print')

@@ -77,15 +77,15 @@ class SectionResource extends Resource
     
     public static function getNavigationLabel(): string
     {
-        return 'Отделение'; // Rus tilidagi nom
+        return 'Общее Отделение'; // Rus tilidagi nom
     }
     public static function getModelLabel(): string
     {
-        return 'Отделение'; // Rus tilidagi yakka holdagi nom
+        return 'Общее Отделение'; // Rus tilidagi yakka holdagi nom
     }
     public static function getPluralModelLabel(): string
     {
-        return 'Отделение'; // Rus tilidagi ko'plik shakli
+        return 'Общее Отделение'; // Rus tilidagi ko'plik shakli
     }
     public static function getRelations(): array
     {

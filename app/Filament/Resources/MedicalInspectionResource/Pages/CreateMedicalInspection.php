@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources\MedicalInspectionResource\Pages;
 
+use App\Filament\Resources\MedicalHistoryResource;
 use App\Filament\Resources\MedicalInspectionResource;
 use App\Filament\Resources\PatientResource;
+use App\Models\MedicalHistory;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 
@@ -28,8 +30,8 @@ class CreateMedicalInspection extends CreateRecord
     // }
     protected function getRedirectUrl(): string
     {
-        return PatientResource::getUrl('view', [
-            'record' => $this->record->patient_id,
+        return MedicalHistoryResource::getUrl('view', [
+            'record' => $this->record->medical_history_id,
         ]);
     }
 }

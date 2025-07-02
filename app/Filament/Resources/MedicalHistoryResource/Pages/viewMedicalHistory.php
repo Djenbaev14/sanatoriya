@@ -600,7 +600,14 @@ class ViewMedicalHistory extends ViewRecord
                     ->persistTabInQueryString()
             ]);
     }
-    
+    protected function getHeaderActions(): array
+    {
+        return [
+            Actions\EditAction::make()
+                ->label('Редактировать'),
+                
+        ];
+    }
     public function getTitle(): string
     {
         return 'Истории Болезно: ' . '№'.$this->record->number . ' - '. $this->record->patient->full_name;
