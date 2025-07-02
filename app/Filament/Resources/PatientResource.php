@@ -151,7 +151,7 @@ class PatientResource extends Resource
         return $table
             ->headerActions([
                 CreateAction::make()
-                    ->visible(fn () => auth()->user()->can(abilities: 'создать больной'))
+                    // ->visible(fn () => auth()->user()->can(abilities: 'создать больной'))
                     ->modalWidth(MaxWidth::TwoExtraLarge)
                     ->action(function (array $data) {
                             $patient = Patient::create([
