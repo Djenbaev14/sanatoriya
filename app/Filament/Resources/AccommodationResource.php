@@ -479,7 +479,10 @@ class AccommodationResource extends Resource
 
                                             // Kamida 1 kun hisoblash
                                             // $days = max($days, 1);
-                                            $days=$this->calculatePaidDays($admission,$discharge);
+                                            
+                                            $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
+                                            $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
+                                            $days= max($start->diffInDays($end), 0);
 
                                             $total = $dailyPrice * $days;
 
@@ -521,7 +524,9 @@ class AccommodationResource extends Resource
                                             // }
                                             // Kamida 1 kun hisoblash
                                             // $days = max($days, 1);
-                                            $days=$this->calculatePaidDays($admission,$discharge);
+                                            $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
+                                            $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
+                                            $days= max($start->diffInDays($end), 0);
 
                                             $total = $dailyPrice * $days;
                                             return number_format($total, 0, '.', ' ') . ' сум (' . $days . ' дней × ' . number_format($dailyPrice, 0, '.', ' ') . ')';
@@ -561,7 +566,9 @@ class AccommodationResource extends Resource
                                             // Kamida 1 kun hisoblash
                                             // $days = max($days, 1);
 
-                                            $days=$this->calculatePaidDays($admission,$discharge);
+                                            $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
+                                            $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
+                                            $days= max($start->diffInDays($end), 0);
                                             $total = $dailyPrice * $days;
 
                                             return number_format($total, 0, '.', ' ') . ' сум (' . $days . ' дней × ' . number_format($dailyPrice, 0, '.', ' ') . ')';
@@ -602,7 +609,9 @@ class AccommodationResource extends Resource
                                             // }
                                             // Kamida 1 kun hisoblash
                                             // $days = max($days, 1);
-                                            $days=$this->calculatePaidDays($admission,$discharge);
+                                            $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
+                                            $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
+                                            $days= max($start->diffInDays($end), 0);
 
                                             $total = $dailyPrice * $days;
                                             return number_format($total, 0, '.', ' ') . ' сум (' . $days . ' дней × ' . number_format($dailyPrice, 0, '.', ' ') . ')';
@@ -638,7 +647,9 @@ class AccommodationResource extends Resource
                                                     // // Kamida 1 kun hisoblash
                                                     // $days = max($days, 1);
                                                     
-                                                    $days=$this->calculatePaidDays($admission,$discharge);
+                                                    $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
+                                                    $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
+                                                    $days= max($start->diffInDays($end), 0);
                                                     $bedPrice=$isForeign ? $bed->ward->tariff->foreign_daily_price : $bed->ward->tariff->daily_price;
                                                     $bedTotal = $bedPrice * $days;
                                                 }
@@ -667,7 +678,9 @@ class AccommodationResource extends Resource
                                                     // // Kamida 1 kun hisoblash
                                                     // $days = max($days, 1);
                                                     
-                                                    $days=$this->calculatePaidDays($admission,$discharge);
+                                            $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
+                                            $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
+                                            $days= max($start->diffInDays($end), 0);
 
                                                     $mealPrice=$isForeign ? $mealType->foreign_daily_price : $mealType->daily_price;
                                                     $mealTotal = $mealPrice * $days;
@@ -698,7 +711,9 @@ class AccommodationResource extends Resource
                                                     // // Kamida 1 kun hisoblash
                                                     // $days = max($days, 1);
                                                     
-                                                    $days=$this->calculatePaidDays($admission,$discharge);
+                                            $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
+                                            $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
+                                            $days= max($start->diffInDays($end), 0);
                                                     $partnerBedTotal = $partnerBed->ward->tariff->partner_daily_price * $days;
                                                 }
                                             }
@@ -727,7 +742,9 @@ class AccommodationResource extends Resource
                                                     // // Kamida 1 kun hisoblash
                                                     // $days = max($days, 1);
                                                     
-                                                    $days=$this->calculatePaidDays($admission,$discharge);
+                                            $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
+                                            $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
+                                            $days= max($start->diffInDays($end), 0);
                                                     $partnerMealTotal = $mealType->partner_daily_price * $days;
                                                 }
                                             }
@@ -748,12 +765,12 @@ class AccommodationResource extends Resource
                                 ->columnSpan(12),
             ]);
     }
-    protected function calculatePaidDays(Carbon $admission, Carbon $discharge): int
-    {
-        $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
-        $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
-        return max($start->diffInDays($end), 0);
-    }
+    // protected function calculatePaidDays(Carbon $admission, Carbon $discharge): int
+    // {
+    //     $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
+    //     $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
+    //     return max($start->diffInDays($end), 0);
+    // }
     public static function shouldRegisterNavigation(): bool
     {
         return false;
