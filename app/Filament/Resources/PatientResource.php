@@ -47,6 +47,18 @@ class PatientResource extends Resource
                             ->required()
                             ->maxLength(255)
                             ->columnSpan(12),
+                        TextInput::make('passport')
+                            ->label('Паспорт серия и номер')
+                            ->required()
+                            ->maxLength(255)
+                            ->unique(ignoreRecord: true)
+                            ->regex('/^[A-Z]{2}\d{7}$/', 'Паспорт серия и номер должен быть в формате AA1234567')
+                            ->placeholder('AA1234567')
+                            ->columnSpan(6),
+                        DatePicker::make('birth_date')
+                            ->label('День рождения')
+                            ->required()
+                            ->columnSpan(6),
                         TextInput::make('phone')
                             ->prefix('+998')
                             ->label('Телефон номер')
@@ -54,10 +66,6 @@ class PatientResource extends Resource
                             ->required()
                             ->tel()
                             ->maxLength(255)
-                            ->columnSpan(6),
-                        DatePicker::make('birth_date')
-                            ->label('День рождения')
-                            ->required()
                             ->columnSpan(6),
                         Select::make('country_id') 
                             ->label('Страна ') 
@@ -162,6 +170,7 @@ class PatientResource extends Resource
                                 'country_id' => $data['country_id'],
                                 'region_id' => $data['region_id'],
                                 'district_id' => $data['district_id'],
+                                'passport' => $data['passport'],
                                 'address' => $data['address'],
                                 'profession' => $data['profession'],
                                 'phone' => $data['phone'],
