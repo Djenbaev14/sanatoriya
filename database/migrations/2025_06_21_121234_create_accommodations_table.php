@@ -37,7 +37,7 @@ return new class extends Migration
             $table->decimal('tariff_price', 10, 2);
             
             $table->dateTime('admission_date')->nullable(); // Qabul qilingan sana
-            $table->date('discharge_date')->nullable(); // Chiqish sanasi
+            $table->dateTime('discharge_date')->nullable(); // Chiqish sanasi
             
             $table->unsignedBigInteger('meal_type_id');
             $table->foreign('meal_type_id')->references('id')->on('meal_types');

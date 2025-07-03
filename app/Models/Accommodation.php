@@ -52,11 +52,15 @@ class Accommodation extends Model
             $admissionDate = \Carbon\Carbon::parse($this->admission_date);
             $dischargeDate = \Carbon\Carbon::parse($this->discharge_date);
                 
-            $days = is_null($dischargeDate) ? 0 : $dischargeDate->diffInDays($admissionDate) + 1;
+            $days = is_null($dischargeDate) ? 0 : $dischargeDate->diffInDays($admissionDate);
             // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
             if ($admissionDate->format('H:i') > '12:00' && $days > 0) {
                 $days -= 1;
             }
+            if ($dischargeDate->format('H:i') > '12:00' && $days > 0) {
+                $days += 1;
+            }
+            
             
             return $days;
     }
@@ -65,7 +69,7 @@ class Accommodation extends Model
             $admissionDate = \Carbon\Carbon::parse($this->partner->admission_date);
             $dischargeDate = \Carbon\Carbon::parse($this->partner->discharge_date);
                 
-            $days = is_null($dischargeDate) ? 0 : $dischargeDate->diffInDays($admissionDate) + 1;
+            $days = is_null($dischargeDate) ? 0 : $dischargeDate->diffInDays($admissionDate);
             // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
             if ($admissionDate->format('H:i') > '12:00' && $days > 0) {
                 $days -= 1;

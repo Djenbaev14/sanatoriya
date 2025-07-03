@@ -622,11 +622,14 @@ class AccommodationResource extends Resource
                                                     $admission = \Carbon\Carbon::parse($admissionDate);
                                                     $discharge = \Carbon\Carbon::parse($dischargeDate);
 
-                                                    $days = $admission->diffInDays($discharge) + 1;
+                                                    $days = $admission->diffInDays($discharge) ;
 
                                                     // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
                                                     if ($admission->format('H:i') > '12:00' && $days > 0) {
                                                         $days -= 1;
+                                                    }
+                                                    if($discharge->format('H:i') > '12:00' && $days > 0) {
+                                                        $days += 1;
                                                     }
                                                     // Kamida 1 kun hisoblash
                                                     $days = max($days, 1);
@@ -646,11 +649,14 @@ class AccommodationResource extends Resource
                                                     $admission = \Carbon\Carbon::parse($admissionDate);
                                                     $discharge = \Carbon\Carbon::parse($dischargeDate);
 
-                                                    $days = $admission->diffInDays($discharge) + 1;
+                                                    $days = $admission->diffInDays($discharge);
 
                                                     // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
                                                     if ($admission->format('H:i') > '12:00' && $days > 0) {
                                                         $days -= 1;
+                                                    }
+                                                    if($discharge->format('H:i') > '12:00' && $days > 0) {
+                                                        $days += 1;
                                                     }
                                                     // Kamida 1 kun hisoblash
                                                     $days = max($days, 1);
@@ -671,11 +677,14 @@ class AccommodationResource extends Resource
                                                     $admission = \Carbon\Carbon::parse($partnerAdmissionDate);
                                                     $discharge = \Carbon\Carbon::parse($partnerDischargeDate);
 
-                                                    $days = $admission->diffInDays($discharge) + 1;
+                                                    $days = $admission->diffInDays($discharge);
 
                                                     // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
                                                     if ($admission->format('H:i') > '12:00' && $days > 0) {
                                                         $days -= 1;
+                                                    }
+                                                    if($discharge->format('H:i') > '12:00' && $days > 0) {
+                                                        $days += 1;
                                                     }
                                                     // Kamida 1 kun hisoblash
                                                     $days = max($days, 1);
@@ -694,11 +703,15 @@ class AccommodationResource extends Resource
                                                     $admission = \Carbon\Carbon::parse($partnerAdmissionDate);
                                                     $discharge = \Carbon\Carbon::parse($partnerDischargeDate);
 
-                                                    $days = $admission->diffInDays($discharge) + 1;
+                                                    $days = $admission->diffInDays($discharge);
 
                                                     // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
                                                     if ($admission->format('H:i') > '12:00' && $days > 0) {
                                                         $days -= 1;
+                                                    }
+                                                    
+                                                    if($discharge->format('H:i') > '12:00' && $days > 0) {
+                                                        $days += 1;
                                                     }
                                                     // Kamida 1 kun hisoblash
                                                     $days = max($days, 1);

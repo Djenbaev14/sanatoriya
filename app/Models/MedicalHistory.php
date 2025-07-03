@@ -87,10 +87,13 @@ class MedicalHistory extends Model
             $admissionDate = \Carbon\Carbon::parse($this->admission_date);
             $dischargeDate = \Carbon\Carbon::parse($this->discharge_date);
                 
-            $days = $admissionDate->diffInDays($dischargeDate) + 1;
+            $days = $admissionDate->diffInDays($dischargeDate);
             // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
             if ($admissionDate->format('H:i') > '12:00' && $days > 0) {
                 $days -= 1;
+            }
+            if ($dischargeDate->format('H:i') > '12:00' && $days > 0) {
+                $days += 1;
             }
             
             return $days;
@@ -114,10 +117,13 @@ class MedicalHistory extends Model
                 ? \Carbon\Carbon::parse($this->discharge_date)
                 : \Carbon\Carbon::now();
                 
-            $days = $admissionDate->diffInDays($dischargeDate) + 1;
+            $days = $admissionDate->diffInDays($dischargeDate);
             // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
             if ($admissionDate->format('H:i') > '12:00' && $days > 0) {
                 $days -= 1;
+            }
+            if ($dischargeDate->format('H:i') > '12:00' && $days > 0) {
+                $days += 1;
             }
             
             $days = max($days, 1);
@@ -153,10 +159,13 @@ class MedicalHistory extends Model
                 ? \Carbon\Carbon::parse($this->discharge_date)
                 : \Carbon\Carbon::now();
                 
-            $days = $admissionDate->diffInDays($dischargeDate) + 1;
+            $days = $admissionDate->diffInDays($dischargeDate);
             // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
             if ($admissionDate->format('H:i') > '12:00' && $days > 0) {
                 $days -= 1;
+            }
+            if ($dischargeDate->format('H:i') > '12:00' && $days > 0) {
+                $days += 1;
             }
             
             $days = max($days, 1);
