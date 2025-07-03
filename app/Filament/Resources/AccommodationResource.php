@@ -473,8 +473,8 @@ class AccommodationResource extends Resource
                                             if ($admission->format('H:i') > '12:00' && $days > 0) {
                                                 $days -= 1;
                                             }
-                                            if($discharge->format('H:i') < '12:00' && $days > 0) {
-                                                $days -= 1;
+                                            if($discharge->format('H:i') > '12:00' && $days > 0) {
+                                                $days += 1;
                                             }
 
                                             // Kamida 1 kun hisoblash
@@ -515,8 +515,8 @@ class AccommodationResource extends Resource
                                             if ($admission->format('H:i') > '12:00' && $days > 0) {
                                                 $days -= 1;
                                             }
-                                            if ($discharge->format('H:i') < '12:00' && $days > 0) {
-                                                $days -= 1;
+                                            if ($discharge->format('H:i') > '12:00' && $days > 0) {
+                                                $days += 1;
                                             }
                                             // Kamida 1 kun hisoblash
                                             $days = max($days, 1);
@@ -552,8 +552,8 @@ class AccommodationResource extends Resource
                                             if ($admission->format('H:i') > '12:00' && $days > 0) {
                                                 $days -= 1;
                                             }
-                                            if($discharge->format('H:i') < '12:00' && $days > 0) {
-                                                $days -= 1;
+                                            if($discharge->format('H:i') > '12:00' && $days > 0) {
+                                                $days += 1;
                                             }
 
                                             // Kamida 1 kun hisoblash
@@ -594,8 +594,8 @@ class AccommodationResource extends Resource
                                             if ($admission->format('H:i') > '12:00' && $days > 0) {
                                                 $days -= 1;
                                             }
-                                            if($discharge->format('H:i') < '12:00' && $days > 0) {
-                                                $days -= 1;
+                                            if($discharge->format('H:i') > '12:00' && $days > 0) {
+                                                $days += 1;
                                             }
                                             // Kamida 1 kun hisoblash
                                             $days = max($days, 1);
