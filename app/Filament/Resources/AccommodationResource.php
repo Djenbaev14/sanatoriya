@@ -750,25 +750,15 @@ class AccommodationResource extends Resource
     }
     function calculatePaidDays(Carbon $admission, Carbon $discharge): int
     {
-        // 1. Agar kirish va chiqish sanasi bir xil bo‘lsa
-        if ($admission->toDateString() === $discharge->toDateString()) {
-            return $discharge->hour >= 12 && $admission->hour < 12 ? 1 : 0;
-        }
+        // Kirish kuni hisoblanadimi?
+        $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
 
-        // 2. Asosiy kunlar farqi
-        $days = $admission->copy()->startOfDay()->diffInDays($discharge->copy()->startOfDay());
+        // Chiqish kuni hisoblanadimi?
+        $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
 
-        // 3. Kirish kuni 12:00 dan keyin bo‘lsa — o‘sha kunni hisobdan chiqaramiz
-        if ($admission->hour >= 12) {
-            $days -= 1;
-        }
+        // Farqni hisoblash (kunlar soni)
+        $days = $start->diffInDays($end);
 
-        // 4. Chiqish kuni 12:00 dan keyin bo‘lsa — o‘sha kunni qo‘shamiz
-        if ($discharge->hour >= 12) {
-            $days += 1;
-        }
-
-        // 5. Kamida 0 bo‘lishi kerak
         return max($days, 0);
     }
     public static function shouldRegisterNavigation(): bool
