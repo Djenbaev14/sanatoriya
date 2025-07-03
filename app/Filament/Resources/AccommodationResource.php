@@ -748,7 +748,7 @@ class AccommodationResource extends Resource
                                 ->columnSpan(12),
             ]);
     }
-    function calculatePaidDays($admission, $discharge): int
+    function calculatePaidDays(Carbon $admission, Carbon $discharge): int
     {
         // Kirish kuni hisoblanadimi?
         $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
