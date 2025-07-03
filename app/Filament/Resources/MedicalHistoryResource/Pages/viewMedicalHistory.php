@@ -217,9 +217,7 @@ class ViewMedicalHistory extends ViewRecord
 
                                                             TextEntry::make('accommodation_days')
                                                                 ->label('Кол-во дней')
-                                                                ->default(fn ($record) => \Carbon\Carbon::parse($record->accommodation->admission_date)->diffInDays(
-                                                                    $record->accommodation->discharge_date ?? now()
-                                                                )),
+                                                                ->default(fn ($record) => $record->accommodation->calculateDays()),
 
                                                             TextEntry::make('accommodation.mealType.daily_price')
                                                                 ->label('Питание')
@@ -262,10 +260,7 @@ class ViewMedicalHistory extends ViewRecord
 
                                                             TextEntry::make('partner_days')
                                                                 ->label('Кол-во дней')
-                                                                ->default(fn ($record) => \Carbon\Carbon::parse($record->accommodation->partner->admission_date)->diffInDays(
-                                                                    $record->accommodation->partner->discharge_date ?? now()
-                                                                )),
-
+                                                                ->default(fn ($record) => $record->accommodation->calculatePartnerDays()),
                                                             TextEntry::make('accommodation.partner.mealType.daily_price')
                                                                 ->label('Питание')
                                                                 ->badge()
