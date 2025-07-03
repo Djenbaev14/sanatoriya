@@ -464,8 +464,8 @@ class AccommodationResource extends Resource
 
                                             $dailyPrice = $bed->ward->tariff->daily_price;
 
-                                            $admission = \Carbon\Carbon::parse($admissionDate);
-                                            $discharge = \Carbon\Carbon::parse($dischargeDate);
+                                            // $admission = \Carbon\Carbon::parse($admissionDate);
+                                            // $discharge = \Carbon\Carbon::parse($dischargeDate);
 
                                             // $days = $admission->diffInDays($discharge);
 
@@ -479,7 +479,7 @@ class AccommodationResource extends Resource
 
                                             // Kamida 1 kun hisoblash
                                             // $days = max($days, 1);
-                                            $days=$this->calculatePaidDays($admission,$discharge);
+                                            $days=$this->calculatePaidDays($admissionDate,$dischargeDate);
 
                                             $total = $dailyPrice * $days;
 
@@ -507,8 +507,8 @@ class AccommodationResource extends Resource
                                             $dailyPrice = $mealType->daily_price;
                                             
 
-                                            $admission = \Carbon\Carbon::parse($admissionDate);
-                                            $discharge = \Carbon\Carbon::parse($dischargeDate);
+                                            // $admission = \Carbon\Carbon::parse($admissionDate);
+                                            // $discharge = \Carbon\Carbon::parse($dischargeDate);
 
                                             // $days = $admission->diffInDays($discharge);
 
@@ -521,7 +521,7 @@ class AccommodationResource extends Resource
                                             // }
                                             // Kamida 1 kun hisoblash
                                             // $days = max($days, 1);
-                                            $days=$this->calculatePaidDays($admission,$discharge);
+                                            $days=$this->calculatePaidDays($admissionDate,$dischargeDate);
 
                                             $total = $dailyPrice * $days;
                                             return number_format($total, 0, '.', ' ') . ' сум (' . $days . ' дней × ' . number_format($dailyPrice, 0, '.', ' ') . ')';
@@ -545,8 +545,8 @@ class AccommodationResource extends Resource
 
                                             $dailyPrice = $bed->ward->tariff->partner_daily_price;
 
-                                            $admission = \Carbon\Carbon::parse($admissionDate);
-                                            $discharge = \Carbon\Carbon::parse($dischargeDate);
+                                            // $admission = \Carbon\Carbon::parse($admissionDate);
+                                            // $discharge = \Carbon\Carbon::parse($dischargeDate);
 
                                             // $days = $admission->diffInDays($discharge);
 
@@ -561,7 +561,7 @@ class AccommodationResource extends Resource
                                             // Kamida 1 kun hisoblash
                                             // $days = max($days, 1);
 
-                                            $days=$this->calculatePaidDays($admission,$discharge);
+                                            $days=$this->calculatePaidDays($admissionDate,$dischargeDate);
                                             $total = $dailyPrice * $days;
 
                                             return number_format($total, 0, '.', ' ') . ' сум (' . $days . ' дней × ' . number_format($dailyPrice, 0, '.', ' ') . ')';
@@ -588,8 +588,8 @@ class AccommodationResource extends Resource
                                             $dailyPrice = $mealType->partner_daily_price;
                                             
 
-                                            $admission = \Carbon\Carbon::parse($admissionDate);
-                                            $discharge = \Carbon\Carbon::parse($dischargeDate);
+                                            // $admission = \Carbon\Carbon::parse($admissionDate);
+                                            // $discharge = \Carbon\Carbon::parse($dischargeDate);
 
                                             // $days = $admission->diffInDays($discharge);
 
@@ -602,7 +602,7 @@ class AccommodationResource extends Resource
                                             // }
                                             // Kamida 1 kun hisoblash
                                             // $days = max($days, 1);
-                                            $days=$this->calculatePaidDays($admission,$discharge);
+                                            $days=$this->calculatePaidDays($admissionDate,$dischargeDate);
 
                                             $total = $dailyPrice * $days;
                                             return number_format($total, 0, '.', ' ') . ' сум (' . $days . ' дней × ' . number_format($dailyPrice, 0, '.', ' ') . ')';
@@ -623,8 +623,8 @@ class AccommodationResource extends Resource
                                             if ($bedId && $admissionDate && $dischargeDate) {
                                                 $bed = \App\Models\Bed::with('ward.tariff')->find($bedId);
                                                 if ($bed) {
-                                                    $admission = \Carbon\Carbon::parse($admissionDate);
-                                                    $discharge = \Carbon\Carbon::parse($dischargeDate);
+                                                    // $admission = \Carbon\Carbon::parse($admissionDate);
+                                                    // $discharge = \Carbon\Carbon::parse($dischargeDate);
 
                                                     // $days = $admission->diffInDays($discharge) ;
 
@@ -638,7 +638,7 @@ class AccommodationResource extends Resource
                                                     // // Kamida 1 kun hisoblash
                                                     // $days = max($days, 1);
                                                     
-                                                    $days=$this->calculatePaidDays($admission,$discharge);
+                                                    $days=$this->calculatePaidDays($admissionDate,$dischargeDate);
                                                     $bedPrice=$isForeign ? $bed->ward->tariff->foreign_daily_price : $bed->ward->tariff->daily_price;
                                                     $bedTotal = $bedPrice * $days;
                                                 }
@@ -652,10 +652,10 @@ class AccommodationResource extends Resource
                                                 $mealType = \App\Models\MealType::find($mealTypeId);
                                                 if ($mealType) {
                                                     
-                                                    $admission = \Carbon\Carbon::parse($admissionDate);
-                                                    $discharge = \Carbon\Carbon::parse($dischargeDate);
+                                                    // $admission = \Carbon\Carbon::parse($admissionDate);
+                                                    // $discharge = \Carbon\Carbon::parse($dischargeDate);
 
-                                                    $days = $admission->diffInDays($discharge);
+                                                    // $days = $admission->diffInDays($discharge);
 
                                                     // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
                                                     // if ($admission->format('H:i') > '12:00' && $days > 0) {
@@ -667,7 +667,7 @@ class AccommodationResource extends Resource
                                                     // // Kamida 1 kun hisoblash
                                                     // $days = max($days, 1);
                                                     
-                                                    $days=$this->calculatePaidDays($admission,$discharge);
+                                                    $days=$this->calculatePaidDays($admissionDate,$dischargeDate);
 
                                                     $mealPrice=$isForeign ? $mealType->foreign_daily_price : $mealType->daily_price;
                                                     $mealTotal = $mealPrice * $days;
@@ -683,8 +683,8 @@ class AccommodationResource extends Resource
                                             if ($partnerBedId && $partnerAdmissionDate && $partnerDischargeDate) {
                                                 $partnerBed = \App\Models\Bed::with('ward.tariff')->find($partnerBedId);
                                                 if ($partnerBed) {
-                                                    $admission = \Carbon\Carbon::parse($partnerAdmissionDate);
-                                                    $discharge = \Carbon\Carbon::parse($partnerDischargeDate);
+                                                    // $admission = \Carbon\Carbon::parse($partnerAdmissionDate);
+                                                    // $discharge = \Carbon\Carbon::parse($partnerDischargeDate);
 
                                                     // $days = $admission->diffInDays($discharge);
 
@@ -698,7 +698,7 @@ class AccommodationResource extends Resource
                                                     // // Kamida 1 kun hisoblash
                                                     // $days = max($days, 1);
                                                     
-                                                    $days=$this->calculatePaidDays($admission,$discharge);
+                                                    $days=$this->calculatePaidDays($partnerAdmissionDate,$partnerDischargeDate);
                                                     $partnerBedTotal = $partnerBed->ward->tariff->partner_daily_price * $days;
                                                 }
                                             }
@@ -711,8 +711,8 @@ class AccommodationResource extends Resource
                                                 $partnerMealType = \App\Models\MealType::find($partnerMealTypeId);
                                                 if ($partnerMealType) {
                                                     
-                                                    $admission = \Carbon\Carbon::parse($partnerAdmissionDate);
-                                                    $discharge = \Carbon\Carbon::parse($partnerDischargeDate);
+                                                    // $admission = \Carbon\Carbon::parse($partnerAdmissionDate);
+                                                    // $discharge = \Carbon\Carbon::parse($partnerDischargeDate);
 
                                                     // $days = $admission->diffInDays($discharge);
 
@@ -727,7 +727,7 @@ class AccommodationResource extends Resource
                                                     // // Kamida 1 kun hisoblash
                                                     // $days = max($days, 1);
                                                     
-                                                    $days=$this->calculatePaidDays($admission,$discharge);
+                                                    $days=$this->calculatePaidDays($partnerAdmissionDate,$partnerDischargeDate);
                                                     $partnerMealTotal = $mealType->partner_daily_price * $days;
                                                 }
                                             }
