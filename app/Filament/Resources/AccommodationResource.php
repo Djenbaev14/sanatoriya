@@ -748,18 +748,11 @@ class AccommodationResource extends Resource
                                 ->columnSpan(12),
             ]);
     }
-    function calculatePaidDays(Carbon $admission, Carbon $discharge): int
+    protected function calculatePaidDays(Carbon $admission, Carbon $discharge): int
     {
-        // Kirish kuni hisoblanadimi?
         $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
-
-        // Chiqish kuni hisoblanadimi?
         $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
-
-        // Farqni hisoblash (kunlar soni)
-        $days = $start->diffInDays($end);
-
-        return max($days, 0);
+        return max($start->diffInDays($end), 0);
     }
     public static function shouldRegisterNavigation(): bool
     {
