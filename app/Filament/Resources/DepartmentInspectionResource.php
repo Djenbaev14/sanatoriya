@@ -109,6 +109,10 @@ class DepartmentInspectionResource extends Resource
                             ->label('Рекомендовано')
                             ->rows(3)
                             ->columnSpan(12),
+                        Textarea::make('treatment')
+                            ->label('Назначе́ние')
+                            ->rows(3)
+                            ->columnSpan(12),
                     ])->columns(12)->columnSpan(12)
             ]);
     }
