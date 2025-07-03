@@ -67,119 +67,105 @@ class MedicalHistory extends Model
     public function payments(){
         return $this->hasMany(Payment::class);
     }
-    public function calculateTotalCost()
-    {
-        $proceduresCost = $this->calculateProceduresCost();
-        $bedCost = $this->calculateBedCost();
-        $mealCost = $this->calculateMealCost();
+    // public function calculateTotalCost()
+    // {
+    //     $proceduresCost = $this->calculateProceduresCost();
+    //     $bedCost = $this->calculateBedCost();
+    //     $mealCost = $this->calculateMealCost();
 
-        return [
-            'procedures_cost' => $proceduresCost,
-            'bed_cost' => $bedCost,
-            'meal_cost' => $mealCost,
-            'total_cost' => $proceduresCost + $bedCost + $mealCost
-        ];
-    }
+    //     return [
+    //         'procedures_cost' => $proceduresCost,
+    //         'bed_cost' => $bedCost,
+    //         'meal_cost' => $mealCost,
+    //         'total_cost' => $proceduresCost + $bedCost + $mealCost
+    //     ];
+    // }
     
     
-    public function calculateDays()
-    {
-            $admissionDate = \Carbon\Carbon::parse($this->admission_date);
-            $dischargeDate = \Carbon\Carbon::parse($this->discharge_date);
+    // public function calculateDays()
+    // {
+    //         $admission = \Carbon\Carbon::parse($this->admission_date);
+    //         $discharge = \Carbon\Carbon::parse($this->discharge_date);
                 
-            $days = $admissionDate->diffInDays($dischargeDate);
-            // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
-            if ($admissionDate->format('H:i') > '12:00' && $days > 0) {
-                $days -= 1;
-            }
-            if ($dischargeDate->format('H:i') > '12:00' && $days > 0) {
-                $days += 1;
-            }
+    //         $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
+    //         $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
+    //         $days= max($start->diffInDays($end), 0);
             
-            return $days;
-    }
-    public function calculateMealCost()
-    {
-        try {
-            if (!$this->admission_date) {
-                return 0;
-            }
+    //         return $days;
+    // }
+    // public function calculateMealCost()
+    // {
+    //     try {
+    //         if (!$this->admission_date) {
+    //             return 0;
+    //         }
 
-            $medicalMeal = $this->medicalMeal()->with('mealType')->first();
-            if (!$medicalMeal || !$medicalMeal->mealType) {
-                return 0;
-            }
+    //         $medicalMeal = $this->medicalMeal()->with('mealType')->first();
+    //         if (!$medicalMeal || !$medicalMeal->mealType) {
+    //             return 0;
+    //         }
             
 
 
-            $admissionDate = \Carbon\Carbon::parse($this->admission_date);
-            $dischargeDate = $this->discharge_date 
-                ? \Carbon\Carbon::parse($this->discharge_date)
-                : \Carbon\Carbon::now();
+    //         $admissionDate = \Carbon\Carbon::parse($this->admission_date);
+    //         $dischargeDate = $this->discharge_date 
+    //             ? \Carbon\Carbon::parse($this->discharge_date)
+    //             : \Carbon\Carbon::now();
                 
-            $days = $admissionDate->diffInDays($dischargeDate);
-            // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
-            if ($admissionDate->format('H:i') > '12:00' && $days > 0) {
-                $days -= 1;
-            }
-            if ($dischargeDate->format('H:i') > '12:00' && $days > 0) {
-                $days += 1;
-            }
+    //         $days = $admissionDate->diffInDays($dischargeDate);
+    //         // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
+    //         if ($admissionDate->format('H:i') > '12:00' && $days > 0) {
+    //             $days -= 1;
+    //         }
+    //         if ($dischargeDate->format('H:i') > '12:00' && $days > 0) {
+    //             $days += 1;
+    //         }
             
-            $days = max($days, 1);
+    //         $days = max($days, 1);
 
-            $totalCost = $medicalMeal->mealType->daily_price * $days;
+    //         $totalCost = $medicalMeal->mealType->daily_price * $days;
             
-            return $totalCost;
+    //         return $totalCost;
             
-        } catch (\Exception $e) {
-            \Log::error('calculateMealCost error: ' . $e->getMessage());
-            return 0;
-        }
-    }
-    public function calculateProceduresCost()
-    {
-        return $this->procedureDetails()
-            ->sum(\DB::raw('price * sessions'));
-    }
-    public function calculateBedCost()
-    {
-        if (!$this->admission_date) {
-            return 0;
-        }
+    //     } catch (\Exception $e) {
+    //         \Log::error('calculateMealCost error: ' . $e->getMessage());
+    //         return 0;
+    //     }
+    // }
+    // public function calculateProceduresCost()
+    // {
+    //     return $this->procedureDetails()
+    //         ->sum(\DB::raw('price * sessions'));
+    // }
+    // public function calculateBedCost()
+    // {
+    //     if (!$this->admission_date) {
+    //         return 0;
+    //     }
 
-        $medicalBed = $this->medicalBed()->with('tariff')->first();
+    //     $medicalBed = $this->medicalBed()->with('tariff')->first();
 
-        if (!$medicalBed || !$medicalBed->tariff) {
-            return 0;
-        }
-
-            $admissionDate = \Carbon\Carbon::parse($this->admission_date);
-            $dischargeDate = $this->discharge_date 
-                ? \Carbon\Carbon::parse($this->discharge_date)
-                : \Carbon\Carbon::now();
+    //     if (!$medicalBed || !$medicalBed->tariff) {
+    //         return 0;
+    //     }
+            
+    //         $admission = \Carbon\Carbon::parse($this->admission_date);
+    //         $discharge = \Carbon\Carbon::parse($this->discharge_date);
                 
-            $days = $admissionDate->diffInDays($dischargeDate);
-            // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
-            if ($admissionDate->format('H:i') > '12:00' && $days > 0) {
-                $days -= 1;
-            }
-            if ($dischargeDate->format('H:i') > '12:00' && $days > 0) {
-                $days += 1;
-            }
-            
-            $days = max($days, 1);
+    //         $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
+    //         $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
+    //         $days= max($start->diffInDays($end), 0);
 
-        return $medicalBed->tariff->daily_price * $days;
-    }
+    //     return $medicalBed->tariff->daily_price * $days;
+    // }
     
-    public function getTotalCost()
-    {
-        return $this->calculateBedCost()+$this->calculateMealCost();
-    }
-    public function getTotalPaidBedAndMealAmount()
-    {
-        return $this->payments()->sum('amount');
-    }
+    // public function getTotalCost()
+    // {
+    //     return $this->calculateBedCost()+$this->calculateMealCost();
+    // }
+    // public function getTotalPaidBedAndMealAmount()
+    // {
+    //     return $this->payments()->sum('amount');
+    // }
     
 }

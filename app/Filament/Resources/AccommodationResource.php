@@ -765,12 +765,6 @@ class AccommodationResource extends Resource
                                 ->columnSpan(12),
             ]);
     }
-    // protected function calculatePaidDays(Carbon $admission, Carbon $discharge): int
-    // {
-    //     $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
-    //     $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
-    //     return max($start->diffInDays($end), 0);
-    // }
     public static function shouldRegisterNavigation(): bool
     {
         return false;

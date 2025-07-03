@@ -49,33 +49,26 @@ class Accommodation extends Model
     }
     public function calculateDays()
     {
-            $admissionDate = \Carbon\Carbon::parse($this->admission_date);
-            $dischargeDate = \Carbon\Carbon::parse($this->discharge_date);
+            $admission = \Carbon\Carbon::parse($this->admission_date);
+            $discharge = \Carbon\Carbon::parse($this->discharge_date);
                 
-            $days = is_null($dischargeDate) ? 0 : $dischargeDate->diffInDays($admissionDate);
-            // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
-            if ($admissionDate->format('H:i') > '12:00' && $days > 0) {
-                $days -= 1;
-            }
-            if ($dischargeDate->format('H:i') > '12:00' && $days > 0) {
-                $days += 1;
-            }
-            
+            $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
+            $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
+            $days= max($start->diffInDays($end), 0);
             
             return $days;
     }
     public function calculatePartnerDays()
     {
-            $admissionDate = \Carbon\Carbon::parse($this->partner->admission_date);
-            $dischargeDate = \Carbon\Carbon::parse($this->partner->discharge_date);
+            $admission = \Carbon\Carbon::parse($this->partner->admission_date);
+            $discharge = \Carbon\Carbon::parse($this->partner->discharge_date);
                 
-            $days = is_null($dischargeDate) ? 0 : $dischargeDate->diffInDays($admissionDate);
-            // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
-            if ($admissionDate->format('H:i') > '12:00' && $days > 0) {
-                $days -= 1;
-            }
+            $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
+            $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
+            $days= max($start->diffInDays($end), 0);
             
             return $days;
+            
     }
     public function calculateBedCost()
     {
