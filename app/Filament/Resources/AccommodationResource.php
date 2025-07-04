@@ -82,7 +82,8 @@ class AccommodationResource extends Resource
                         DateTimePicker::make('admission_date')
                             ->label('Дата поступления')
                             ->reactive()
-                            ->default(Carbon::now())
+                            // medical history vaqtni defaultiga o‘rnatamiz
+                            ->default(fn (Get $get) => $get('medical_history_id') ? \App\Models\MedicalHistory::find($get('medical_history_id'))?->created_at : Carbon::now())
                             ->columnSpan(6),
                         DateTimePicker::make('discharge_date')
                             ->label('Дата выписки')
