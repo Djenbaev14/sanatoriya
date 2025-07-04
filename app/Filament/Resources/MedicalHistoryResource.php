@@ -149,6 +149,11 @@ class MedicalHistoryResource extends Resource
                                 '0'=> "yo'q",
                             ])
                             ->columnSpan(4),
+                        DateTimePicker::make('created_at')
+                            ->label('Qabul qilingan sana')
+                            ->reactive()
+                            ->default(Carbon::now())
+                            ->columnSpan(4),
             ])->columns(12)->columnSpan(12),
                     
         ]);
