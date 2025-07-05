@@ -10,6 +10,7 @@ use App\Models\Patient;
 use App\Models\Region;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
@@ -30,6 +31,7 @@ use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Carbon;
 
 class PatientResource extends Resource
 {
@@ -151,6 +153,11 @@ class PatientResource extends Resource
                             ->maxLength(255)
                             ->required()
                             ->label('Место работы, должность')
+                            ->columnSpan(6),
+                        DateTimePicker::make('created_at')
+                            ->label('Qabul qilingan sana')
+                            ->reactive()
+                            ->default(Carbon::now())
                             ->columnSpan(6),
                     ])->columns(12)->columnSpan(12)
         ]);
