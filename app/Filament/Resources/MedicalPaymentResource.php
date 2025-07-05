@@ -191,15 +191,15 @@ class MedicalPaymentResource extends Resource
     
     public static function getNavigationLabel(): string
     {
-        return 'Касса'; // Rus tilidagi nom
+        return 'Журнал оплат'; // Rus tilidagi nom
     }
     public static function getModelLabel(): string
     {
-        return 'Касса'; // Rus tilidagi yakka holdagi nom
+        return 'Журнал оплат'; // Rus tilidagi yakka holdagi nom
     }
     public static function getPluralModelLabel(): string
     {
-        return 'Касса'; // Rus tilidagi ko'plik shakli
+        return 'Журнал оплат'; // Rus tilidagi ko'plik shakli
     }
 
     public static function canAccess(): bool
