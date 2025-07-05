@@ -166,8 +166,15 @@ class MedicalHistoryResource extends Resource
             ->columns([
                 TextColumn::make('number')->label('Номер')->searchable()->sortable(),
                 TextColumn::make('patient.full_name')->label('ФИО')->searchable()->sortable(),
+                // biriktirgan vrachin nomin chiqarib bering u medicalInspection da assigned_doctor_id da
+                TextColumn::make('medicalInspection.assignedDoctor.full_name')
+                    ->label('Врач')
+                    ->searchable()
+                    ->sortable()
+                    ->getStateUsing(fn ($record) => $record->medicalInspection?->assignedDoctor?->full_name ?? 'Не назначен'),
                 IconColumn::make('accommodation')
-                    ->label('Условия размещения')
+                // Условия размещения ni qisqartib yozib ber
+                    ->label('Размещение')
                     ->boolean()
                     ->getStateUsing(fn ($record) => !is_null($record->accommodation))
                     ->trueIcon('heroicon-o-check-circle')
@@ -175,7 +182,7 @@ class MedicalHistoryResource extends Resource
                     ->trueColor('success')
                     ->falseColor('danger'),
                 IconColumn::make('medicalInspection')
-                    ->label('Приемный Осмотр')
+                    ->label('Приемный')
                     ->boolean()
                     ->getStateUsing(fn ($record) => !is_null($record->medicalInspection))
                     ->trueIcon('heroicon-o-check-circle')
@@ -183,7 +190,7 @@ class MedicalHistoryResource extends Resource
                     ->trueColor('success')
                     ->falseColor('danger'),
                 IconColumn::make('departmentInspection')
-                    ->label('Отделение Осмотр')
+                    ->label('Отделение')
                     ->boolean()
                     ->getStateUsing(fn ($record) => !is_null($record->departmentInspection))
                     ->trueIcon('heroicon-o-check-circle')
