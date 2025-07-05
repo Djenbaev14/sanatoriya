@@ -63,109 +63,63 @@ class MedicalHistory extends Model
         return $this->medicalInspection()->first();
     }
     
-
     public function payments(){
-        return $this->hasMany(Payment::class);
+        return $this->hasMany(Payment::class,'medical_history_id');
     }
-    // public function calculateTotalCost()
-    // {
-    //     $proceduresCost = $this->calculateProceduresCost();
-    //     $bedCost = $this->calculateBedCost();
-    //     $mealCost = $this->calculateMealCost();
-
-    //     return [
-    //         'procedures_cost' => $proceduresCost,
-    //         'bed_cost' => $bedCost,
-    //         'meal_cost' => $mealCost,
-    //         'total_cost' => $proceduresCost + $bedCost + $mealCost
-    //     ];
-    // }
     
+
+    public function getTotalPaid(){
+        return $this->payments()->where('amount', '>', 0)->sum('amount');
+    }
     
-    // public function calculateDays()
-    // {
-    //         $admission = \Carbon\Carbon::parse($this->admission_date);
-    //         $discharge = \Carbon\Carbon::parse($this->discharge_date);
-                
-    //         $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
-    //         $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
-    //         $days= max($start->diffInDays($end), 0);
-            
-    //         return $days;
-    // }
-    // public function calculateMealCost()
-    // {
-    //     try {
-    //         if (!$this->admission_date) {
-    //             return 0;
-    //         }
+    public function getTotalCost(){
+        $procedureCost = $this->assignedProcedure?->getTotalCost() ?? 0;
+        $accommodationCost = $this->accommodation?->getTotalCost() ?? 0;
+        $labTestCost = $this->labTestHistory?->getTotalCost() ?? 0;
 
-    //         $medicalMeal = $this->medicalMeal()->with('mealType')->first();
-    //         if (!$medicalMeal || !$medicalMeal->mealType) {
-    //             return 0;
-    //         }
-            
-
-
-    //         $admissionDate = \Carbon\Carbon::parse($this->admission_date);
-    //         $dischargeDate = $this->discharge_date 
-    //             ? \Carbon\Carbon::parse($this->discharge_date)
-    //             : \Carbon\Carbon::now();
-                
-    //         $days = $admissionDate->diffInDays($dischargeDate);
-    //         // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
-    //         if ($admissionDate->format('H:i') > '12:00' && $days > 0) {
-    //             $days -= 1;
-    //         }
-    //         if ($dischargeDate->format('H:i') > '12:00' && $days > 0) {
-    //             $days += 1;
-    //         }
-            
-    //         $days = max($days, 1);
-
-    //         $totalCost = $medicalMeal->mealType->daily_price * $days;
-            
-    //         return $totalCost;
-            
-    //     } catch (\Exception $e) {
-    //         \Log::error('calculateMealCost error: ' . $e->getMessage());
-    //         return 0;
-    //     }
-    // }
-    // public function calculateProceduresCost()
-    // {
-    //     return $this->procedureDetails()
-    //         ->sum(\DB::raw('price * sessions'));
-    // }
-    // public function calculateBedCost()
-    // {
-    //     if (!$this->admission_date) {
-    //         return 0;
-    //     }
-
-    //     $medicalBed = $this->medicalBed()->with('tariff')->first();
-
-    //     if (!$medicalBed || !$medicalBed->tariff) {
-    //         return 0;
-    //     }
-            
-    //         $admission = \Carbon\Carbon::parse($this->admission_date);
-    //         $discharge = \Carbon\Carbon::parse($this->discharge_date);
-                
-    //         $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
-    //         $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
-    //         $days= max($start->diffInDays($end), 0);
-
-    //     return $medicalBed->tariff->daily_price * $days;
-    // }
+        return $procedureCost + $accommodationCost + $labTestCost;
+    }
     
-    // public function getTotalCost()
-    // {
-    //     return $this->calculateBedCost()+$this->calculateMealCost();
-    // }
-    // public function getTotalPaidBedAndMealAmount()
-    // {
-    //     return $this->payments()->sum('amount');
-    // }
+    public function getTotalPaidAmount()
+    {
+        return $this->payments()->where('amount', '>', 0)->sum('amount');
+    }
     
+    public function getTotalReturned()
+    {
+        return abs($this->payments()->where('amount', '<', 0)->sum('amount'));
+    }
+    
+    public function getTotalPaidAndReturned()
+    {
+        return $this->getTotalPaidAmount() - $this->getTotalReturned();
+    }
+    
+    public function scopeWithDebt($query)
+    {
+        return $query->whereRaw('
+            (
+                COALESCE((
+                    SELECT SUM(price * sessions) FROM assigned_procedures 
+                    JOIN procedure_details ON assigned_procedures.id = procedure_details.assigned_procedure_id 
+                    WHERE assigned_procedures.medical_history_id = medical_histories.id
+                ), 0)
+                +
+                COALESCE((
+                    SELECT SUM(price * sessions) FROM lab_test_histories 
+                    JOIN lab_test_details ON lab_test_histories.id = lab_test_details.lab_test_history_id 
+                    WHERE lab_test_histories.medical_history_id = medical_histories.id
+                ), 0)
+                +
+                COALESCE((
+                    SELECT COALESCE(tariff_price, 0) + COALESCE(meal_price, 0) FROM accommodations 
+                    WHERE accommodations.medical_history_id = medical_histories.id LIMIT 1
+                ), 0)
+            ) > COALESCE((
+                SELECT SUM(amount) FROM payments 
+                WHERE payments.medical_history_id = medical_histories.id
+            ), 0)
+        ');
+    }
+
 }

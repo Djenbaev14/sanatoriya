@@ -31,9 +31,9 @@ class AssignedProcedure extends Model
     public function doctor(){
         return $this->belongsTo(User::class);
     }
-    public function payments(){
-        return $this->hasMany(Payment::class);
-    }
+    // public function payments(){
+    //     return $this->hasMany(Payment::class);
+    // }
     public function procedureDetails(){
         return $this->hasMany(ProcedureDetail::class);
     }
@@ -48,37 +48,33 @@ class AssignedProcedure extends Model
     public function getTotalCost()
     {
         return $this->procedureDetails()
-            ->sum(\DB::raw('price * sessions'));
+             ->sum(\DB::raw('price * sessions'));
     }
     
-    public function getTotalPaidAmount()
-    {
-        return $this->payments()->where('amount', '>', 0)->sum('amount');
-    }
-    public function getTotalReturned()
-    {
-        return abs($this->payments()->where('amount', '<', 0)->sum('amount'));
-    }
-    public function getTotalPaidAndReturned()
-    {
-        return $this->getTotalPaidAmount() - $this->getTotalReturned();
-    }
+    // public function getTotalPaidAmount()
+    // {
+    //     return $this->payments()->where('amount', '>', 0)->sum('amount');
+    // }
+    // public function getTotalReturned()
+    // {
+    //     return abs($this->payments()->where('amount', '<', 0)->sum('amount'));
+    // }
+    // public function getTotalPaidAndReturned()
+    // {
+    //     return $this->getTotalPaidAmount() - $this->getTotalReturned();
+    // }
 
-
-
-
-    
     public function getTotalCostAttribute()
     {
         return $this->getTotalCost(); // oldingi metoddan foydalandik
     }
 
-    public function getTotalPaidAmountAttribute()
-    {
-        return $this->getTotalPaidAmount();
-    }
-    public function getTotalDebtAmountAttribute()
-    {
-        return $this->getTotalCost() - $this->getTotalPaidAmount();
-    }
+    // public function getTotalPaidAmountAttribute()
+    // {
+    //     return $this->getTotalPaidAmount();
+    // }
+    // public function getTotalDebtAmountAttribute()
+    // {
+    //     return $this->getTotalCost() - $this->getTotalPaidAmount();
+    // }
 }

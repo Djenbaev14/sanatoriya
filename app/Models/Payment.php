@@ -29,6 +29,10 @@ class Payment extends Model
     public function paymentType() {
         return $this->belongsTo(PaymentType::class);
     }
+    
+    public function medicalHistory(){
+        return $this->belongsTo(MedicalHistory::class);
+    }
 
     public function getPaymentReasonAttribute(): string
     {

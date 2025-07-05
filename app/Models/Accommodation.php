@@ -17,9 +17,9 @@ class Accommodation extends Model
     public function statusPayment(){
         return $this->belongsTo(StatusPayment::class);
     }
-    public function payments(){
-        return $this->hasMany(Payment::class);
-    }
+    // public function payments(){
+    //     return $this->hasMany(Payment::class);
+    // }
     public function medicalHistory(){
         return $this->belongsTo(MedicalHistory::class);
     }
@@ -97,17 +97,16 @@ class Accommodation extends Model
         return $this->calculateBedCost()+$this->calculateMealCost() +
             $this->calculatePartnerBedCost()+$this->calculatePartnerMealCost();
     }
-    public function getTotalPaid()
-    {
-        return $this->payments()->where('amount', '>', 0)->sum('amount');
-    }
-    public function getTotalReturned()
-    {
-        return abs($this->payments()->where('amount', '<', 0)->sum('amount'));
-    }
-    // getTotalPaid bilan getTotalReturned ni ayirsa umumiy to'langan summani beradi
-    public function getTotalPaidAndReturned()
-    {
-        return $this->getTotalPaid() - $this->getTotalReturned();
-    }
+    // public function getTotalPaid()
+    // {
+    //     return $this->payments()->where('amount', '>', 0)->sum('amount');
+    // }
+    // public function getTotalReturned()
+    // {
+    //     return abs($this->payments()->where('amount', '<', 0)->sum('amount'));
+    // }
+    // public function getTotalPaidAndReturned()
+    // {
+    //     return $this->getTotalPaid() - $this->getTotalReturned();
+    // }
 }

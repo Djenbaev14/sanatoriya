@@ -10,7 +10,6 @@ use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\Grid;
 use Filament\Infolists\Components\Group;
-use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\Fieldset;
 use Filament\Support\Enums\FontWeight;
 use Filament\Actions\Action;
@@ -26,22 +25,6 @@ class ViewAssignedProcedure extends ViewRecord
     public $labTestDetails;
     public $totalAmount = 0;
 
-    // public function mount($record): void
-    // {
-    //     $this->record = AssignedProcedureResource::with([
-    //         'patient', 
-    //         'doctor', 
-    //         'labTestDetails.lab_test'
-    //     ])->findOrFail($record);
-        
-    //     $this->patient = $this->record->patient;
-    //     $this->labTestDetails = $this->record->labTestDetails;
-        
-    //     // Umumiy summani hisoblash
-    //     $this->totalAmount = $this->labTestDetails->sum(function ($detail) {
-    //         return $detail->price * $detail->sessions;
-    //     });
-    // }
     protected function getActions(): array
     {
         return [
@@ -99,6 +82,11 @@ class ViewAssignedProcedure extends ViewRecord
             ->body('Данные успешно отправлены в кассу')
             ->success()
             ->send();
+        if (auth()->user()->hasRole('Доктор')) {
+            return $this->redirect(route('filament.admin.resources.medical-histories.view', $this->record->medical_history_id));
+        } else {
+            return $this->redirect(route('filament.admin.resources.medical-payments.view', $this->record->medical_history_id));
+        }
     }
     public function printRecord()
     {

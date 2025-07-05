@@ -25,11 +25,7 @@ class EditAssignedProcedure extends EditRecord
     }
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        if($this->record->getTotalCost() < $this->record->getTotalPaidAndReturned()) {
-            $data['status_payment_id'] = 1; 
-        }else{
-            $data['status_payment_id'] = 2; 
-        }
+        $data['status_payment_id'] = 1; 
         return $data;
     }
 }

@@ -36,6 +36,10 @@ class KassaKoykaResource extends Resource
         return static::getModel()::where('main_accommodation_id', null)->where('status_payment_id',2)->count();
     }
     
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
     
     public static function getEloquentQuery(): Builder
     {

@@ -480,7 +480,7 @@ class ViewMedicalHistory extends ViewRecord
                             ->icon('heroicon-o-beaker')
                             ->schema([
                                 Section::make('Анализы')
-                                    ->visible(fn ($record) => is_null($record->labTestHistory) && auth()->user()->can(abilities: 'создать анализы') && ($record->medicalInspection?->assigned_doctor_id === auth()->id()))
+                                    ->visible(fn ($record) => is_null($record->labTestHistory) && (auth()->user()->can(abilities: 'создать анализы') || ($record->medicalInspection?->assigned_doctor_id === auth()->id())))
                                     ->schema([
                                         \Filament\Infolists\Components\Actions::make([
                                             
@@ -519,7 +519,7 @@ class ViewMedicalHistory extends ViewRecord
                                                         \Filament\Infolists\Components\Actions::make([
                                                                 Action::make('editLabTestHistory')
                                                                 ->label('Редактировать')
-                                                                ->visible(fn ($record) => $record->labTestHistory !== null ** auth()->user()->can(abilities: 'создать анализы') && ($record->medicalInspection?->assigned_doctor_id === auth()->id()))
+                                                                ->visible(fn ($record) => $record->labTestHistory !== null && (auth()->user()->can(abilities: 'создать анализы') || ($record->medicalInspection?->assigned_doctor_id === auth()->id())))
                                                                 ->icon('heroicon-o-pencil')
                                                                 ->button()
                                                                 ->color('warning')
@@ -566,7 +566,7 @@ class ViewMedicalHistory extends ViewRecord
                             ->icon('heroicon-o-wrench-screwdriver')
                             ->schema([
                                 Section::make('Процедуры')
-                                    ->visible(fn ($record) => is_null($record->assignedProcedure) && auth()->user()->can(abilities: 'создать процедуры') && ($record->medicalInspection?->assigned_doctor_id === auth()->id()))
+                                    ->visible(fn ($record) => is_null($record->assignedProcedure) && (auth()->user()->can(abilities: 'создать процедуры') || ($record->medicalInspection?->assigned_doctor_id === auth()->id())))
                                     ->schema([
                                         \Filament\Infolists\Components\Actions::make([
                                             
@@ -599,7 +599,7 @@ class ViewMedicalHistory extends ViewRecord
                                                         \Filament\Infolists\Components\Actions::make([
                                                                 Action::make('editAssignedProcedure')
                                                                 ->label('Редактировать')
-                                                                ->visible(fn ($record) => $record->assignedProcedure !== null && auth()->user()->can(abilities: 'создать процедуры') && ($record->medicalInspection?->assigned_doctor_id === auth()->id()))
+                                                                ->visible(fn ($record) => $record->assignedProcedure !== null && (auth()->user()->can(abilities: 'создать процедуры') || ($record->medicalInspection?->assigned_doctor_id === auth()->id())))
                                                                 ->icon('heroicon-o-pencil')
                                                                 ->button()
                                                                 ->color('warning')
