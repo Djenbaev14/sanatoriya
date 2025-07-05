@@ -97,7 +97,7 @@ class MedicalPaymentResource extends Resource
                     }),
                 TextColumn::make('created_at')->searchable()->label('Дата')->sortable(),
             ])
-            // ->defaultSort('created_at', 'desc')
+            ->defaultSort('created_at', 'desc')
             ->defaultPaginationPageOption(50)
             ->actions([
                 Action::make('add_payment')
