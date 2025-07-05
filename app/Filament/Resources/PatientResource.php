@@ -155,7 +155,7 @@ class PatientResource extends Resource
                             ->label('Место работы, должность')
                             ->columnSpan(6),
                         DateTimePicker::make('created_at')
-                            ->label('Qabul qilingan sana')
+                            ->label('Дата регистрации')
                             ->reactive()
                             ->default(Carbon::now())
                             ->columnSpan(6),
