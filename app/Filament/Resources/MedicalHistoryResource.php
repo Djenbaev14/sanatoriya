@@ -167,11 +167,11 @@ class MedicalHistoryResource extends Resource
                 TextColumn::make('number')->label('Номер')->searchable()->sortable(),
                 TextColumn::make('patient.full_name')->label('ФИО')->searchable()->sortable(),
                 // biriktirgan vrachin nomin chiqarib bering u medicalInspection da assigned_doctor_id da
-                TextColumn::make('medicalInspection.assignedDoctor.full_name')
+                TextColumn::make('medicalInspection.assignedDoctor.name')
                     ->label('Врач')
                     ->searchable()
                     ->sortable()
-                    ->getStateUsing(fn ($record) => $record->medicalInspection?->assignedDoctor?->full_name ?? 'Не назначен'),
+                    ->getStateUsing(fn ($record) => $record->medicalInspection?->assignedDoctor?->name ?? 'Не назначен'),
                 IconColumn::make('accommodation')
                 // Условия размещения ni qisqartib yozib ber
                     ->label('Размещение')
