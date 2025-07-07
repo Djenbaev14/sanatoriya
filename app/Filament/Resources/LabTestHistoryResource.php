@@ -125,7 +125,6 @@ class LabTestHistoryResource extends Resource
 
                                                     TextInput::make('price')
                                                         ->label('Цена')
-                                                        ->readOnly()
                                                         ->numeric()
                                                         ->columnSpan(3),
 
