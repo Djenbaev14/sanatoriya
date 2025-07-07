@@ -126,6 +126,17 @@ class LabTestHistoryResource extends Resource
                                                     TextInput::make('price')
                                                         ->label('Цена')
                                                         ->numeric()
+                                                        ->reactive()
+                                                        ->afterStateUpdated(function (Get $get, Set $set, $state) {
+                                                            // sessions maydonini olamiz
+                                                            $sessions = $get('sessions') ?? 1;
+
+                                                            // total_price ni hisoblab yangilaymiz
+                                                            $set('total_price', $state * $sessions);
+
+                                                            // umumiy summa qayta hisoblanadi
+                                                            static::recalculateTotalSum($get, $set);
+                                                        })
                                                         ->columnSpan(3),
 
                                                     TextInput::make('sessions')
