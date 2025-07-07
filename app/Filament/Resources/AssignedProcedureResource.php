@@ -139,6 +139,7 @@ class AssignedProcedureResource extends Resource
                                                     TextInput::make('price')
                                                         ->label('Цена')
                                                         ->numeric()
+                                                        ->reactive()
                                                         ->columnSpan(3),
 
                                                     TextInput::make('sessions')
