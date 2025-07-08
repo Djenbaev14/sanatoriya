@@ -6,7 +6,9 @@ use App\Filament\Resources\MedicalHistoryResource\Pages;
 use App\Filament\Resources\MedicalHistoryResource\RelationManagers;
 use App\Models\AssignedProcedure;
 use App\Models\Bed;
+use App\Models\Country;
 use App\Models\DailyService;
+use App\Models\District;
 use App\Models\Inspection;
 use App\Models\LabTest;
 use App\Models\MealType;
@@ -16,6 +18,7 @@ use App\Models\Patient;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\Procedure;
+use App\Models\Region;
 use App\Models\ReturnedProcedure;
 use App\Models\Tariff;
 use App\Models\Ward;
@@ -73,6 +76,147 @@ class MedicalHistoryResource extends Resource
                                 // Agar URL orqali kelgan bo‘lmasa, barcha bemorlar ro'yxatini chiqaramiz
                                 return \App\Models\Patient::pluck('full_name', 'id');
                             })
+                            ->suffixAction(
+                                \Filament\Forms\Components\Actions\Action::make('create_patient')
+                                    ->label('Создать пациента')
+                                    ->icon('heroicon-o-plus')
+                                    ->form([
+                                        Group::make()
+                                            ->schema([
+                                                TextInput::make('full_name')
+                                                    ->label('ФИО')
+                                                    ->required()
+                                                    ->maxLength(255)
+                                                    ->columnSpan(12),
+                                                TextInput::make('passport')
+                                                    ->label('Паспорт серия и номер')
+                                                    ->required()
+                                                    ->maxLength(255)
+                                                    ->unique(ignoreRecord: true)
+                                                    ->regex('/^[A-Z]{2}\d{7}$/', 'Паспорт серия и номер должен быть в формате AA1234567')
+                                                    ->placeholder('AA1234567')
+                                                    ->columnSpan(6),
+                                                DatePicker::make('birth_date')
+                                                    ->label('День рождения')
+                                                    ->required()
+                                                    ->columnSpan(6),
+                                                TextInput::make('phone')
+                                                    ->prefix('+998')
+                                                    ->label('Телефон номер')
+                                                    ->unique(ignoreRecord: true)
+                                                    ->required()
+                                                    ->tel()
+                                                    ->maxLength(255)
+                                                    ->columnSpan(6),
+                                                Select::make('country_id') 
+                                                    ->label('Страна ') 
+                                                    ->required()
+                                                    ->options(function () { 
+                                                        return Country::all()->mapWithKeys(function ($region) { 
+                                                            return [$region->id => $region->name]; 
+                                                        }); 
+                                                    }) 
+                                                    ->reactive() 
+                                                    ->required()
+                                                    ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
+                                                        $is_foreign = Country::find($state)?->is_foreign ?? 0;
+                                                        $set('is_foreign', $is_foreign);
+                                                    })
+                                                    ->columnSpan(6),
+                                                Select::make('region_id') 
+                                                    ->label('Регион ') 
+                                                    ->required()
+                                                    ->options(function (Get $get) { 
+                                                        $countryID = $get('country_id'); 
+                                                        if (!$countryID) return []; 
+                                                        
+                                                        return Region::where('country_id', $countryID)
+                                                            ->get()
+                                                            ->mapWithKeys(function ($country) {
+                                                                return [$country->id => $country->name];
+                                                            });
+                                                    })
+                                                    ->reactive() 
+                                                    ->required()
+                                                    ->columnSpan(6), 
+                                                Hidden::make('is_foreign')
+                                                    ->default(0),
+                                                Select::make('district_id') 
+                                                    ->label('Район ') 
+                                                    ->required()
+                                                    ->options(function (Get $get) { 
+                                                        $regionID = $get('region_id'); 
+                                                        if (!$regionID) return []; 
+                                                        
+                                                        return District::where('region_id', $regionID)
+                                                            ->get()
+                                                            ->mapWithKeys(function ($district) {
+                                                                return [$district->id => $district->name];
+                                                            });
+                                                    }) 
+                                                    ->reactive() 
+                                                    ->required()
+                                                    ->columnSpan(6), 
+                                                // is_accomplice uchun 
+                                                Radio::make('is_accomplice')
+                                                    ->label('Партнёр?')
+                                                    ->required()
+                                                    ->options([
+                                                        0 => 'Нет',
+                                                        1 => 'Да',
+                                                    ])
+                                                    ->inline()
+                                                    ->live()
+                                                    ->columnSpan(6),
+                                                Select::make('main_patient_id')
+                                                    ->label('Асосий беморни танланг')
+                                                    ->options(
+                                                        \App\Models\Patient::where('is_accomplice', false)->pluck('full_name', 'id')
+                                                    )
+                                                    ->searchable()
+                                                    ->required(fn (Get $get) => $get('is_accomplice') == 1)
+                                                    ->visible(fn (Get $get) => $get('is_accomplice') == 1)
+                                                    ->columnSpan(6),
+                                                Textarea::make('address')
+                                                        ->label('Адрес')
+                                                        ->columnSpan(12),
+                                                Select::make('gender') 
+                                                    ->label('Пол ')
+                                                    ->options([
+                                                        'male' => 'Мужской',
+                                                        'female' => 'Женской',
+                                                    ])
+                                                    ->required()
+                                                    ->columnSpan(6), 
+                                                TextInput::make('profession')
+                                                    ->maxLength(255)
+                                                    ->required()
+                                                    ->label('Место работы, должность')
+                                                    ->columnSpan(6),
+                                                DateTimePicker::make('created_at')
+                                                    ->label('Дата регистрации')
+                                                    ->reactive()
+                                                    ->default(Carbon::now())
+                                                    ->columnSpan(6),
+                                            ])->columns(12)->columnSpan(12)
+                                    ])
+                                    ->action(function (array $data, Forms\Get $get, Forms\Set $set) {
+                                        try{
+                                            $patient = Patient::create($data);
+                                            Notification::make()
+                                                ->title('Пациент успешно создан!')
+                                                ->success()
+                                                ->send();
+                                                $set('patient_id', $patient->id);
+                                        }catch (\Exception $e) { 
+                                            Notification::make()
+                                                ->title('Ошибка при создании пациента: ' . $e->getMessage())
+                                                ->danger()
+                                                ->send();
+
+                                        }
+                                    })
+                            )
                             ->disabled(fn () => filled(request()->get('patient_id'))), // Faqat URLda bo‘lsa bloklanadi
                         Hidden::make('created_id')
                             ->default(fn () => auth()->user()->id)
@@ -165,7 +309,9 @@ class MedicalHistoryResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('number')->label('Номер')->searchable()->sortable(),
-                TextColumn::make('patient.full_name')->label('ФИО')->searchable()->sortable(),
+                TextColumn::make('patient.full_name')->label('ФИО')
+                ->searchable()
+                ->sortable(),
                 // biriktirgan vrachin nomin chiqarib bering u medicalInspection da assigned_doctor_id da
                 TextColumn::make('medicalInspection.assignedDoctor.name')
                     ->label('Врач')
