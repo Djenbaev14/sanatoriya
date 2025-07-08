@@ -25,15 +25,19 @@ class TariffResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->label('Название')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('daily_price')
+                    ->label('Цена')
                     ->required()
                     ->numeric(),
                 Forms\Components\TextInput::make('partner_daily_price')
+                    ->label('Партнерская цена')
                     ->required()
                     ->numeric(),
                 Forms\Components\TextInput::make('foreign_daily_price')
+                    ->label('Иностранная цена')
                     ->required()
                     ->numeric(),
             ]);
