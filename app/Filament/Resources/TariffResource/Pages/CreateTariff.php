@@ -9,4 +9,8 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateTariff extends CreateRecord
 {
     protected static string $resource = TariffResource::class;
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }
