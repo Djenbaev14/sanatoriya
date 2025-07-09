@@ -39,7 +39,7 @@ class Bed extends Model
             $subQuery->where(function ($query) {
                 // Chiqmagan yoki hali ketmaganlar
                 $query->whereNull('discharge_date')
-                    ->orWhere('discharge_date', '>', now()->toDateString());
+                    ->orWhere('discharge_date', '>', now());
             });
         });
     } 
