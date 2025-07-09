@@ -40,17 +40,31 @@ class MedicalPaymentResource extends Resource
     }
     
     
+    // public static function getEloquentQuery(): Builder
+    // {
+    //     return parent::getEloquentQuery()
+    //         ->with(['assignedProcedure.procedureDetails', 'labTestHistory.labTestDetails', 'accommodation'])
+    //         ->withDebt();
+    // }
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with(['assignedProcedure.procedureDetails', 'labTestHistory.labTestDetails', 'accommodation'])
-            ->withDebt();
+            ->with(['assignedProcedure.procedureDetails', 'labTestHistory.labTestDetails', 'accommodation', 'payments']);
     }
 
 
     public static function table(Table $table): Table
     {
         return $table
+        ->modifyQueryUsing(function (Builder $query) {
+            $all = $query->get();
+
+            $ids = $all->filter(function ($history) {
+                return $history->getRemainingDebt() > 0;
+            })->pluck('id');
+
+            return MedicalHistory::whereIn('id', $ids);
+        })
             ->columns([
                 TextColumn::make('number')->label('Номер')->searchable()->sortable(),
                 TextColumn::make('patient.full_name')->label('ФИО')->searchable()->sortable(),
@@ -98,7 +112,7 @@ class MedicalPaymentResource extends Resource
                     }),
                 TextColumn::make('created_at')->searchable()->label('Дата')->sortable(),
             ])
-            ->defaultSort('created_at', 'desc')
+            ->defaultSort('number', 'desc')
             ->defaultPaginationPageOption(50)
             ->actions([
                 Action::make('add_payment')

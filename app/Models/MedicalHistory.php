@@ -67,10 +67,6 @@ class MedicalHistory extends Model
         return $this->hasMany(Payment::class,'medical_history_id');
     }
     
-
-    public function getTotalPaid(){
-        return $this->payments()->where('amount', '>', 0)->sum('amount');
-    }
     
     public function getTotalCost(){
         $procedureCost = $this->assignedProcedure?->getTotalCost() ?? 0;
@@ -93,6 +89,10 @@ class MedicalHistory extends Model
     public function getTotalPaidAndReturned()
     {
         return $this->getTotalPaidAmount() - $this->getTotalReturned();
+    }
+    public function getRemainingDebt(): float
+    {
+        return max(0, $this->getTotalCost() - $this->getTotalPaidAmount());
     }
     
     public function scopeWithDebt($query)
