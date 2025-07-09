@@ -9,6 +9,7 @@ use App\Models\MedicalPayment;
 use App\Models\PaymentType;
 use Filament\Facades\Filament;
 use Filament\Forms;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -145,12 +146,17 @@ class MedicalPaymentResource extends Resource
                                         }),
                                     Hidden::make('is_submitted_to_bank')
                                         ->dehydrated(true),
-                                        
+                                        // yaratilgan sanani qoyish
                                     Textarea::make('description')
                                         ->label('Izoh')
                                         ->placeholder('Коммент')
                                         ->maxLength(255)
                                         ->rows(3),
+                                    DateTimePicker::make('created_at')
+                                        ->label('Дата создания')
+                                        ->date()
+                                        ->default(now())
+                                        ->required(),
                                 ]),
                         ])
                         ->action(function (array $data, $record) {
