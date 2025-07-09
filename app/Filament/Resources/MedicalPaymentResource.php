@@ -46,7 +46,11 @@ class MedicalPaymentResource extends Resource
     //         ->with(['assignedProcedure.procedureDetails', 'labTestHistory.labTestDetails', 'accommodation'])
     //         ->withDebt();
     // }
-
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withTotalCost(); // Qo‘shamiz
+    }
 
     public static function table(Table $table): Table
     {
@@ -54,17 +58,17 @@ class MedicalPaymentResource extends Resource
             ->columns([
                 TextColumn::make('number')->label('Номер')->searchable()->sortable(),
                 TextColumn::make('patient.full_name')->label('ФИО')->searchable()->sortable(),
+                // TextColumn::make('total_cost')
+                //     ->label('Обшый сумма')
+                //     ->badge()
+                //     ->getStateUsing(function ($record) {
+                //         return number_format($record->getTotalCost(),0,'.',' ').' сум';
+                //     }),
                 TextColumn::make('total_cost')
-                    ->label('Обшый сумма')
-                    ->badge()
-                    ->getStateUsing(function ($record) {
-                        return number_format($record->getTotalCost(),0,'.',' ').' сум';
-                    }),
-                TextColumn::make('withDebt')
                     ->label('aaa')
                     ->badge()
                     ->getStateUsing(function ($record) {
-                        return $record->withDebt();
+                        return $record->total_cost();
                     }),
                 TextColumn::make('total_amount')
                     ->label('Одобрено')
