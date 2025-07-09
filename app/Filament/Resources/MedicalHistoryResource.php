@@ -359,7 +359,7 @@ class MedicalHistoryResource extends Resource
                     ->falseIcon('heroicon-o-x-circle')
                     ->trueColor('success')
                     ->falseColor('danger'),
-                TextColumn::make('created_at')->label('Дата')->dateTime()->sortable(),
+                TextColumn::make('accommodation.admission_date')->label('Дата поступления')->dateTime()->sortable(),
                 // TextColumn::make('accommodation.discharge_date')->label('Дата выписки')->dateTime()->sortable(),,
             ])
             ->defaultPaginationPageOption(50)
