@@ -121,33 +121,5 @@ class MedicalHistory extends Model
             ), 0)
         ');
     }
-    public function scopeWithTotalCost($query)
-{
-    return $query->addSelect([
-        'total_cost' => \DB::raw('(
-            COALESCE((
-                SELECT SUM(price * sessions) 
-                FROM assigned_procedures 
-                JOIN procedure_details ON assigned_procedures.id = procedure_details.assigned_procedure_id 
-                WHERE assigned_procedures.medical_history_id = medical_histories.id
-            ), 0)
-            +
-            COALESCE((
-                SELECT SUM(price * sessions) 
-                FROM lab_test_histories 
-                JOIN lab_test_details ON lab_test_histories.id = lab_test_details.lab_test_history_id 
-                WHERE lab_test_histories.medical_history_id = medical_histories.id
-            ), 0)
-            +
-            COALESCE((
-                SELECT COALESCE(tariff_price, 0) + COALESCE(meal_price, 0) 
-                FROM accommodations 
-                WHERE accommodations.medical_history_id = medical_histories.id 
-                LIMIT 1
-            ), 0)
-        )'),
-    ]);
-}
-
 
 }
