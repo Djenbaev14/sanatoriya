@@ -115,10 +115,7 @@ class MedicalHistory extends Model
                     SELECT COALESCE(tariff_price, 0) + COALESCE(meal_price, 0) FROM accommodations 
                     WHERE accommodations.medical_history_id = medical_histories.id LIMIT 1
                 ), 0)
-            ) > COALESCE((
-                SELECT SUM(amount) FROM payments 
-                WHERE payments.medical_history_id = medical_histories.id
-            ), 0)
+            ) 
         ');
     }
 
