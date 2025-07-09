@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('procedure_details', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('assigned_procedure_id');
-            $table->foreign('assigned_procedure_id')->references('id')->on('assigned_procedures');
+            $table->foreign('assigned_procedure_id')->references('id')->on('assigned_procedures')->onDelete('cascade');
             
             $table->unsignedBigInteger('procedure_id');
             $table->foreign('procedure_id')->references('id')->on('procedures');

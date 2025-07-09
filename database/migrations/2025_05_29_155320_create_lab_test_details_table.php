@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('lab_test_details', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('lab_test_history_id');
-            $table->foreign('lab_test_history_id')->references('id')->on('lab_test_histories');
+            $table->foreign('lab_test_history_id')->references('id')->on('lab_test_histories')->onDelete('cascade');
 
             $table->unsignedBigInteger('lab_test_id');
             $table->foreign('lab_test_id')->references('id')->on('lab_tests');
