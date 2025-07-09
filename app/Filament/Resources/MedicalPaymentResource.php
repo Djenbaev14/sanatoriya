@@ -64,7 +64,7 @@ class MedicalPaymentResource extends Resource
                     ->label('aaa')
                     ->badge()
                     ->getStateUsing(function ($record) {
-                        return number_format($record->withDebt(),0,'.',' ').' сум';
+                        return $record->withDebt();
                     }),
                 TextColumn::make('total_amount')
                     ->label('Одобрено')
