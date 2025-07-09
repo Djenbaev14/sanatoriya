@@ -20,7 +20,7 @@ return new class extends Migration
             $table->foreign('patient_id')->references('id')->on('patients');
 
             $table->unsignedBigInteger('medical_history_id');
-            $table->foreign('medical_history_id')->references('id')->on('medical_histories');
+            $table->foreign('medical_history_id')->references('id')->on('medical_histories')->onDelete('cascade');
             
             $table->unsignedBigInteger('accommodation_id');
             $table->foreign('accommodation_id')->references('id')->on('accommodations');

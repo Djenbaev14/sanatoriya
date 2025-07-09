@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('payment_types', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->decimal('commission_percent', 5, 2)->default(0); // % komissiya (0.3, 0.2, 0)
             $table->timestamps();
         });
     }

@@ -16,15 +16,22 @@ class PaymentTypeSeeder extends Seeder
         $types=[
             [
                 'name'=>'Нак',
+                'commission_percent'=>0.3, // % komissiya
             ],
             [
                 'name'=>'Терминал',
+                'commission_percent'=>0.2, // % komissiya
+            ],
+            [
+                'name'=>'Перечисление',
+                'commission_percent'=>0, // % komissiya
             ],
         ];
 
         foreach ($types as $type) {
             PaymentType::create([
                 'name'=>$type['name'],
+                'commission_percent'=>$type['commission_percent'],
             ]);
         }
     }
