@@ -79,7 +79,7 @@ class MedicalPaymentResource extends Resource
                     ->color('success')
                     ->badge()
                     ->getStateUsing(function ($record) {
-                        $remaining = $record->getTotalPaid();
+                        $remaining = $record->getTotalPaidAmount();
                         return number_format($remaining, 0, '.', ' ') . ' сум';
                     }),
                 TextColumn::make('total_debt')
