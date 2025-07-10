@@ -13,6 +13,7 @@ use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -128,10 +129,15 @@ class MedicalPaymentResource extends Resource
             ->filters([
                 Filter::make('admission_date_range')
                     ->form([
-                        DatePicker::make('from')
-                            ->label('Первая дата'),
-                        DatePicker::make('until')
-                            ->label('Последняя дата'),
+                        Grid::make(2)
+                            ->schema([
+                                DatePicker::make('from')
+                                    ->label('Первая дата')
+                                    ->columnSpan(1),
+                                DatePicker::make('until')
+                                    ->label('Последняя дата')
+                                    ->columnSpan(1),
+                            ])
                     ])
                     ->query(function (Builder $query, array $data) {
                         return $query->when($data['from'], fn ($q) =>
