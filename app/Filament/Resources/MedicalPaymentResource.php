@@ -143,39 +143,36 @@ class MedicalPaymentResource extends Resource
                 ],layout: FiltersLayout::AboveContent)
             ->headerActions([
                 Action::make('total_cost_summary')
-                    ->label(function () {
-                        // Bu yerda barcha MedicalHistory lar bo‘yicha umumiy summa hisoblanadi
-                        
-                        $debtors = MedicalHistory::all()->filter(fn ($item) => $item->getRemainingDebt() > 0);
-
-                        $total = $debtors->sum(fn ($item) => $item->getTotalCost());
+                    ->label(function ($livewire) {
+                        $filtered = $livewire->getFilteredTableQuery()->get();
+                        $total = $filtered->sum(fn ($item) => $item->getTotalCost());
 
                         return 'Общая сумма: ' . number_format($total, 0, '.', ' ') . ' сум';
                     })
-                    ->disabled() // faqat ko‘rsatish uchun, bosilmaydigan bo‘ladi
+                    ->disabled()
                     ->color('gray'),
+
                 Action::make('total_amount_summary')
-                    ->label(function () {
+                    ->label(function ($livewire) {
+                        $filtered = $livewire->getFilteredTableQuery()->get();
+                        $total = $filtered->sum(fn ($item) => $item->getTotalPaidAmount());
 
-                        $debtors = MedicalHistory::all()->filter(fn ($item) => $item->getRemainingDebt() > 0);
-
-                        $total = $debtors->sum(fn ($item) => $item->getTotalPaidAmount());
                         return 'Общая выплаченная сумма: ' . number_format($total, 0, '.', ' ') . ' сум';
                     })
-                    ->disabled() // faqat ko‘rsatish uchun, bosilmaydigan bo‘ladi
+                    ->disabled()
                     ->color('gray'),
-                Action::make('total_debt_summary')
-                    ->label(function () {
-                        $debtors = MedicalHistory::all()->filter(fn ($item) => $item->getRemainingDebt() > 0);
 
-                        $total_cost = $debtors->sum(fn ($item) => $item->getTotalCost());
-                        $total_paid_and_returned = $debtors->sum(fn ($item) => $item->getTotalPaidAndReturned());
-                        
-                        $remaining = $total_cost - $total_paid_and_returned;
-                        $remaining = max(0, $remaining); // agar minus bo‘lsa 0 bo‘ladi
+                Action::make('total_debt_summary')
+                    ->label(function ($livewire) {
+                        $filtered = $livewire->getFilteredTableQuery()->get();
+
+                        $total_cost = $filtered->sum(fn ($item) => $item->getTotalCost());
+                        $total_paid = $filtered->sum(fn ($item) => $item->getTotalPaidAndReturned());
+                        $remaining = max($total_cost - $total_paid, 0);
+
                         return 'Общая сумма долга: ' . number_format($remaining, 0, '.', ' ') . ' сум';
                     })
-                    ->disabled() // faqat ko‘rsatish uchun, bosilmaydigan bo‘ladi
+                    ->disabled()
                     ->color('gray'),
             ])
             ->bulkActions([
