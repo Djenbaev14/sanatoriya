@@ -222,6 +222,15 @@ class MedicalPaymentResource extends Resource
     {
         return 'Журнал оплат'; // Rus tilidagi ko'plik shakli
     }
+    public static function getRecordTitle($record): ?string
+    {
+        $history = $record->medicalHistory; // payment.medical_history_id orqali bog‘langan bo‘lsa
+
+        if (!$history) return 'Журнал оплат'; // fallback
+
+        return 'Журнал оплат №' . $history->number . ' - ' . ($history->patient->full_name ?? 'Nomaʼlum');
+    }
+
 
     public static function canAccess(): bool
     {

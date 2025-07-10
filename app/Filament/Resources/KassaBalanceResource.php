@@ -45,10 +45,6 @@ class KassaBalanceResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->query(
-                Payment::query()
-                    ->where('is_submitted_to_bank', 0)
-            )
             ->columns([
                 // TextColumn::make('patient.full_name')
                 //     ->label('Больной'),
@@ -69,21 +65,6 @@ class KassaBalanceResource extends Resource
                     ->date('d.m.Y h:i'),
             ])
             ->filters([
-                SelectFilter::make('for_type')
-                    ->label('За что оплачено')
-                    ->options([
-                        'accommodation' => 'Палата (койка)',
-                        'procedure'     => 'Лечение (процедура)',
-                        'analysis'      => 'Анализ (лаборатория)',
-                    ])
-                    ->query(function (Builder $query, array $data) {
-                        $value = $data['value'] ?? null;
-                        return $query
-                            ->when($value === 'accommodation', fn($q) => $q->whereNotNull('accommodation_id'))
-                            ->when($value === 'procedure',     fn($q) => $q->whereNotNull('assigned_procedure_id'))
-                            ->when($value === 'analysis',      fn($q) => $q->whereNotNull('lab_test_history_id'));
-                    }),
-
                 SelectFilter::make('date_filter')
                     ->label('Дата')
                     ->options([
@@ -105,27 +86,27 @@ class KassaBalanceResource extends Resource
             
             ->bulkActions([
                 BulkAction::make('mark_as_submitted')
-    ->label('Отметить как сданные в банк')
-    ->icon('heroicon-m-banknotes')
-    ->color('success')
-    ->action(function ($records) {
-        foreach ($records as $record) {
-                $record->update([
-                    'is_submitted_to_bank' => true,
-                ]);
+            ->label('Отметить как сданные в банк')
+            ->icon('heroicon-m-banknotes')
+            ->color('success')
+            ->action(function ($records) {
+                foreach ($records as $record) {
+                        $record->update([
+                            'is_submitted_to_bank' => true,
+                        ]);
+                }
+            })
+            // ->modalHeading('Подтверждение сдачи в банк')
+            ->modalHeading(function ($records) {
+                $sum = $records->sum('amount');
+                return number_format($sum, 0, '.', ' ') . ' сум будут переданы в банк';
+            })
+            ->requiresConfirmation()
+            ->deselectRecordsAfterCompletion()
+            ->modalSubmitActionLabel('Сдать в банк'),
+                    ])
+            ->defaultSort('created_at', 'desc');
         }
-    })
-    // ->modalHeading('Подтверждение сдачи в банк')
-    ->modalHeading(function ($records) {
-        $sum = $records->sum('amount');
-        return number_format($sum, 0, '.', ' ') . ' сум будут переданы в банк';
-    })
-    ->requiresConfirmation()
-    ->deselectRecordsAfterCompletion()
-    ->modalSubmitActionLabel('Сдать в банк'),
-            ])
-    ->defaultSort('created_at', 'desc');
-    }
     
     public static function canAccess(): bool
     {
@@ -143,15 +124,16 @@ class KassaBalanceResource extends Resource
     
     public static function getNavigationLabel(): string
     {
-        return 'Остаток в кассе'; // Rus tilidagi nom
+        return 'Платежи'; // Rus tilidagi nom
     }
+    
     public static function getModelLabel(): string
     {
-        return 'Остаток в кассе'; // Rus tilidagi yakka holdagi nom
+        return 'Платежи'; // Rus tilidagi yakka holdagi nom
     }
     public static function getPluralModelLabel(): string
     {
-        return 'Остаток в кассе'; // Rus tilidagi ko'plik shakli
+        return 'Платежи'; // Rus tilidagi ko'plik shakli
     }
 
 
