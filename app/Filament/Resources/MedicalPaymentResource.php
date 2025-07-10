@@ -192,16 +192,6 @@ class MedicalPaymentResource extends Resource
                         ExcelExport::make()->fromTable()
                     ])
             ])
-            // ->bulkActions([
-            //     ExportBulkAction::make('bulkExport')
-            //         ->label('Экспортировать в Excel')
-            //         ->exports([
-            //             ExcelExport::make()
-            //                 ->fromTable()
-            //                 ->withFilename('debtors_'.now()->format('Y-m-d_H-i-s')),
-            //         ])
-            //         ->color('primary'),
-            // ])
             ->defaultSort('number', 'desc')
             ->defaultPaginationPageOption(50)
             ->actions([

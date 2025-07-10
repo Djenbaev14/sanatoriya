@@ -7,6 +7,8 @@ use App\Filament\Resources\KassaBalanceResource\RelationManagers;
 use App\Models\KassaBalance;
 use App\Models\Payment;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -14,6 +16,7 @@ use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -61,8 +64,8 @@ class KassaBalanceResource extends Resource
                     ->money('UZS')
                     ->summarize(Sum::make()->label('Общая сумма')),
 
-                TextColumn::make('updated_at')
-                    ->label('Дата обновления')
+                TextColumn::make('created_at')
+                    ->label('Дата создания')
                     ->date('d.m.Y h:i'),
             ])
             ->headerActions([
@@ -73,20 +76,27 @@ class KassaBalanceResource extends Resource
                     ])
             ])
             ->filters([
-                SelectFilter::make('date_filter')
-                    ->label('Дата')
-                    ->options([
-                        'today' => 'Сегодня',
-                        'last_7_days' => 'Последние 7 дней',
-                        'month' => 'С начала месяца',
+                Filter::make('created_date_range')
+                    ->form([
+                        Grid::make(2)
+                            ->schema([
+                                DatePicker::make('from')
+                                    ->label('Первая дата')
+                                    ->columnSpan(1),
+                                DatePicker::make('until')
+                                    ->label('Последняя дата')
+                                    ->columnSpan(1),
+                            ])
                     ])
                     ->query(function (Builder $query, array $data) {
-                        $value = $data['value'] ?? null;
-
-                        return $query
-                            ->when($value === 'today', fn ($q) => $q->whereDate('updated_at', today()))
-                            ->when($value === 'last_7_days', fn ($q) => $q->whereDate('updated_at', '>=', now()->subDays(7)))
-                            ->when($value === 'month', fn ($q) => $q->whereDate('updated_at', '>=', now()->startOfMonth()));
+                        return $query->when($data['from'], fn ($q) =>
+                            $q->whereDate('created_at', '>=', $data['from'])
+                        )
+                            ->when($data['until'], fn ($q) =>
+                                $q->whereHas('accommodation', fn ($q) =>
+                                    $q->whereDate('created_at', '<=', $data['until'])
+                                )
+                            );
                     }),
                 ],layout: FiltersLayout::AboveContent)
             ->persistFiltersInSession()    // 👈 Foydalanuvchi filtrlasa, u saqlanadi
