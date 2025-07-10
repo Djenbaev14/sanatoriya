@@ -81,11 +81,11 @@ class KassaBalanceResource extends Resource
                 SelectFilter::make('payment_type_id')
                     ->label('Тип платежа')
                     ->options(PaymentType::query()->pluck('name', 'id'))
-                    ->query(function (Builder $query, $data) {
-                        return $query->when($data, fn ($q) =>
-                            $q->where('payment_type_id', $data)
-                        );
-                    }),
+                    ->query(fn (Builder $query, array $data) => 
+                        $query->when($data['value'] ?? null, fn ($q, $value) =>
+                            $q->where('payment_type_id', $value)
+                        )
+                    ),
                 Filter::make('created_date_range')
                     ->form([
                         Grid::make(2)
