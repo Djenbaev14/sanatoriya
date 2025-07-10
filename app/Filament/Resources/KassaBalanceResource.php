@@ -37,10 +37,10 @@ class KassaBalanceResource extends Resource
             ]);
     }
     
-    public static function shouldRegisterNavigation(): bool
-    {
-        return false;
-    }
+    // public static function shouldRegisterNavigation(): bool
+    // {
+    //     return false;
+    // }
 
     public static function table(Table $table): Table
     {
