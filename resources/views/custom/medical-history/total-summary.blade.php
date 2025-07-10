@@ -1,8 +1,8 @@
 <x-filament::section heading="Общая сумма">
     @php
         $record = $getRecord();
-        
-        $total += $record->getTotalCost() ?? 0; // Qo‘shimcha xarajatlar
+
+        $total = $record->getTotalCost() ?? 0; // Qo‘shimcha xarajatlar
         $paid = $record->getTotalPaidAmount(); // Faqat to‘langanlar
         $debt = $record->getRemainingDebt(); // Qarzdorlik (minus bo‘lsa 0 qilamiz)
     @endphp
