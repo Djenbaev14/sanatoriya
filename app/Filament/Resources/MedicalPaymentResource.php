@@ -115,8 +115,10 @@ class MedicalPaymentResource extends Resource
                 Action::make('total_cost_summary')
                     ->label(function () {
                         // Bu yerda barcha MedicalHistory lar bo‘yicha umumiy summa hisoblanadi
-                        $total = MedicalHistory::get()
-                            ->sum(fn ($record) => $record->getTotalCost());
+                        
+                        $debtors = MedicalHistory::all()->filter(fn ($item) => $item->getRemainingDebt() > 0);
+
+                        $total = $debtors->sum(fn ($item) => $item->getTotalCost());
 
                         return 'Общая сумма: ' . number_format($total, 0, '.', ' ') . ' сум';
                     })
@@ -124,22 +126,21 @@ class MedicalPaymentResource extends Resource
                     ->color('gray'),
                 Action::make('total_amount_summary')
                     ->label(function () {
-                        // Bu yerda barcha MedicalHistory lar bo‘yicha umumiy summa hisoblanadi
-                        $total = MedicalHistory::get()
-                            ->sum(fn ($record) => $record->getTotalPaidAmount());
 
+                        $debtors = MedicalHistory::all()->filter(fn ($item) => $item->getRemainingDebt() > 0);
+
+                        $total = $debtors->sum(fn ($item) => $item->getTotalPaidAmount());
                         return 'Общая выплаченная сумма: ' . number_format($total, 0, '.', ' ') . ' сум';
                     })
                     ->disabled() // faqat ko‘rsatish uchun, bosilmaydigan bo‘ladi
                     ->color('gray'),
                 Action::make('total_debt_summary')
                     ->label(function () {
-                        // Bu yerda barcha MedicalHistory lar bo‘yicha umumiy summa hisoblanadi
-                        $total_cost = MedicalHistory::get()
-                            ->sum(fn ($record) => $record->getTotalCost());
-                        $total_paid_and_returned = MedicalHistory::get()
-                            ->sum(fn ($record) => $record->getTotalPaidAndReturned());
+                        $debtors = MedicalHistory::all()->filter(fn ($item) => $item->getRemainingDebt() > 0);
 
+                        $total_cost = $debtors->sum(fn ($item) => $item->getTotalCost());
+                        $total_paid_and_returned = $debtors->sum(fn ($item) => $item->getTotalPaidAndReturned());
+                        
                         $remaining = $total_cost - $total_paid_and_returned;
                         $remaining = max(0, $remaining); // agar minus bo‘lsa 0 bo‘ladi
                         return 'Общая сумма долга: ' . number_format($remaining, 0, '.', ' ') . ' сум';
