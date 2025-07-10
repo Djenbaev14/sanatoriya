@@ -110,7 +110,6 @@ class MedicalPaymentResource extends Resource
                         $remaining = max(0, $remaining); // agar minus bo‘lsa 0 bo‘ladi
                         return number_format($remaining, 0, '.', thousands_separator: ' ') . ' сум';
                     }),
-                TextColumn::make('created_at')->searchable()->label('Дата')->sortable(),
             ])
             ->defaultSort('number', 'desc')
             ->defaultPaginationPageOption(50)
@@ -214,21 +213,13 @@ class MedicalPaymentResource extends Resource
     {
         return 'Журнал оплат'; // Rus tilidagi nom
     }
-    // public static function getModelLabel(): string
-    // {
-    //     return 'Журнал оплат'; // Rus tilidagi yakka holdagi nom
-    // }
-    // public static function getPluralModelLabel(): string
-    // {
-    //     return 'Журнал оплат'; // Rus tilidagi ko'plik shakli
-    // }
-    public static function getRecordTitle($record): ?string
+    public static function getModelLabel(): string
     {
-        $history = $record->medicalHistory; // payment.medical_history_id orqali bog‘langan bo‘lsa
-
-        if (!$history) return 'Журнал оплат'; // fallback
-
-        return 'Журнал оплат №' . $history->number . ' - ' . ($history->patient->full_name ?? 'Nomaʼlum');
+        return 'Журнал оплат'; // Rus tilidagi yakka holdagi nom
+    }
+    public static function getPluralModelLabel(): string
+    {
+        return 'Журнал оплат'; // Rus tilidagi ko'plik shakli
     }
     
 
