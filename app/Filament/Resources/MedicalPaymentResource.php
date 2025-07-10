@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Exports\MedicalHistoriesExport;
 use App\Filament\Resources\MedicalPaymentResource\Pages;
 use App\Filament\Resources\MedicalPaymentResource\RelationManagers;
 use App\Models\MedicalHistory;
@@ -28,6 +29,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Collection;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class MedicalPaymentResource extends Resource
@@ -178,6 +180,9 @@ class MedicalPaymentResource extends Resource
             ->bulkActions([
                 ExportBulkAction::make('bulkExport')
                     ->label('Экспортировать в Excel')
+                    ->exportUsing(function (Collection $records) {
+                        return new MedicalHistoriesExport($records);
+                    })
                     ->color('primary'),
             ])
             ->defaultSort('number', 'desc')
