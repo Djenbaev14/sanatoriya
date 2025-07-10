@@ -21,7 +21,6 @@ use Filament\Resources\Resource;
 use Filament\Support\Enums\MaxWidth;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
-use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -74,8 +73,7 @@ class MedicalPaymentResource extends Resource
                     ->badge()
                     ->getStateUsing(function ($record) {
                         return number_format($record->getTotalCost(),0,'.',' ').' сум';
-                    })
-                    ->summarize(Sum::make()->label('Общая сумма')),
+                    }),
                 TextColumn::make('total_amount')
                     ->label('Одобрено')
                     ->color('success')
@@ -83,8 +81,7 @@ class MedicalPaymentResource extends Resource
                     ->getStateUsing(function ($record) {
                         $remaining = $record->getTotalPaidAmount();
                         return number_format($remaining, 0, '.', ' ') . ' сум';
-                    })
-                    ->summarize(Sum::make()->label('Общая сумма одобрено')),
+                    }),
                 TextColumn::make('total_debt')
                     ->label('Долг')
                     ->color('danger')
@@ -93,8 +90,7 @@ class MedicalPaymentResource extends Resource
                         $remaining = $record->getTotalCost() - $record->getTotalPaidAndReturned();
                         $remaining = max(0, $remaining); // agar minus bo‘lsa 0 bo‘ladi
                         return number_format($remaining, 0, '.', thousands_separator: ' ') . ' сум';
-                    })
-                    ->summarize(Sum::make()->label('Общая сумма долга')),
+                    }),
                 TextColumn::make('advance_payment')
                     ->label('Возврат')
                     ->color('success')
@@ -103,8 +99,7 @@ class MedicalPaymentResource extends Resource
                         $remaining = $record->getTotalReturned() ;
                         $remaining = max(0, $remaining); // agar minus bo‘lsa 0 bo‘ladi
                         return number_format($remaining, 0, '.', thousands_separator: ' ') . ' сум';
-                    })
-                    ->summarize(Sum::make()->label('Общая сумма возврата')),
+                    }),
                     
                 TextColumn::make('returning_balance')
                     ->label('Остаток к возврату')
@@ -114,8 +109,19 @@ class MedicalPaymentResource extends Resource
                         $remaining = $record->getTotalPaidAndReturned()  - $record->getTotalCost();
                         $remaining = max(0, $remaining); // agar minus bo‘lsa 0 bo‘ladi
                         return number_format($remaining, 0, '.', thousands_separator: ' ') . ' сум';
+                    }),
+            ])
+            ->headerActions([
+                Action::make('total_cost_summary')
+                    ->label(function () {
+                        // Bu yerda barcha MedicalHistory lar bo‘yicha umumiy summa hisoblanadi
+                        $total = MedicalHistory::get()
+                            ->sum(fn ($record) => $record->getTotalCost());
+
+                        return 'Общая сумма: ' . number_format($total, 0, '.', ' ') . ' сум';
                     })
-                    ->summarize(Sum::make()->label('Общая сумма остатка к возврату')),
+                    ->disabled() // faqat ko‘rsatish uchun, bosilmaydigan bo‘ladi
+                    ->color('gray'),
             ])
             ->defaultSort('number', 'desc')
             ->defaultPaginationPageOption(50)
