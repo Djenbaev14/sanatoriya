@@ -25,6 +25,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class MedicalPaymentResource extends Resource
 {
@@ -240,6 +241,9 @@ class MedicalPaymentResource extends Resource
                                     ->send();
                             }
                         })
+                        ->bulkActions([
+                            ExportBulkAction::make()
+                        ])
                         ->modalHeading('Оплата')
                         ->modalSubmitActionLabel('Сохранить')
                         ->modalCancelActionLabel('Отмена'),
