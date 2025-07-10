@@ -263,7 +263,7 @@ class MedicalPaymentResource extends Resource
                                     'description' => $data['description'],
                                     'user_id' => Filament::auth()->id(),
                                     'medical_history_id' => $record->id,
-                                    'created_at' => $record->created_at,
+                                    'created_at' => $data['created_at'],
                                 ]);
                                 
                                 if ($record->getTotalPaidAndReturned() == $record->getTotalCost()) {
