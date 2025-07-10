@@ -9,6 +9,7 @@ use App\Models\MedicalPayment;
 use App\Models\PaymentType;
 use Filament\Facades\Filament;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Section;
@@ -22,6 +23,8 @@ use Filament\Support\Enums\MaxWidth;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -111,7 +114,33 @@ class MedicalPaymentResource extends Resource
                         $remaining = max(0, $remaining); // agar minus bo‘lsa 0 bo‘ladi
                         return number_format($remaining, 0, '.', thousands_separator: ' ') . ' сум';
                     }),
+                    // accommodation  admission_date chiqarib ber
+                TextColumn::make('accommodation.admission_date')
+                    ->label('Дата поступления')
+                    ->date('d.m.Y')
+                    ->sortable()
             ])
+            ->filters([
+                Filter::make('admission_date_range')
+                    ->form([
+                        DatePicker::make('from')
+                            ->label('Первая дата'),
+                        DatePicker::make('until')
+                            ->label('Последняя дата'),
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        return $query->when($data['from'], fn ($q) =>
+                                $q->whereHas('accommodation', fn ($q) =>
+                                    $q->whereDate('admission_date', '>=', $data['from'])
+                                )
+                            )
+                            ->when($data['until'], fn ($q) =>
+                                $q->whereHas('accommodation', fn ($q) =>
+                                    $q->whereDate('admission_date', '<=', $data['until'])
+                                )
+                            );
+                    }),
+                ],layout: FiltersLayout::AboveContent)
             ->headerActions([
                 Action::make('total_cost_summary')
                     ->label(function () {
