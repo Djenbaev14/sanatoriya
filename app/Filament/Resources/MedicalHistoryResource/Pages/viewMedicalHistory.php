@@ -292,7 +292,7 @@ class ViewMedicalHistory extends ViewRecord
                                     ->label('Приемный Осмотр')
                                     ->visible(fn ($record) => $record->medicalInspection !== null) // 👈 Bu muhim
                                     ->schema([
-                                                Grid::make(3)
+                                                Grid::make(4)
                                                     ->schema([
                                                     TextEntry::make('medicalInspection.id')
                                                         ->label('Скачать осмотр')
@@ -307,6 +307,13 @@ class ViewMedicalHistory extends ViewRecord
                                                             ->weight(FontWeight::Bold)
                                                             ->color(Color::Blue)
                                                             ->placeholder('Не назначено'),
+                                                            // assignedDoctor name kiriting
+                                                        TextEntry::make('medicalInspection.assignedDoctor.name')
+                                                            ->label('Назначенный врач')
+                                                            ->weight(FontWeight::Bold)
+                                                            ->color(Color::Blue)
+                                                            ->placeholder('Не назначено'),
+
                                                         \Filament\Infolists\Components\Actions::make([
                                                                 Action::make('editMedicalInspection')
                                                                 ->label('Редактировать')
