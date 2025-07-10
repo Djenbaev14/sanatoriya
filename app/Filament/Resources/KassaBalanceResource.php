@@ -18,6 +18,8 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Pages\ExportAction;
+use pxlrbt\FilamentExcel\Exports\ExcelExport;
 
 class KassaBalanceResource extends Resource
 {
@@ -46,11 +48,13 @@ class KassaBalanceResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('medicalHistory.number')->label('История номер')->searchable()->sortable(),
                 TextColumn::make('patient.full_name')
                     ->label('Больной'),
-
-                TextColumn::make('payment_reason')
-                    ->label('За что оплачено'),
+                TextColumn::make('paymentType.name')
+                    ->label('Тип платежа')
+                    ->searchable()
+                    ->sortable(),
 
                 TextColumn::make('amount')
                     ->label('Сумма')
@@ -60,6 +64,13 @@ class KassaBalanceResource extends Resource
                 TextColumn::make('updated_at')
                     ->label('Дата обновления')
                     ->date('d.m.Y h:i'),
+            ])
+            ->headerActions([
+                ExportAction::make('export_excel')
+                    ->label('Экспортировать в Excel')
+                    ->exports([
+                        ExcelExport::make()->fromTable()
+                    ])
             ])
             ->filters([
                 SelectFilter::make('date_filter')
