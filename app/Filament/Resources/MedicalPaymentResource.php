@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Exports\DebtorMedicalHistoriesExport;
 use App\Exports\MedicalHistoriesExport;
 use App\Filament\Resources\MedicalPaymentResource\Pages;
 use App\Filament\Resources\MedicalPaymentResource\RelationManagers;
@@ -180,9 +181,7 @@ class MedicalPaymentResource extends Resource
             ->bulkActions([
                 ExportBulkAction::make('bulkExport')
                     ->label('Экспортировать в Excel')
-                    ->exportUsing(function (Collection $records) {
-                        return new MedicalHistoriesExport($records);
-                    })
+                    ->exportClass(DebtorMedicalHistoriesExport::class)
                     ->color('primary'),
             ])
             ->defaultSort('number', 'desc')
