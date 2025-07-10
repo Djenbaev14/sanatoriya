@@ -32,6 +32,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Collection;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use pxlrbt\FilamentExcel\Exports\ExcelExport;
 
 class MedicalPaymentResource extends Resource
 {
@@ -181,7 +182,11 @@ class MedicalPaymentResource extends Resource
             ->bulkActions([
                 ExportBulkAction::make('bulkExport')
                     ->label('Экспортировать в Excel')
-                    ->exports([DebtorMedicalHistoriesExport::class])
+                    ->exports([
+                        ExcelExport::make()
+                            ->fromTable()
+                            ->withFilename('debtors_'.now()->format('Y-m-d_H-i-s')),
+                    ])
                     ->color('primary'),
             ])
             ->defaultSort('number', 'desc')
