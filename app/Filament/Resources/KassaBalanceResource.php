@@ -76,6 +76,15 @@ class KassaBalanceResource extends Resource
                     ])
             ])
             ->filters([
+                // select filter for payment type
+                SelectFilter::make('payment_type_id')
+                    ->label('Тип платежа')
+                    ->options(Payment::query()->pluck('paymentType.name', 'payment_type_id'))
+                    ->query(function (Builder $query, $data) {
+                        return $query->when($data, fn ($q) =>
+                            $q->where('payment_type_id', $data)
+                        );
+                    }),
                 Filter::make('created_date_range')
                     ->form([
                         Grid::make(2)
