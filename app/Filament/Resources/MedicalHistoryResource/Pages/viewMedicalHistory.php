@@ -228,7 +228,7 @@ class ViewMedicalHistory extends ViewRecord
                                                             \Filament\Infolists\Components\Actions::make([
                                                                 Action::make('editAccommodation')
                                                                 ->label('Редактировать')
-                                                                ->visible(fn ($record) => $record->accommodation !== null && auth()->user()->can('создать условия размещения'))
+                                                                ->visible(fn ($record) => auth()->user()->can('создать условия размещения'))
                                                                 ->icon('heroicon-o-pencil')
                                                                 ->button()
                                                                 ->color('warning')

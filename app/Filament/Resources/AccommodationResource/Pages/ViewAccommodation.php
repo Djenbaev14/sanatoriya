@@ -107,14 +107,14 @@ class ViewAccommodation extends ViewRecord
         return $infolist
             ->schema([
                 // Asosiy ma'lumotlar bo'limi
-                Section::make('👤 Bemor va Asosiy Ma\'lumotlar')
-                    ->description('Bemorning shaxsiy ma\'lumotlari va yotqizish tafsilotlari')
+                Section::make('👤 Пациент и основная информация')
+                    ->description('Персональные данные пациента и подробности госпитализации')
                     ->icon('heroicon-o-user')
                     ->collapsible()
                     ->schema([
                         Grid::make(3)->schema([
                             TextEntry::make('patient.full_name')
-                                ->label('Bemor ismi')
+                                ->label('Пациент ФИО')
                                 ->icon('heroicon-o-user')
                                 ->iconColor('success')
                                 ->weight(FontWeight::Bold)
@@ -122,18 +122,18 @@ class ViewAccommodation extends ViewRecord
                                 ->color('success'),
 
                             TextEntry::make('createdBy.name')
-                                ->label('Ro\'yxatga olgan')
+                                ->label('Зарегистрировано')
                                 ->icon('heroicon-o-user-plus')
                                 ->iconColor('info')
                                 ->placeholder('Noma\'lum')
                                 ->color('info'),
 
                             TextEntry::make('medicalHistory.number')
-                                ->label('Tarix raqami')
+                                ->label('Медицинская история')
                                 ->icon('heroicon-o-document-text')
                                 ->iconColor('warning')
                                 ->copyable()
-                                ->copyMessage('Tarix raqami nusxalandi!')
+                                ->copyMessage('Номер истории скопирован!')
                                 ->color('warning'),
                         ]),
                     ])
@@ -148,7 +148,7 @@ class ViewAccommodation extends ViewRecord
                                 Grid::make(2)->schema([
 
                                     TextEntry::make('tariff.daily_price')
-                                        ->label('Kunlik narxi')
+                                        ->label('Дневная цена')
                                         ->icon('heroicon-o-currency-dollar')
                                         ->iconColor('success')
                                         ->formatStateUsing(fn($state) => number_format($state, 0, '.', ' ') . ' сум/кун')
@@ -163,7 +163,7 @@ class ViewAccommodation extends ViewRecord
                                 Grid::make(2)->schema([
 
                                     TextEntry::make('mealType.daily_price')
-                                        ->label('Ovqat narxi')
+                                        ->label('Стоимость еды')
                                         ->icon('heroicon-o-currency-dollar')
                                         ->iconColor('warning')
                                         ->formatStateUsing(fn($state) => number_format($state, 0, '.', ' ') . ' so\'m/kun')
@@ -172,11 +172,11 @@ class ViewAccommodation extends ViewRecord
                                         ->size(TextEntry\TextEntrySize::Large),
                                 ]),
                             ]),
-                        Fieldset::make('🏥 Palata va Koyka ma\'lumotlari')
+                        Fieldset::make('🏥 Информация о палате и койке')
                             ->schema([
                                 Grid::make(2)->schema([
                                     TextEntry::make('ward.name')
-                                        ->label('Palata')
+                                        ->label('Палата')
                                         ->icon('heroicon-o-home')
                                         ->iconColor('primary')
                                         ->badge()
@@ -184,7 +184,7 @@ class ViewAccommodation extends ViewRecord
                                         ->size(TextEntry\TextEntrySize::Large),
 
                                     TextEntry::make('bed.number')
-                                        ->label('Koyka raqami')
+                                        ->label('Номер койки')
                                         ->icon('heroicon-o-rectangle-stack')
                                         ->iconColor('secondary')
                                         ->badge()
@@ -202,7 +202,7 @@ class ViewAccommodation extends ViewRecord
                     ->schema([
                         Grid::make(2)->schema([
                             TextEntry::make('admission_date')
-                                ->label('Qabul sanasi')
+                                ->label('Дата поступления')
                                 ->icon('heroicon-o-arrow-right-on-rectangle')
                                 ->iconColor('success')
                                 ->dateTime('d.m.Y H:i')
@@ -211,7 +211,7 @@ class ViewAccommodation extends ViewRecord
                                 ->size(TextEntry\TextEntrySize::Large),
 
                             TextEntry::make('discharge_date')
-                                ->label('Chiqish sanasi')
+                                ->label('Дата выхода')
                                 ->icon('heroicon-o-arrow-left-on-rectangle')
                                 ->iconColor('danger')
                                 ->date('d.m.Y')

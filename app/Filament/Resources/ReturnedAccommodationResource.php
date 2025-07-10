@@ -133,7 +133,7 @@ class ReturnedAccommodationResource extends Resource
 
                                         // Placeholder ma'lumotlar
                                         Forms\Components\Placeholder::make('patient_info')
-                                            ->label('Bemor')
+                                            ->label('Пациент')
                                             ->content(function ($record, Get $get) {
                                                 $accommodationId = $get('accommodation_id') ?? request()->get('accommodation_id');
                                                 if ($accommodationId) {
@@ -144,7 +144,7 @@ class ReturnedAccommodationResource extends Resource
                                             }),
 
                                         Forms\Components\Placeholder::make('patient_phone')
-                                            ->label('Telefon')
+                                            ->label('Телефон')
                                             ->content(function ($record, Get $get) {
                                                 $accommodationId = $get('accommodation_id') ?? request()->get('accommodation_id');
                                                 if ($accommodationId) {

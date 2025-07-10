@@ -171,7 +171,7 @@ class MedicalHistoryResource extends Resource
                                                     ->live()
                                                     ->columnSpan(6),
                                                 Select::make('main_patient_id')
-                                                    ->label('Асосий беморни танланг')
+                                                    ->label('Основной пациент')
                                                     ->options(
                                                         \App\Models\Patient::where('is_accomplice', false)->pluck('full_name', 'id')
                                                     )
@@ -244,7 +244,7 @@ class MedicalHistoryResource extends Resource
                             ->required()
                             ->columnSpan(4),
                         Select::make('disability_types')
-                            ->label('Nogironlik turi')
+                            ->label('Типы инвалидности')
                             ->multiple()
                             ->options([
                                 'no' => "Yo'q",
@@ -259,9 +259,9 @@ class MedicalHistoryResource extends Resource
                             ->searchable()
                             ->columnSpan(4),
                         Select::make('referred_from')
-                            ->label('Qayerdan yuborilgan?')
+                            ->label('Откуда отправлено?')
                             ->options([
-                                'clinic' => 'Poliklinika',
+                                'clinic' => '',
                                 'hospital' => 'Shifoxona',
                                 'emergency' => 'Tez yordam',
                                 'self' => 'O‘zi kelgan',
@@ -271,7 +271,7 @@ class MedicalHistoryResource extends Resource
                             ->required()
                             ->columnSpan(4),
                         Select::make('transport_type')
-                            ->label('Qanday transportda keldi?')
+                            ->label('Транспортировка')
                             ->options([
                                 'ambulance' => 'Tez yordam',
                                 'family' => 'Yaqinlari olib kelgan',
@@ -289,14 +289,14 @@ class MedicalHistoryResource extends Resource
                             ->columnSpan(4),
                         Radio::make('is_emergency')
                             ->required()
-                            ->label('Shoshilinch holatda keltirildimi?')
+                            ->label('Его доставили в экстренном порядке?')
                             ->options([
                                 '1' => 'ha',
                                 '0'=> "yo'q",
                             ])
                             ->columnSpan(4),
                         DateTimePicker::make('created_at')
-                            ->label('Qabul qilingan sana')
+                            ->label('Дата создания')
                             ->reactive()
                             ->default(Carbon::now())
                             ->columnSpan(4),

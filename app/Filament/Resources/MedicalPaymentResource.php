@@ -161,12 +161,12 @@ class MedicalPaymentResource extends Resource
                                         ->dehydrated(true),
                                         // yaratilgan sanani qoyish
                                     Textarea::make('description')
-                                        ->label('Izoh')
+                                        ->label('Комментарий')
                                         ->placeholder('Коммент')
                                         ->maxLength(255)
                                         ->rows(3),
                                     DateTimePicker::make('created_at')
-                                        ->label('Дата создания')
+                                        ->label('Дата оплаты')
                                         ->date()
                                         ->default(now())
                                         ->required(),

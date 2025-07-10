@@ -130,7 +130,7 @@ class PatientResource extends Resource
                             ->live()
                             ->columnSpan(6),
                         Select::make('main_patient_id')
-                            ->label('Асосий беморни танланг')
+                            ->label('Основной пациент')
                             ->options(
                                 \App\Models\Patient::where('is_accomplice', false)->pluck('full_name', 'id')
                             )

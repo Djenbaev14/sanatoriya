@@ -292,7 +292,7 @@ class LabTestHistoryResource extends Resource
                                         ->required(),
                                         
                                     Textarea::make('description')
-                                        ->label('Izoh')
+                                        ->label('Комментарий')
                                         ->placeholder('Коммент')
                                         ->maxLength(255)
                                         ->rows(3),
