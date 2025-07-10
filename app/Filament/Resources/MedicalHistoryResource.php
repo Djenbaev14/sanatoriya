@@ -365,28 +365,24 @@ class MedicalHistoryResource extends Resource
                 // TextColumn::make('accommodation.discharge_date')->label('Дата выписки')->dateTime()->sortable(),,
             ])
             ->filters([
-                
-            SelectFilter::make('doctor')
-                ->label('Врач')
-                ->options(function () {
-                    return \App\Models\User::role('Доктор')
-                        ->pluck('name', 'id')
-                        ->toArray();
-                })
-                ->query(function (Builder $query, array $data): Builder {
-                    if (filled($data['value'])) {
-                        return $query->whereHas('medicalInspection', function ($q) use ($data) {
-                            $q->where('assigned_doctor_id', $data['value']);
-                        });
-                    }
-                    return $query;
-                })
+                SelectFilter::make('doctor')
+                    ->label('Врач')
+                    ->options(function () {
+                        return \App\Models\User::role('Доктор')
+                            ->pluck('name', 'id')
+                            ->toArray();
+                    })
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (filled($data['value'])) {
+                            return $query->whereHas('medicalInspection', function ($q) use ($data) {
+                                $q->where('assigned_doctor_id', $data['value']);
+                            });
+                        }
+                        return $query;
+                    })
             ],layout:FiltersLayout::AboveContent)
             ->defaultPaginationPageOption(50)
             ->defaultSort('number', 'desc')
-            ->filters([
-                //
-            ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
