@@ -6,6 +6,7 @@ use App\Filament\Resources\KassaBalanceResource\Pages;
 use App\Filament\Resources\KassaBalanceResource\RelationManagers;
 use App\Models\KassaBalance;
 use App\Models\Payment;
+use App\Models\PaymentType;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
@@ -79,7 +80,7 @@ class KassaBalanceResource extends Resource
                 // select filter for payment type
                 SelectFilter::make('payment_type_id')
                     ->label('Тип платежа')
-                    ->options(Payment::query()->pluck('paymentType.name', 'payment_type_id'))
+                    ->options(PaymentType::query()->pluck('name', 'id'))
                     ->query(function (Builder $query, $data) {
                         return $query->when($data, fn ($q) =>
                             $q->where('payment_type_id', $data)
