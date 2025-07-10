@@ -122,6 +122,30 @@ class MedicalPaymentResource extends Resource
                     })
                     ->disabled() // faqat ko‘rsatish uchun, bosilmaydigan bo‘ladi
                     ->color('gray'),
+                Action::make('total_amount_summary')
+                    ->label(function () {
+                        // Bu yerda barcha MedicalHistory lar bo‘yicha umumiy summa hisoblanadi
+                        $total = MedicalHistory::get()
+                            ->sum(fn ($record) => $record->getTotalPaidAmount());
+
+                        return 'Общая выплаченная сумма: ' . number_format($total, 0, '.', ' ') . ' сум';
+                    })
+                    ->disabled() // faqat ko‘rsatish uchun, bosilmaydigan bo‘ladi
+                    ->color('gray'),
+                Action::make('total_debt_summary')
+                    ->label(function () {
+                        // Bu yerda barcha MedicalHistory lar bo‘yicha umumiy summa hisoblanadi
+                        $total_cost = MedicalHistory::get()
+                            ->sum(fn ($record) => $record->getTotalCost());
+                        $total_paid_and_returned = MedicalHistory::get()
+                            ->sum(fn ($record) => $record->getTotalPaidAndReturned());
+
+                        $remaining = $total_cost - $total_paid_and_returned;
+                        $remaining = max(0, $remaining); // agar minus bo‘lsa 0 bo‘ladi
+                        return 'Общая сумма долга: ' . number_format($remaining, 0, '.', ' ') . ' сум';
+                    })
+                    ->disabled() // faqat ko‘rsatish uchun, bosilmaydigan bo‘ladi
+                    ->color('gray'),
             ])
             ->defaultSort('number', 'desc')
             ->defaultPaginationPageOption(50)
