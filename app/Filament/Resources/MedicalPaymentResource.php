@@ -152,7 +152,6 @@ class MedicalPaymentResource extends Resource
             ->bulkActions([
                 ExportBulkAction::make('bulkExport')
                     ->label('Экспортировать в Excel')
-                    ->icon('heroicon-o-download')
                     ->color('primary'),
             ])
             ->defaultSort('number', 'desc')
