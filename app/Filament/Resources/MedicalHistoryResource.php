@@ -51,6 +51,8 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -362,6 +364,24 @@ class MedicalHistoryResource extends Resource
                 TextColumn::make('accommodation.admission_date')->label('Дата поступления')->dateTime()->sortable(),
                 // TextColumn::make('accommodation.discharge_date')->label('Дата выписки')->dateTime()->sortable(),,
             ])
+            ->filters([
+                
+            SelectFilter::make('doctor')
+                ->label('Врач')
+                ->options(function () {
+                    return \App\Models\User::role('Доктор')
+                        ->pluck('name', 'id')
+                        ->toArray();
+                })
+                ->query(function (Builder $query, array $data): Builder {
+                    if (filled($data['value'])) {
+                        return $query->whereHas('medicalInspection', function ($q) use ($data) {
+                            $q->where('assigned_doctor_id', $data['value']);
+                        });
+                    }
+                    return $query;
+                })
+            ],layout:FiltersLayout::AboveContent)
             ->defaultPaginationPageOption(50)
             ->defaultSort('number', 'desc')
             ->filters([
