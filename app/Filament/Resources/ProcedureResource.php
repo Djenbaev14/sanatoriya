@@ -16,6 +16,7 @@ use Filament\Tables;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -46,6 +47,16 @@ class ProcedureResource extends Resource
                         ->label('Иностранная цена')
                         ->required()
                         ->maxLength(255)->columnSpan(12),
+                        // is_operation
+                    
+                IconColumn::make('is_operation')
+                    ->label('Операция')
+                    ->boolean()
+                    // ->getStateUsing(fn ($record) => !is_null($record->medicalInspection))
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('danger'),
                 ])->columns(12)->columnSpan(12)
             ]);
     }
