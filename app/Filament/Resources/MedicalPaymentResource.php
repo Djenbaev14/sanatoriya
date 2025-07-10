@@ -151,8 +151,9 @@ class MedicalPaymentResource extends Resource
             ])
             ->bulkActions([
                 ExportBulkAction::make('bulkExport')
-                    ->label('Tanlanganlarni export')
-                    ->fileName('tanlangan-qarzdorlar.xlsx'),
+                    ->label('Экспортировать в Excel')
+                    ->icon('heroicon-o-download')
+                    ->color('primary'),
             ])
             ->defaultSort('number', 'desc')
             ->defaultPaginationPageOption(50)
