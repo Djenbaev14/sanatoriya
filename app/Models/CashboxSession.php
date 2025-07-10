@@ -4,10 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class CashboxSession extends Model
 {
-    use HasFactory;
+    use HasFactory,LogsActivity;
+    
+    protected static $logOnlyDirty = true;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->useLogName('CashboxSession');
+    }
     protected $guarded = ['id'];
     // openedBy,closedBy relations are assumed to be defined in the User model
     protected $casts = [

@@ -305,7 +305,11 @@ class MedicalHistoryResource extends Resource
         ]);
     }
 
-    
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->with('accommodation');
+    }
     public static function table(Table $table): Table
     {
         return $table

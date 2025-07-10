@@ -13,21 +13,21 @@ return new class extends Migration
     {
         Schema::create('patients', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('country_id');
+            $table->unsignedBigInteger('country_id')->nullable();
             $table->foreign('country_id')->references('id')->on('countries');
-            $table->unsignedBigInteger('region_id');
+            $table->unsignedBigInteger('region_id')->nullable();
             $table->foreign('region_id')->references('id')->on('regions');
-            $table->unsignedBigInteger('district_id');
+            $table->unsignedBigInteger('district_id')->nullable();
             $table->foreign('district_id')->references('id')->on('districts');
             $table->unsignedBigInteger('main_patient_id')->nullable();
             $table->foreign('main_patient_id')->references('id')->on('patients');
             $table->boolean('is_accomplice')->default(false);
             $table->string('full_name');
-            $table->date('birth_date');
-            $table->enum('gender', ['male', 'female']);
+            $table->date('birth_date')->nullable();
+            $table->enum('gender', ['male', 'female'])->nullable();
             $table->string('profession')->nullable();
             $table->string('phone')->unique();
-            $table->longText('address');
+            $table->longText('address')->nullable();
             $table->boolean('is_foreign')->default(false);
             $table->timestamps();
         });
