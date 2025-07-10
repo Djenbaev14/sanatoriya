@@ -214,14 +214,14 @@ class MedicalPaymentResource extends Resource
     {
         return 'Журнал оплат'; // Rus tilidagi nom
     }
-    public static function getModelLabel(): string
-    {
-        return 'Журнал оплат'; // Rus tilidagi yakka holdagi nom
-    }
-    public static function getPluralModelLabel(): string
-    {
-        return 'Журнал оплат'; // Rus tilidagi ko'plik shakli
-    }
+    // public static function getModelLabel(): string
+    // {
+    //     return 'Журнал оплат'; // Rus tilidagi yakka holdagi nom
+    // }
+    // public static function getPluralModelLabel(): string
+    // {
+    //     return 'Журнал оплат'; // Rus tilidagi ko'plik shakli
+    // }
     public static function getRecordTitle($record): ?string
     {
         $history = $record->medicalHistory; // payment.medical_history_id orqali bog‘langan bo‘lsa
@@ -230,6 +230,7 @@ class MedicalPaymentResource extends Resource
 
         return 'Журнал оплат №' . $history->number . ' - ' . ($history->patient->full_name ?? 'Nomaʼlum');
     }
+    
 
 
     public static function canAccess(): bool
