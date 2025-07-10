@@ -147,13 +147,6 @@ class MedicalPaymentResource extends Resource
                     }),
                 ],layout: FiltersLayout::AboveContent)
             ->headerActions([
-                ExportAction::make('export_excel')
-                    ->label('Excelga chiqarish')
-                    ->exports([
-                        ExcelExport::make()->fromTable()
-                    ])
-            ])
-            ->headerActions([
                 Action::make('total_cost_summary')
                     ->label(function ($livewire) {
                         $filtered = $livewire->getFilteredTableQuery()->get();
@@ -186,6 +179,12 @@ class MedicalPaymentResource extends Resource
                     })
                     ->disabled()
                     ->color('gray'),
+                    
+                ExportAction::make('export_excel')
+                    ->label('Excelga chiqarish')
+                    ->exports([
+                        ExcelExport::make()->fromTable()
+                    ])
             ])
             // ->bulkActions([
             //     ExportBulkAction::make('bulkExport')
