@@ -244,92 +244,15 @@ class AccommodationResource extends Resource
                                                 ->required()
                                                 ->tel()
                                                 ->maxLength(255)
-                                                ->columnSpan(6),
-                                            DatePicker::make('birth_date')
-                                                ->label('День рождения')
-                                                ->required()
-                                                ->columnSpan(6),
-                                            Select::make('country_id') 
-                                                ->label('Страна ') 
-                                                ->required()
-                                                ->options(function () { 
-                                                    return Country::all()->mapWithKeys(function ($region) { 
-                                                        return [$region->id => $region->name]; 
-                                                    }); 
-                                                }) 
-                                                ->reactive() 
-                                                ->required()
-                                                ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
-                                                    $is_foreign = Country::find($state)?->is_foreign ?? 0;
-                                                    $set('is_foreign', $is_foreign);
-                                                })
-                                                ->columnSpan(6),
-                                            Select::make('region_id') 
-                                                ->label('Регион ') 
-                                                ->required()
-                                                ->options(function (Get $get) { 
-                                                    $countryID = $get('country_id'); 
-                                                    if (!$countryID) return []; 
-                                                    
-                                                    return Region::where('country_id', $countryID)
-                                                        ->get()
-                                                        ->mapWithKeys(function ($country) {
-                                                            return [$country->id => $country->name];
-                                                        });
-                                                })
-                                                ->reactive() 
-                                                ->required()
-                                                ->columnSpan(6), 
-                                            Hidden::make('is_foreign')
-                                                ->default(0),
-                                            Select::make('district_id') 
-                                                ->label('Район ') 
-                                                ->required()
-                                                ->options(function (Get $get) { 
-                                                    $regionID = $get('region_id'); 
-                                                    if (!$regionID) return []; 
-                                                    
-                                                    return District::where('region_id', $regionID)
-                                                        ->get()
-                                                        ->mapWithKeys(function ($district) {
-                                                            return [$district->id => $district->name];
-                                                        });
-                                                }) 
-                                                ->reactive() 
-                                                ->required()
-                                                ->columnSpan(6), 
-                                            Textarea::make('address')
-                                                    ->label('Адрес')
-                                                    ->columnSpan(12),
-                                            Select::make('gender') 
-                                                ->label('Пол ')
-                                                ->options([
-                                                    'male' => 'Мужской',
-                                                    'female' => 'Женской',
-                                                ])
-                                                ->required()
-                                                ->columnSpan(6), 
-                                            TextInput::make('profession')
-                                                ->maxLength(255)
-                                                ->required()
-                                                ->label('Место работы, должность')
-                                                ->columnSpan(6),
+                                                ->columnSpan(12),
                                         ])->columns(12)->columnSpan(12)
                                 ])
                                 ->action(function (array $data,Get $get, Set $set) {
                                     $patientId = $get('patient_id');
                                     $accomplicePatient = \App\Models\Patient::create([
                                         'full_name' => $data['full_name'],
-                                        'birth_date' => $data['birth_date'],
-                                        'gender' => $data['gender'],
-                                        'country_id' => $data['country_id'],
-                                        'region_id' => $data['region_id'],
-                                        'district_id' => $data['district_id'],
-                                        'address' => $data['address'],
-                                        'profession' => $data['profession'],
                                         'phone' => $data['phone'],
                                         'is_accomplice' => 1,
-                                        'is_foreign' => $data['is_foreign'],
                                         'main_patient_id' => $patientId,
                                     ]);
                                     $set('accomplice_patient_id', $accomplicePatient->id);
