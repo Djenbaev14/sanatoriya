@@ -54,5 +54,11 @@ class ViewMedicalPayment extends ViewRecord
                 ViewEntry::make('payments')->view('custom.medical-history.payments')->columnSpanFull(),
             ]);
     }
+    
+    
+    public function getTitle(): string
+    {
+        return 'Журнал оплат: ' . '№'.$this->record->number . ' - '. $this->record->patient->full_name;
+    }
 
 }

@@ -46,9 +46,6 @@ class KassaBalanceResource extends Resource
     {
         return $table
             ->columns([
-                // TextColumn::make('patient.full_name')
-                //     ->label('Больной'),
-                    
                 TextColumn::make('patient.full_name')
                     ->label('Больной'),
 
