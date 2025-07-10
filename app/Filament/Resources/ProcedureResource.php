@@ -6,7 +6,9 @@ use App\Filament\Resources\ProcedureResource\Pages;
 use App\Filament\Resources\ProcedureResource\RelationManagers;
 use App\Models\Procedure;
 use Filament\Forms;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Group;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -48,15 +50,15 @@ class ProcedureResource extends Resource
                         ->required()
                         ->maxLength(255)->columnSpan(12),
                         // is_operation
-                    
-                IconColumn::make('is_operation')
-                    ->label('Операция')
-                    ->boolean()
-                    // ->getStateUsing(fn ($record) => !is_null($record->medicalInspection))
-                    ->trueIcon('heroicon-o-check-circle')
-                    ->falseIcon('heroicon-o-x-circle')
-                    ->trueColor('success')
-                    ->falseColor('danger'),
+                    Radio::make('is_operation')
+                        ->label('Операция?')
+                        ->required()
+                        ->options([
+                            0 => 'Нет',
+                            1 => 'Да',
+                        ])
+                        ->inline()
+                        ->columnSpan(12),
                 ])->columns(12)->columnSpan(12)
             ]);
     }
@@ -74,12 +76,8 @@ class ProcedureResource extends Resource
                                 'name' => $data['name'],
                                 'price_per_day' => $data['price_per_day'],
                                 'price_foreign'=> $data['price_foreign'],
+                                'is_operation'=> $data['is_operation'],
                             ]);
-
-                            Notification::make()
-                                ->title('Процедура табыслы жаратылды!')
-                                ->success()
-                                ->send();
                         }),
             ])
             ->columns([
@@ -110,6 +108,14 @@ class ProcedureResource extends Resource
                         'class' => 'text-gray-500 dark:text-gray-300 text-xs'
                     ])
                     ->columnSpan(3),
+                IconColumn::make('is_operation')
+                    ->label('Операция')
+                    ->boolean()
+                    // ->getStateUsing(fn ($record) => !is_null($record->medicalInspection))
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('danger'),
             ])
             ->defaultSort('id','desc')
             ->defaultPaginationPageOption(50)
@@ -125,15 +131,12 @@ class ProcedureResource extends Resource
                     ->using(function (Procedure $record, array $data): Procedure {
                         // Filial ma'lumotlarini yangilash
                         $record->update([
-                            'name' => $data['name'],
-                            'price_per_day' => $data['price_per_day'],
+                                'name' => $data['name'],
+                                'price_per_day' => $data['price_per_day'],
                                 'price_foreign'=> $data['price_foreign'],
+                                'is_operation'=> $data['is_operation'],
                         ]);
 
-                        Notification::make()
-                            ->title('Процедура табыслы редакторланды!')
-                            ->success()
-                            ->send();
 
                         return $record;
                     }),
