@@ -181,7 +181,7 @@ class MedicalPaymentResource extends Resource
             ->bulkActions([
                 ExportBulkAction::make('bulkExport')
                     ->label('Экспортировать в Excel')
-                    ->exportClass(DebtorMedicalHistoriesExport::class)
+                    ->exports([DebtorMedicalHistoriesExport::class])
                     ->color('primary'),
             ])
             ->defaultSort('number', 'desc')
