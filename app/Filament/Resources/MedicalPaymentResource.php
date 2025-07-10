@@ -75,7 +75,7 @@ class MedicalPaymentResource extends Resource
             return MedicalHistory::whereIn('id', $ids);
         })
             ->columns([
-                TextColumn::make('number')->label('Номер')->searchable()->sortable(),
+                TextColumn::make('number')->label('История номер')->searchable()->sortable(),
                 TextColumn::make('patient.full_name')->label('ФИО')->searchable()->sortable(),
                 TextColumn::make('total_cost')
                     ->label('Обшый сумма')
@@ -181,7 +181,7 @@ class MedicalPaymentResource extends Resource
                     ->color('gray'),
                     
                 ExportAction::make('export_excel')
-                    ->label('Excelga chiqarish')
+                    ->label('Экспортировать в Excel')
                     ->exports([
                         ExcelExport::make()->fromTable()
                     ])
