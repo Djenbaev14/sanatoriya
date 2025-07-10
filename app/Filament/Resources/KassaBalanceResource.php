@@ -103,9 +103,7 @@ class KassaBalanceResource extends Resource
                             $q->whereDate('created_at', '>=', $data['from'])
                         )
                             ->when($data['until'], fn ($q) =>
-                                $q->whereHas('accommodation', fn ($q) =>
                                     $q->whereDate('created_at', '<=', $data['until'])
-                                )
                             );
                     }),
                 ],layout: FiltersLayout::AboveContent)
