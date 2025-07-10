@@ -149,6 +149,11 @@ class MedicalPaymentResource extends Resource
                     ->disabled() // faqat ko‘rsatish uchun, bosilmaydigan bo‘ladi
                     ->color('gray'),
             ])
+            ->bulkActions([
+                ExportBulkAction::make('bulkExport')
+                    ->label('Tanlanganlarni export')
+                    ->fileName('tanlangan-qarzdorlar.xlsx'),
+            ])
             ->defaultSort('number', 'desc')
             ->defaultPaginationPageOption(50)
             ->actions([
@@ -241,9 +246,6 @@ class MedicalPaymentResource extends Resource
                                     ->send();
                             }
                         })
-                        ->bulkActions([
-                            ExportBulkAction::make()
-                        ])
                         ->modalHeading('Оплата')
                         ->modalSubmitActionLabel('Сохранить')
                         ->modalCancelActionLabel('Отмена'),
