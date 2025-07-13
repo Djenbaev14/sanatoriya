@@ -265,12 +265,6 @@ class MedicalPaymentResource extends Resource
                                     'medical_history_id' => $record->id,
                                     'created_at' => $data['created_at'],
                                 ]);
-                                
-                                if ($record->getTotalPaidAndReturned() == $record->getTotalCost()) {
-                                        $record->assignedProcedure->update(['status_payment_id' => 3]); 
-                                        $record->accommodation->update(['status_payment_id' => 3]); 
-                                        $record->labTestHistory->update(['status_payment_id' => 3]); 
-                                }
 
                                 Notification::make()
                                     ->title('Оплата успешно добавлена')

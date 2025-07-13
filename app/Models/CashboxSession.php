@@ -25,13 +25,6 @@ class CashboxSession extends Model
         'opening_amount' => 'decimal:2',
         'closing_amount' => 'decimal:2',
     ];
-    protected $fillable = [
-        'date',
-        'opened_by',
-        'closed_by',
-        'opening_amount',
-        'closing_amount',
-    ];
     protected $table = 'cashbox_sessions';
     public function openedBy()
     {
@@ -40,5 +33,8 @@ class CashboxSession extends Model
     public function closedBy()
     {
         return $this->belongsTo(User::class, 'closed_by');
+    }
+    public function paymentType(){
+        return $this->belongsTo(PaymentType::class);
     }
 }
