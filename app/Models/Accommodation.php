@@ -17,9 +17,6 @@ class Accommodation extends Model
     public function statusPayment(){
         return $this->belongsTo(StatusPayment::class);
     }
-    // public function payments(){
-    //     return $this->hasMany(Payment::class);
-    // }
     public function medicalHistory(){
         return $this->belongsTo(MedicalHistory::class);
     }
@@ -27,9 +24,12 @@ class Accommodation extends Model
         return $this->belongsTo(User::class,'created_id');
     }
     // accommodationAccomplice orqali bir nechta Пациентlar bo'lishi mumkin
-    public function partner(){
-        return $this->hasOne(Accommodation::class,'main_accommodation_id');
+    public function partner()
+    {
+        return $this->hasOne(Accommodation::class, 'main_accommodation_id', 'id');
     }
+
+
     
     
     public function tariff(){
@@ -60,15 +60,24 @@ class Accommodation extends Model
     }
     public function calculatePartnerDays()
     {
-            $admission = \Carbon\Carbon::parse($this->partner->admission_date);
-            $discharge = \Carbon\Carbon::parse($this->partner->discharge_date);
-                
-            $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
-            $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
-            $days= max($start->diffInDays($end), 0);
-            
-            return $days;
-            
+            $partner = $this->partner;
+
+            if (!$partner || !$partner->admission_date || !$partner->discharge_date) {
+                return 0; // Agar partner yoki sanalar yo‘q bo‘lsa, 0 qaytariladi
+            }
+
+            $admission = \Carbon\Carbon::parse($partner->admission_date);
+            $discharge = \Carbon\Carbon::parse($partner->discharge_date);
+
+            $start = $admission->hour < 12
+                ? $admission->copy()->startOfDay()
+                : $admission->copy()->addDay()->startOfDay();
+
+            $end = $discharge->hour >= 12
+                ? $discharge->copy()->startOfDay()->addDay()
+                : $discharge->copy()->startOfDay();
+
+            return max($start->diffInDays($end), 0);
     }
     public function calculateBedCost()
     {
@@ -80,19 +89,21 @@ class Accommodation extends Model
     }
     public function calculatePartnerBedCost()
     {
-        return $this->partner->tariff_price * $this->calculatePartnerDays();
+        $partner = $this->partner;
+        if (!$partner) return 0;
+
+        return $partner->tariff_price * $this->calculatePartnerDays();
     }
     public function calculatePartnerMealCost()
     {
-        return $this->partner->meal_price * $this->calculatePartnerDays();
+        $partner = $this->partner;
+        if (!$partner) return 0;
+
+        return $partner->meal_price * $this->calculatePartnerDays();
     }
     
     public function getTotalCost()
     {
-        // agar this partner bo'lmasa, partnerning hisob-kitoblarini hisoblamaymiz
-        if (!$this->partner) {
-            return $this->calculateBedCost() + $this->calculateMealCost();
-        }
         
         return $this->calculateBedCost()+$this->calculateMealCost() +
             $this->calculatePartnerBedCost()+$this->calculatePartnerMealCost();

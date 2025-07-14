@@ -270,7 +270,7 @@ class AccommodationResource extends Resource
                             ->reactive()
                             ->default(Carbon::now())
                             ->columnSpan(6),
-                        DatePicker::make('accomplice_discharge_date')
+                        DateTimePicker::make('accomplice_discharge_date')
                             ->label('Дата выписки')
                             ->reactive()
                             ->columnSpan(6),

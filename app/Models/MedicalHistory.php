@@ -59,6 +59,11 @@ class MedicalHistory extends Model
     {
         return $this->hasOne(\App\Models\Accommodation::class, 'medical_history_id');
     }
+    public function partnerAccommodation()
+    {
+        return $this->hasOne(Accommodation::class, 'main_accommodation_id', 'id')
+            ->whereNotNull('main_accommodation_id');
+    }
     public function getMedicalInspectionAttribute(){
         return $this->medicalInspection()->first();
     }
@@ -66,7 +71,6 @@ class MedicalHistory extends Model
     public function payments(){
         return $this->hasMany(Payment::class,'medical_history_id');
     }
-    
     
     public function getTotalCost(){
         $procedureCost = $this->assignedProcedure?->getTotalCost() ?? 0;

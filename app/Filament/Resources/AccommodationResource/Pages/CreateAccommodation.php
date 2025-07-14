@@ -26,8 +26,10 @@ class CreateAccommodation extends CreateRecord
         \App\Models\Accommodation::create([
             'main_accommodation_id' => $this->record->id,
             'patient_id' => $this->data['accomplice_patient_id'],
+            'created_id' => $this->data['created_id'],
             'main_patient_id' => $this->record->patient_id,
             'bed_id' => $this->data['accomplice_bed_id'],
+            'medical_history_id' => 20,
             'tariff_id' => $this->data['accomplice_tariff_id'],
             'tariff_price' => $this->data['accomplice_tariff_price'],
             'meal_type_id' => $this->data['accomplice_meal_type_id'],

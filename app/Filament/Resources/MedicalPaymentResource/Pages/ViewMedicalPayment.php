@@ -51,6 +51,7 @@ class ViewMedicalPayment extends ViewRecord
                 ViewEntry::make('assigned_procedure')->view('custom.medical-history.assigned-procedures')->columnSpanFull(),
                 ViewEntry::make('lab_test_history')->view('custom.medical-history.lab-test-histories')->columnSpanFull(),
                 ViewEntry::make('accommodation')->view('custom.medical-history.accommodation')->columnSpanFull(),
+                ViewEntry::make('accommodation')->view('custom.medical-history.accommodation-partner')->columnSpanFull(),
                 ViewEntry::make('payments')->view('custom.medical-history.payments')->columnSpanFull(),
             ]);
     }
