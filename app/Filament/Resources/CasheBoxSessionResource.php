@@ -112,7 +112,7 @@ class CasheBoxSessionResource extends Resource
                                     ->toArray();
 
                                 // "Перечисление" ni chiqarib tashlaymiz va ochilgan turlarni ham
-                                return \App\Models\PaymentType::where('name', '!=', 'Перечисление')
+                                return \App\Models\PaymentType::where('id', '=', 1)
                                     ->whereNotIn('id', $openedTypes)
                                     ->pluck('name', 'id');
                             })

@@ -41,7 +41,7 @@ class BankTransferResource extends Resource
                             ->label('Способ оплаты')
                             ->required()
                             // options
-                            ->options(\App\Models\PaymentType::whereNot('name','Перечисление')->pluck('name', 'id'))
+                            ->options(\App\Models\PaymentType::where('id',1)->pluck('name', 'id'))
                             ->placeholder('Выберите способ оплаты')
                             ->searchable()
                             ->preload()
@@ -136,6 +136,7 @@ class BankTransferResource extends Resource
                         }
                     }),
             ])
+            ->defaultSort('id','desc')
             ->filters([
                 //
             ])
