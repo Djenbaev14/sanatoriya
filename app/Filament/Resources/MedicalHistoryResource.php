@@ -306,10 +306,21 @@ class MedicalHistoryResource extends Resource
     }
 
     public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()
-            ->with('accommodation');
-    }
+{
+    return parent::getEloquentQuery()
+        ->with('accommodation')
+        ->where(function ($query) {
+            $query
+                // accommodation umuman bo‘lmasa
+                ->doesntHave('accommodation')
+                
+                // accommodation bo‘lsa, discharge_date null yoki >= bugun bo‘lsa
+                ->orWhereHas('accommodation', function ($q) {
+                    $q->whereNull('discharge_date')
+                      ->orWhere('discharge_date', '>=', Carbon::today());
+                });
+        });
+}
     public static function table(Table $table): Table
     {
         return $table
