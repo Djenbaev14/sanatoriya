@@ -49,6 +49,7 @@ use Filament\Support\Enums\MaxWidth;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
@@ -305,26 +306,34 @@ class MedicalHistoryResource extends Resource
         ]);
     }
 
-    public static function getEloquentQuery(): Builder
-{
-    return parent::getEloquentQuery()
-        ->with('accommodation')
-        ->where(function ($query) {
-            $query
-                // accommodation umuman bo‘lmasa
-                ->doesntHave('accommodation')
+//     public static function getEloquentQuery(): Builder
+// {
+//     return parent::getEloquentQuery()
+//         ->with('accommodation')
+//         ->where(function ($query) {
+//             $query
+//                 // accommodation umuman bo‘lmasa
+//                 ->doesntHave('accommodation')
                 
-                // accommodation bo‘lsa, discharge_date null yoki >= bugun bo‘lsa
-                ->orWhereHas('accommodation', function ($q) {
-                    $q->whereNull('discharge_date')
-                      ->orWhere('discharge_date', '>=', Carbon::today());
-                });
-        });
-}
+//                 // accommodation bo‘lsa, discharge_date null yoki >= bugun bo‘lsa
+//                 ->orWhereHas('accommodation', function ($q) {
+//                     $q->whereNull('discharge_date')
+//                       ->orWhere('discharge_date', '>=', Carbon::today());
+//                 });
+//         });
+// }
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
+                BadgeColumn::make('accommodation.discharge_date')
+    ->label('Дата выпуска')
+    ->colors([
+        'danger' => fn ($state) => $state && Carbon::parse($state)->lt(Carbon::today()), // bugundan oldin
+        'success' => fn ($state) => $state && Carbon::parse($state)->gte(Carbon::today()), // bugun yoki keyin
+        'gray' => fn ($state) => is_null($state), // discharge_date null bo‘lsa
+    ])
+    ->dateTime('d.m.Y H:i'), // sana formatlash (xohlasang)
                 TextColumn::make('number')->label('Номер')->searchable()->sortable(),
                 TextColumn::make('patient.full_name')->label('ФИО')
                 ->searchable()
