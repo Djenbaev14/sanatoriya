@@ -116,19 +116,7 @@ class ViewMedicalHistory extends ViewRecord
                                                                 ->weight(FontWeight::Bold)
                                                                 ->color(Color::Blue),
 
-                                                            TextEntry::make('accommodation.statusPayment.name')
-                                                                ->label('Статус платежа')
-                                                                ->badge()
-                                                                ->color(fn ($state) => match($state) {
-                                                                    'завершенный' => Color::Green,
-                                                                    'в ожидании' => Color::Red,
-                                                                    'В кассе' => Color::Orange,
-                                                                    'отменённый' => Color::Red,
-                                                                    default => Color::Gray
-                                                                }),
-
                                                             TextEntry::make('accommodation.ward.name')->label('Палата'),
-                                                            TextEntry::make('accommodation.bed.number')->label('Койка'),
 
                                                             TextEntry::make('accommodation.admission_date')
                                                                 ->label('Дата поступления')
@@ -171,7 +159,6 @@ class ViewMedicalHistory extends ViewRecord
                                                                 ->color(Color::Blue),
 
                                                             TextEntry::make('accommodation.partner.ward.name')->label('Палата'),
-                                                            TextEntry::make('accommodation.partner.bed.number')->label('Койка'),
 
                                                             TextEntry::make('accommodation.partner.admission_date')
                                                                 ->label('Дата поступления')
@@ -427,21 +414,7 @@ class ViewMedicalHistory extends ViewRecord
                                     ->schema([
                                                 Grid::make(4)
                                                     ->schema([
-                                                        TextEntry::make('labTestHistory.doctor.name')
-                                                            ->label('Назначенный врач')
-                                                            ->weight(FontWeight::Bold)
-                                                            ->color(Color::Blue)
-                                                            ->placeholder('Неизвестный'),
                                                             
-                                                        TextEntry::make('labTestHistory.statusPayment.name')
-                                                            ->label('Статус платежа')
-                                                            ->badge()
-                                                            ->color(fn($state) => match($state) {
-                                                                'завершенный' => Color::Green,
-                                                                'в ожидании' => Color::Red,
-                                                                'В кассе' => Color::Orange,
-                                                                'отменённый' => Color::Red
-                                                            }),
                                                         TextEntry::make('labTestHistory.created_at')
                                                             ->label('Дата создания')
                                                             ->dateTime('d.m.Y H:i'),
@@ -468,7 +441,7 @@ class ViewMedicalHistory extends ViewRecord
                                                         ->columns(5)
                                                         ->default([]),
                                                                                                 
-                                                Grid::make(3)
+                                                Grid::make(1)
                                                     ->schema([
                                                         TextEntry::make('labTestHistory.total_cost')
                                                             ->label('Общая сумма')
@@ -476,17 +449,6 @@ class ViewMedicalHistory extends ViewRecord
                                                             ->badge()
                                                             ->formatStateUsing(fn($state) => number_format($state, 0, '.', ' ') . ' сум'),
 
-                                                        TextEntry::make('labTestHistory.total_paid_amount')
-                                                            ->label('Оплачено')
-                                                            ->color(Color::Green)
-                                                            ->badge()
-                                                            ->formatStateUsing(fn($state) => number_format($state, 0, '.', ' ') . ' сум'),
-                                                            
-                                                        TextEntry::make('labTestHistory.total_debt_amount')
-                                                            ->label('Долг')
-                                                            ->color(Color::Red)
-                                                            ->badge()
-                                                            ->formatStateUsing(fn($state) => number_format($state, 0, '.', ' ') . ' сум'),
                                                     ])
                                     ]),
                             ]),
@@ -516,15 +478,6 @@ class ViewMedicalHistory extends ViewRecord
                                                         TextEntry::make('assignedProcedure.created_at')
                                                             ->label('Дата создания')
                                                             ->dateTime('d.m.Y H:i'),
-                                                        TextEntry::make('assignedProcedure.statusPayment.name')
-                                                            ->label('Статус платежа')
-                                                            ->badge()
-                                                            ->color(fn($state) => match($state) {
-                                                                'завершенный' => Color::Green,
-                                                                'в ожидании' => Color::Red,
-                                                                'В кассе' => Color::Orange,
-                                                                'отменённый' => Color::Red
-                                                            }),
                                                             
                                                         \Filament\Infolists\Components\Actions::make([
                                                                 Action::make('editAssignedProcedure')
@@ -547,7 +500,7 @@ class ViewMedicalHistory extends ViewRecord
                                                         ->default([]),
                                                         
                                                                                                 
-                                                Grid::make(3)
+                                                Grid::make(1)
                                                     ->schema([
                                                         TextEntry::make('assignedProcedure.total_cost')
                                                             ->label('Общая сумма')
@@ -555,17 +508,6 @@ class ViewMedicalHistory extends ViewRecord
                                                             ->badge()
                                                             ->formatStateUsing(fn($state) => number_format($state, 0, '.', ' ') . ' сум'),
 
-                                                        TextEntry::make('assignedProcedure.total_paid_amount')
-                                                            ->label('Оплачено')
-                                                            ->color(Color::Green)
-                                                            ->badge()
-                                                            ->formatStateUsing(fn($state) => number_format($state, 0, '.', ' ') . ' сум'),
-                                                            
-                                                        TextEntry::make('assignedProcedure.total_debt_amount')
-                                                            ->label('Долг')
-                                                            ->color(Color::Red)
-                                                            ->badge()
-                                                            ->formatStateUsing(fn($state) => number_format($state, 0, '.', ' ') . ' сум'),
                                                     ])
                                     ]),
                             ]),
