@@ -327,16 +327,17 @@ class MedicalHistoryResource extends Resource
         return $table
             ->columns([
                 BadgeColumn::make('accommodation.discharge_date')
-    ->label('Дата выпуска')
-    ->colors([
-        'danger' => fn ($state) => $state && Carbon::parse($state)->lt(Carbon::today()), // bugundan oldin
-        'success' => fn ($state) => $state && Carbon::parse($state)->gte(Carbon::today()), // bugun yoki keyin
-        'gray' => fn ($state) => is_null($state), // discharge_date null bo‘lsa
-    ])
-    ->dateTime('d.m.Y H:i'), // sana formatlash (xohlasang)
+                    ->label('Дата выпуска')
+                    ->colors([
+                        'danger' => fn ($state) => $state && Carbon::parse($state)->lt(Carbon::today()), // bugundan oldin
+                        'success' => fn ($state) => $state && Carbon::parse($state)->gte(Carbon::today()), // bugun yoki keyin
+                        'gray' => fn ($state) => is_null($state), // discharge_date null bo‘lsa
+                    ])
+                    ->dateTime('d.m.Y H:i'), // sana formatlash (xohlasang)
                 TextColumn::make('number')->label('Номер')->searchable()->sortable(),
                 TextColumn::make('patient.full_name')->label('ФИО')
                 ->searchable()
+                ->limit(20)
                 ->sortable(),
                 // biriktirgan vrachin nomin chiqarib bering u medicalInspection da assigned_doctor_id da
                 TextColumn::make('medicalInspection.assignedDoctor.name')
