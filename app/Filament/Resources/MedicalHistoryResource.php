@@ -415,15 +415,15 @@ class MedicalHistoryResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return 'Истории болезно'; // Rus tilidagi nom
+        return 'Истории Болезни'; // Rus tilidagi nom
     }
     public static function getModelLabel(): string
     {
-        return 'Истории болезно'; // Rus tilidagi yakka holdagi nom
+        return 'Истории Болезни'; // Rus tilidagi yakka holdagi nom
     }
     public static function getPluralModelLabel(): string
     {
-        return 'Истории болезно'; // Rus tilidagi ko'plik shakli
+        return 'Истории Болезни'; // Rus tilidagi ko'plik shakli
     }
     public static function getRelations(): array
     {

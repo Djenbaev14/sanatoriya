@@ -73,95 +73,18 @@ class ViewMedicalHistory extends ViewRecord
                                                     ->suffix(' °C')
                                                     ->placeholder('Неизмеренный'),
                                                     
-                                                TextEntry::make('disability_types')
-                                                    ->label('Виды инвалидности')
-                                                    ->formatStateUsing(function ($state) {
-                                                        if (empty($state)) {
-                                                            return 'Нет';
-                                                        }
-                                                        return is_array($state) ? implode(', ', $state) : $state;
-                                                    })
-                                                    ->placeholder('Нет'),
-                                                    
                                                 TextEntry::make('side_effects')
                                                     ->label('Побочные эффекты')
+                                                    ->placeholder('Нет')
+                                                    ->columnSpanFull(),
+                                                TextEntry::make('medicalInspection.admission_diagnosis')
+                                                    ->label('Диангоз')
                                                     ->placeholder('Нет')
                                                     ->columnSpanFull(),
                                             ])
                                             ->columnSpan(1),
                                     ]),
                                     
-                                Grid::make(3)
-                                    ->schema([
-                                        Section::make('Дополнительные данные')
-                                            ->icon('heroicon-o-information-circle')
-                                            ->schema([
-                                                TextEntry::make('is_emergency')
-                                                    ->label('Экстренное положение')
-                                                    ->formatStateUsing(fn($state) => $state ? 'Да' : 'Нет')
-                                                    ->color(fn($state) => $state ? Color::Red : Color::Green)
-                                                    ->weight(FontWeight::Bold),
-                                                    
-                                                TextEntry::make('transport_type')
-                                                    ->label('Тип транспорта')
-                                                    ->formatStateUsing(function ($state) {
-                                                        return match($state) {
-                                                            'ambulance' => 'Tez yordam',
-                                                            'family' => 'Oila a\'zolari',
-                                                            'self' => 'O\'zi',
-                                                            'taxi' => 'Taksi',
-                                                            'other' => 'Boshqa',
-                                                            default => 'Не добавлено'
-                                                        };
-                                                    })
-                                                    ->placeholder('Не добавлено'),
-                                                    
-                                                TextEntry::make('referred_from')
-                                                    ->label('Откуда отправлено')
-                                                    ->formatStateUsing(function ($state) {
-                                                        return match($state) {
-                                                            'clinic' => 'Poliklinika',
-                                                            'hospital' => 'Kasalxona',
-                                                            'emergency' => 'Tez yordam',
-                                                            'self' => 'O\'zi murojaat',
-                                                            'other' => 'Boshqa',
-                                                            default => 'Не добавлено'
-                                                        };
-                                                    })
-                                                    ->placeholder('Не добавлено'),
-                                            ])
-                                            ->columnSpan(2),
-                                            
-                                        Section::make('Изображение')
-                                            ->schema([
-                                                ImageEntry::make('photo')
-                                                    ->label('')
-                                                    ->height(200)
-                                                    ->placeholder('Изображение не загружено'),
-                                            ])
-                                            ->columnSpan(1),
-                                    ]),
-                                    
-                                Section::make('Системные данные')
-                                    ->icon('heroicon-o-cog')
-                                    ->schema([
-                                        Grid::make(3)
-                                            ->schema([
-                                                TextEntry::make('createdBy.name')
-                                                    ->label('Создатель')
-                                                    ->placeholder('Неизвестный'),
-                                                    
-                                                TextEntry::make('created_at')
-                                                    ->label('Дата создания')
-                                                    ->dateTime('d.m.Y H:i'),
-                                                    
-                                                TextEntry::make('updated_at')
-                                                    ->label('Дата изменения')
-                                                    ->dateTime('d.m.Y H:i'),
-                                            ])
-                                    ])
-                                    ->collapsible()
-                                    ->collapsed(),
                             ]),
                             
                         // Yashash joyi tab
@@ -662,6 +585,6 @@ class ViewMedicalHistory extends ViewRecord
     }
     public function getTitle(): string
     {
-        return 'Истории Болезно: ' . '№'.$this->record->number . ' - '. $this->record->patient->full_name;
+        return 'Истории Болезни: ' . '№'.$this->record->number . ' - '. $this->record->patient->full_name;
     }
 }
