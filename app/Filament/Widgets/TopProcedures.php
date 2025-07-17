@@ -21,7 +21,7 @@ class TopProcedures extends BaseWidget
             ->join('procedure_payment_details', 'procedures.id', '=', 'procedure_payment_details.procedure_id')
             ->join('procedure_payments', 'procedure_payment_details.procedure_payment_id', '=', 'procedure_payments.id')
             ->join('payments', 'procedure_payments.payment_id', '=', 'payments.id')
-            ->selectRaw('SUM(procedure_payment_details.price) as total_amount')
+            ->selectRaw('SUM(procedure_payment_details.price * procedure_payment_details.sessions) as total_amount')
             ->groupBy('procedures.id', 'procedures.name')
             ->orderByDesc('total_amount');
     }
