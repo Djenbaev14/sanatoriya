@@ -88,6 +88,15 @@ class PaymentLogResource extends Resource
                         $remaining = $record->getTotalPaidAmount();
                         return number_format($remaining, 0, '.', ' ') . ' сум';
                     }),
+                TextColumn::make('total_debt')
+                    ->label('Долг')
+                    ->color('danger')
+                    ->badge()
+                    ->getStateUsing(function ($record) {
+                        $remaining = $record->getTotalCost() - $record->getTotalPaidAmount();
+                        $remaining = max(0, $remaining); // agar minus bo‘lsa 0 bo‘ladi
+                        return number_format($remaining, 0, '.', thousands_separator: ' ') . ' сум';
+                    }),
             ])
             ->filters([
                 //
