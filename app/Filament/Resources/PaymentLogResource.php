@@ -8,6 +8,7 @@ use App\Models\MedicalHistory;
 use App\Models\PaymentLog;
 use App\Models\PaymentType;
 use Filament\Forms;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
@@ -105,6 +106,7 @@ class PaymentLogResource extends Resource
             $payment = $record->payments()->create([
                 'patient_id' => $record->patient_id,
                 'payment_type_id' => $data['payment_type_id'],
+                'created_at' => $data['created_at'],
             ]);
 
             // 2. Create lab_test_payments & lab_test_payment_details
@@ -116,6 +118,7 @@ class PaymentLogResource extends Resource
                 $labTestPayment = $payment->labTestPayments()->create([
                     'medical_history_id' => $record->id,
                     'lab_test_history_id' => $record->labTestHistory->id,
+                    'created_at' => $data['created_at'],
                 ]);
 
                 foreach ($selectedLabTests as $test) {
@@ -124,6 +127,7 @@ class PaymentLogResource extends Resource
                         'lab_test_id' => $test['lab_test_id'],
                         'sessions' => $test['sessions'] ?? 1,
                         'price' => $test['price'],
+                        'created_at' => $data['created_at'],
                     ]);
                 }
             }
@@ -137,6 +141,7 @@ class PaymentLogResource extends Resource
                 $procedurePayment = $payment->procedurePayments()->create([
                     'medical_history_id' => $record->id,
                     'assigned_procedure_id' => $record->assignedProcedure->id,
+                    'created_at' => $data['created_at'],
                 ]);
 
                 foreach ($selectedProcedures as $procedure) {
@@ -145,6 +150,7 @@ class PaymentLogResource extends Resource
                         'procedure_id' => $procedure['procedure_id'],
                         'sessions' => $procedure['sessions'] ?? 1,
                         'price' => $procedure['price'],
+                        'created_at' => $data['created_at'],
                     ]);
                 }
             }
@@ -184,6 +190,7 @@ class PaymentLogResource extends Resource
                     'ward_day' => $acc['ward_day'],
                     'meal_price' => $acc['meal_price'],
                     'meal_day' => $acc['meal_day'],
+                    'created_at' => $data['created_at'],
                 ]);
             }
 
@@ -437,6 +444,11 @@ class PaymentLogResource extends Resource
                                     Select::make('payment_type_id')
                                         ->label('Тип оплаты')
                                         ->options(PaymentType::all()->pluck('name', 'id'))
+                                        ->required(),
+                                    DateTimePicker::make('created_at')
+                                        ->label('Дата оплаты')
+                                        ->date()
+                                        ->default(now())
                                         ->required(),
                                     TextInput::make('total_amount')
                                         ->label('Сумма')
