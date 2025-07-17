@@ -393,17 +393,23 @@ class MedicalHistoryResource extends Resource
                 SelectFilter::make('doctor')
                     ->label('Врач')
                     ->options(function () {
-                        return \App\Models\User::role('Доктор')
+                        return [
+                            'none' => 'Нет врача', // qo‘shildi
+                        ] + \App\Models\User::role('Доктор')
                             ->pluck('name', 'id')
                             ->toArray();
                     })
                     ->query(function (Builder $query, array $data): Builder {
-                        if (filled($data['value'])) {
-                            return $query->whereHas('medicalInspection', function ($q) use ($data) {
-                                $q->where('assigned_doctor_id', $data['value']);
-                            });
+                        if (! isset($data['value'])) return $query;
+
+                        if ($data['value'] === 'none') {
+                            // medicalInspection mavjud bo‘lmagan yozuvlar
+                            return $query->whereDoesntHave('medicalInspection');
                         }
-                        return $query;
+
+                        return $query->whereHas('medicalInspection', function ($q) use ($data) {
+                            $q->where('assigned_doctor_id', $data['value']);
+                        });
                     })
             ],layout:FiltersLayout::AboveContent)
             ->defaultPaginationPageOption(50)
