@@ -255,7 +255,16 @@ class PaymentLogResource extends Resource
                                                 ->filter(fn ($item) => $item['selected'] ?? false)
                                                 ->sum(fn ($item) => ($item['price'] ?? 0) * ($item['sessions'] ?? 1));
 
-                                            $total = $lab_tests_total + $procedures_total;
+                                            $ward_total = collect($get('ward_payment') ?? [])
+                                                ->filter(fn ($item) => $item['selected'] ?? false)
+                                                ->sum(fn ($item) => ($item['tariff_price'] ?? 0) * ($item['ward_day'] ?? 1));
+
+                                            $meal_total = collect($get('meal_payment') ?? [])
+                                                ->filter(fn ($item) => $item['selected'] ?? false)
+                                                ->sum(fn ($item) => ($item['meal_price'] ?? 0) * ($item['meal_day'] ?? 1));
+                                            
+                                            $total = $lab_tests_total + $procedures_total + $ward_total + $meal_total;
+
 
                                             $set('total_amount', $total);
                                         })
@@ -312,6 +321,7 @@ class PaymentLogResource extends Resource
                                             $procedures_total = collect($get('procedures_payment_items') ?? [])
                                                 ->filter(fn ($item) => $item['selected'] ?? false)
                                                 ->sum(fn ($item) => ($item['price'] ?? 0) * ($item['sessions'] ?? 1));
+                                            
                                             $ward_total = collect($get('ward_payment') ?? [])
                                                 ->filter(fn ($item) => $item['selected'] ?? false)
                                                 ->sum(fn ($item) => ($item['tariff_price'] ?? 0) * ($item['ward_day'] ?? 1));
