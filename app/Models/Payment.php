@@ -56,7 +56,7 @@ class Payment extends Model
             // Faqat cashboxdan o‘tadigan payment_type lar (masalan: 1 - Наличные, 2 - Терминал)
             if (in_array($payment->payment_type_id, [2, 3])) {
                 BankTransfer::create([
-                    'amount'=>$payment->amount,
+                    'amount'=>$payment->total_paid,
                     'commission_percent'=>PaymentType::find($payment->payment_type_id)->commission_percent,
                     'payment_type_id'=>$payment->payment_type_id,
                     'transferred_at'=>$payment->created_at
