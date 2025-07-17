@@ -82,9 +82,7 @@ class PaymentStats extends BaseWidget
 
     private function getLabTestPayments($startDate, $endDate): float
     {
-        $query = LabTestPaymentDetail::whereHas('labTestPayment', function ($q) use ($startDate, $endDate) {
-            $q->whereBetween('created_at', [$startDate, $endDate]);
-        });
+        $query = LabTestPaymentDetail::query();
 
         return $query->selectRaw('SUM(sessions * price) as total')
             ->value('total') ?? 0;
@@ -92,9 +90,7 @@ class PaymentStats extends BaseWidget
 
     private function getProcedurePayments($startDate, $endDate): float
     {
-        $query = ProcedurePaymentDetail::whereHas('procedurePayment', function ($q) use ($startDate, $endDate) {
-            $q->whereBetween('created_at', [$startDate, $endDate]);
-        });
+        $query = ProcedurePaymentDetail::query();
 
         return $query->selectRaw('SUM(sessions * price) as total')
             ->value('total') ?? 0;
@@ -102,7 +98,7 @@ class PaymentStats extends BaseWidget
 
     private function getAccommodationPayments($startDate, $endDate): array
     {
-        $query = AccommodationPayment::whereBetween('created_at', [$startDate, $endDate]);
+        $query = AccommodationPayment::query();
         
         // Koyka uchun (tariff_price * ward_day)
         $koykaAmount = $query->selectRaw('SUM(tariff_price * COALESCE(ward_day, 0)) as total')
