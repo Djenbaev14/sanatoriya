@@ -431,7 +431,7 @@ class PaymentLogResource extends Resource
                                                 ->sum(fn ($item) => ($item['meal_price'] ?? 0) * ($item['meal_day'] ?? 1));
 
                                             // Meal
-                                            $ward_total = collect($get('meal_payment') ?? [])
+                                            $ward_total = collect($get('ward_payment') ?? [])
                                                 ->filter(fn ($item) => $item['selected'] ?? false)
                                                 ->sum(fn ($item) => ($item['tariff_price'] ?? 0) * ($item['ward_day'] ?? 1));
 
