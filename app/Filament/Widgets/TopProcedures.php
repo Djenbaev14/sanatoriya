@@ -16,15 +16,19 @@ class TopProcedures extends BaseWidget
     protected static ?int $sort = 1; // Dashboardda tartib
 
     protected function getTableQuery(): Builder
-    {
-        return Procedure::select('procedures.id', 'procedures.name')
-            ->join('procedure_payment_details', 'procedures.id', '=', 'procedure_payment_details.procedure_id')
-            ->join('procedure_payments', 'procedure_payment_details.procedure_payment_id', '=', 'procedure_payments.id')
-            ->join('payments', 'procedure_payments.payment_id', '=', 'payments.id')
-            ->selectRaw('SUM(procedure_payment_details.price * procedure_payment_details.sessions) as total_amount')
-            ->groupBy('procedures.id', 'procedures.name')
-            ->orderByDesc('total_amount');
-    }
+{
+    return Procedure::query()
+        ->join('procedure_payment_details', 'procedures.id', '=', 'procedure_payment_details.procedure_id')
+        ->join('procedure_payments', 'procedure_payment_details.procedure_payment_id', '=', 'procedure_payments.id')
+        ->join('payments', 'procedure_payments.payment_id', '=', 'payments.id')
+        ->select(
+            'procedures.id',
+            'procedures.name',
+            \DB::raw('SUM(procedure_payment_details.price * procedure_payment_details.sessions) as total_amount')
+        )
+        ->groupBy('procedures.id', 'procedures.name')
+        ->orderByRaw('SUM(procedure_payment_details.price * procedure_payment_details.sessions) DESC');
+}
 
     protected function getTableColumns(): array
     {
