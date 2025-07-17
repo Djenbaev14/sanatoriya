@@ -81,25 +81,25 @@ class Accommodation extends Model
     }
     public function calculateBedCost()
     {
-        return $this->tariff_price * $this->calculateDays();
+        return $this->tariff_price * $this->ward_day;
     }
     public function calculateMealCost()
     {
-        return $this->meal_price * $this->calculateDays();
+        return $this->meal_price * $this->meal_day;
     }
     public function calculatePartnerBedCost()
     {
         $partner = $this->partner;
         if (!$partner) return 0;
 
-        return $partner->tariff_price * $this->calculatePartnerDays();
+        return $partner->tariff_price * $this->ward_day;
     }
     public function calculatePartnerMealCost()
     {
         $partner = $this->partner;
         if (!$partner) return 0;
 
-        return $partner->meal_price * $this->calculatePartnerDays();
+        return $partner->meal_price * $this->meal_day;
     }
     
     public function getTotalCost()

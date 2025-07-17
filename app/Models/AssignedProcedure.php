@@ -51,30 +51,34 @@ class AssignedProcedure extends Model
              ->sum(\DB::raw('price * sessions'));
     }
     
-    // public function getTotalPaidAmount()
-    // {
-    //     return $this->payments()->where('amount', '>', 0)->sum('amount');
-    // }
-    // public function getTotalReturned()
-    // {
-    //     return abs($this->payments()->where('amount', '<', 0)->sum('amount'));
-    // }
-    // public function getTotalPaidAndReturned()
-    // {
-    //     return $this->getTotalPaidAmount() - $this->getTotalReturned();
-    // }
 
     public function getTotalCostAttribute()
     {
         return $this->getTotalCost(); // oldingi metoddan foydalandik
     }
 
-    // public function getTotalPaidAmountAttribute()
+    public function payments()
+    {
+        return $this->hasMany(ProcedurePayment::class);
+    }
+    
+    public function paymentDetails()
+    {
+        return $this->hasMany(ProcedurePaymentDetail::class);
+    }
+
+    // public function getTotalPriceAttribute()
     // {
-    //     return $this->getTotalPaidAmount();
+    //     return $this->procedureDetails->sum(fn($d) => $d->price * $d->sessions);
     // }
-    // public function getTotalDebtAmountAttribute()
-    // {
-    //     return $this->getTotalCost() - $this->getTotalPaidAmount();
-    // }
+
+    public function getTotalPaidAttribute()
+    {
+        return $this->paymentDetails->sum(fn($d) => $d->price * $d->sessions);
+    }
+
+    public function getDebtAttribute()
+    {
+        return $this->total_cost - $this->total_paid;
+    }
 }

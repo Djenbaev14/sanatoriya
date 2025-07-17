@@ -59,9 +59,9 @@ class AdminPanelProvider extends PanelProvider
             ->plugin(
             \Hasnayeen\Themes\ThemesPlugin::make()
             )
-            // ->widgets([
-            //     SanatoriumStats::class,
-            // ])
+            ->widgets([
+                SanatoriumStats::class,
+            ])
             // ->plugin(FilamentSpatieRolesPermissionsPlugin::make())
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')

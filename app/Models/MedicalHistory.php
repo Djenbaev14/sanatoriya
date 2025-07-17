@@ -80,9 +80,42 @@ class MedicalHistory extends Model
         return $procedureCost + $accommodationCost + $labTestCost;
     }
     
-    public function getTotalPaidAmount()
+    public function getTotalPaidAmount(): float
     {
-        return $this->payments()->where('amount', '>', 0)->sum('amount');
+        return $this->payments->sum(fn ($payment) => $payment->getTotalPaidAmount());
+    }
+    public function getUnpaidProcedureSessions($procedureDetail)
+    {
+        $paidSessions = ProcedurePaymentDetail::where('assigned_procedure_id', $procedureDetail->assigned_procedure_id)
+            ->where('procedure_id', $procedureDetail->procedure_id)
+            ->sum('sessions');
+
+        return max(0, $procedureDetail->sessions - $paidSessions);
+    }
+    public function getUnpaidLabSessions($labDetail)
+    {
+        $paid = LabTestPaymentDetail::where('lab_test_history_id', $labDetail->lab_test_history_id)
+            ->where('lab_test_id', $labDetail->lab_test_id)
+            ->sum('sessions');
+
+        return max(0, $labDetail->sessions - $paid);
+    }
+    
+    public function accommodationPayments()
+    {
+        return $this->hasMany(\App\Models\AccommodationPayment::class);
+    }
+
+    public function getUnpaidWardDays()
+    {
+        $paid = $this->accommodationPayments->sum('ward_day');
+        return max(0, $this->accommodation?->ward_day - $paid);
+    }
+
+    public function getUnpaidMealDays()
+    {
+        $paid = $this->accommodationPayments->sum('meal_day');
+        return max(0, $this->accommodation?->meal_day - $paid);
     }
     
     public function getTotalReturned()

@@ -89,5 +89,52 @@ class Payment extends Model
         });
 
     }
+    public function labTestPayments()
+    {
+        return $this->hasMany(\App\Models\LabTestPayment::class);
+    }
+
+    public function procedurePayments()
+    {
+        return $this->hasMany(\App\Models\ProcedurePayment::class);
+    }
+
+    public function accommodationPayments()
+    {
+        return $this->hasMany(\App\Models\AccommodationPayment::class);
+    }
+    public function getTotalPaidAmount(): float
+    {
+        // Lab test summasi
+        $labTestTotal = $this->labTestPayments()
+            ->with('labTestPaymentDetails')
+            ->get()
+            ->flatMap->labTestPaymentDetails
+            ->sum(function ($detail) {
+                return ($detail->price ?? 0) * ($detail->sessions ?? 1);
+            });
+
+        // Procedure summasi
+        $procedureTotal = $this->procedurePayments()
+            ->with('procedurePaymentDetails')
+            ->get()
+            ->flatMap->procedurePaymentDetails
+            ->sum(function ($detail) {
+                return ($detail->price ?? 0) * ($detail->sessions ?? 1);
+            });
+
+        // Accommodation (koyka + ovqat)
+       $accommodationTotal = $this->accommodationPayments()
+            ->get()
+            ->sum(function ($acc) {
+                $ward = ($acc->tariff_price ?? 0) * ($acc->ward_day ?? 1);
+                $meal = ($acc->meal_price ?? 0) * ($acc->meal_day ?? 1);
+                return $ward + $meal;
+            });
+
+
+        return $labTestTotal + $procedureTotal + $accommodationTotal;
+    }
+
 
 }

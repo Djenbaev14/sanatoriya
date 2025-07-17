@@ -334,7 +334,12 @@ class MedicalHistoryResource extends Resource
                         'gray' => fn ($state) => is_null($state), // discharge_date null bo‘lsa
                     ])
                     ->dateTime('d.m.Y H:i'), // sana formatlash (xohlasang)
-                TextColumn::make('number')->label('Номер')->searchable()->sortable(),
+                TextColumn::make('id')->label('Номер')->searchable()->sortable(),
+                TextColumn::make('accommodation_day')
+                ->getStateUsing(function ($record) {
+                    return $record->accommodation?->calculateDays();
+                })
+                ->label('Номер')->searchable()->sortable(),
                 TextColumn::make('patient.full_name')->label('ФИО')
                 ->searchable()
                 ->limit(20)

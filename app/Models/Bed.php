@@ -18,21 +18,6 @@ class Bed extends Model
     {
         return $this->hasMany(Accommodation::class);
     }
-    
-    
-    // Bo'sh koygalarni aniqlash uchun scope
-    // public function scopeAvailableBeds($query)
-    // {
-    //     return $query->whereDoesntHave('accommodations', function ($subQuery) {
-    //         $subQuery->whereHas('MedicalHistory', function ($historyQuery) {
-    //             $historyQuery->where(function ($dateQuery) {
-    //                 // Aktiv (chiqmagan) Пациентlar
-    //                 $dateQuery->whereNull('discharge_date')
-    //                     ->orWhere('discharge_date', '>', now()->toDateString());
-    //             });
-    //         });
-    //     });
-    // }  
     public function scopeAvailableBeds($query)
     {
         return $query->whereDoesntHave('accommodations', function ($subQuery) {

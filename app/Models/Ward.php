@@ -85,48 +85,9 @@ class Ward extends Model
             ->merge($accomplices)
             ->join(', ');
     }
-    // public function getCurrentPatientsDisplayAttribute()
-    // {
-    //     $main = [];
-    //     $accomplices = [];
-
-    //     foreach ($this->currentAccommodations as $accommodation) {
-    //         $patient = $accommodation->patient;
-    //         if (!$patient) continue;
-
-    //         $name = $patient->full_name ?? 'Nomaʼlum';
-
-    //         if ($patient->is_accomplice) {
-    //             $accomplices[] = '🤝 ' . $name;
-    //         } else {
-    //             $main[] = '👤 ' . $name;
-    //         }
-    //     }
-
-    //     return collect($main)
-    //         ->merge($accomplices)
-    //         ->join(',');
-    // }
-        // Jami koygalar soni
     public function getTotalBedsCountAttribute()
     {
         return $this->beds()->count();
     }
     
-    // public function currentPatients(): HasManyThrough
-    // {
-    //     return $this->hasManyThrough(
-    //         \App\Models\Patient::class,
-    //         \App\Models\Accommodation::class,
-    //         'ward_id',    // Accommodation jadvalidagi foreign key
-    //         'id',         // Patient modelining primary key
-    //         'id',         // Ward modelidagi local key
-    //         'patient_id'  // Accommodation jadvalidagi foreign key
-    //     )
-    //     ->where('admission_date', '<=', now()) // qabul qilingan
-    //     ->where(function ($query) {
-    //         $query->whereNull('discharge_date')
-    //             ->orWhere('discharge_date', '>', now()); // chiqmagan
-    //     });
-    // }
 }

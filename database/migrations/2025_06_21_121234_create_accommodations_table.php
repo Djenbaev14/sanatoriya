@@ -36,6 +36,9 @@ return new class extends Migration
             $table->foreign('tariff_id')->references('id')->on('tariffs');
             $table->decimal('tariff_price', 10, 2);
             
+            $table->integer('ward_day')->nullable(); 
+            $table->integer('meal_day')->nullable(); 
+            
             $table->dateTime('admission_date')->nullable(); // Qabul qilingan sana
             $table->dateTime('discharge_date')->nullable(); // Chiqish sanasi
             
