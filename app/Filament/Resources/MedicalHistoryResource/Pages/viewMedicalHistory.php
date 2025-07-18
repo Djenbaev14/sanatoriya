@@ -435,7 +435,7 @@ class ViewMedicalHistory extends ViewRecord
                                                         ->schema([
                                                             TextEntry::make('lab_test.name')->label('Название анализа'),
                                                             TextEntry::make('sessions')->label('Сеансы'),
-                                                            TextEntry::make('price')->label('Цена')->formatStateUsing(fn($state) => number_format($state, 0) . ' so‘m'),
+                                                            TextEntry::make('price')->label('Цена')->formatStateUsing(fn($state) => number_format($state, 0) . ' сум'),
                                                             TextEntry::make('result')->label('Результат')->placeholder('Yo‘q'),
                                                         ])
                                                         ->columns(5)
@@ -494,7 +494,7 @@ class ViewMedicalHistory extends ViewRecord
                                                         ->schema([
                                                             TextEntry::make('procedure.name')->label('Название процедуры'),
                                                             TextEntry::make('sessions')->label('Сеансы'),
-                                                            TextEntry::make('price')->label('Цена')->formatStateUsing(fn($state) => number_format($state, 0) . ' so‘m'),
+                                                            TextEntry::make('price')->label('Цена')->formatStateUsing(fn($state) => number_format($state, 0) . ' сум'),
                                                         ])
                                                         ->columns(5)
                                                         ->default([]),

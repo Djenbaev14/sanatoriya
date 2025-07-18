@@ -54,7 +54,7 @@
     {{-- Umumiy To'lov --}}
     <div class="mt-8 text-right">
         <h2 class="text-xl font-bold">Итого оплачено: 
-            {{ number_format($record->getTotalPaidAmount(), 0, '.', ' ') }} so‘m
+            {{ number_format($record->getTotalPaidAmount(), 0, '.', ' ') }} сум
         </h2>
     </div>
 </x-filament::page>
