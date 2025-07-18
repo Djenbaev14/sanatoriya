@@ -18,7 +18,8 @@ class MkbResource extends Resource
 {
     protected static ?string $model = Mkb::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Настройка';
+    protected static ?int $navigationSort = 5;
 
     public static function form(Form $form): Form
     {
@@ -34,6 +35,7 @@ class MkbResource extends Resource
                 TextColumn::make('mkb_code'),
                 TextColumn::make('mkb_name'),
             ])
+            ->defaultPaginationPageOption(50)
             ->filters([
                 //
             ])
@@ -53,6 +55,24 @@ class MkbResource extends Resource
             //
         ];
     }
+    
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('настройки');
+    }
+    public static function getNavigationLabel(): string
+    {
+        return 'МКБ 10'; // Rus tilidagi nom
+    }
+    public static function getModelLabel(): string
+    {
+        return 'МКБ 10'; // Rus tilidagi yakka holdagi nom
+    }
+    public static function getPluralModelLabel(): string
+    {
+        return 'МКБ 10'; // Rus tilidagi ko'plik shakli
+    }
+
 
     public static function getPages(): array
     {
