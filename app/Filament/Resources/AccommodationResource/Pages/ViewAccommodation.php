@@ -85,11 +85,11 @@ class ViewAccommodation extends ViewRecord
             ->success()
             ->send();
             // agar role Доктор bo'lsa MedicalHistoryResource view ga qaytarish agar unday bolmasa MedicalPaymentResource view ga qaytarish
-        if (auth()->user()->hasRole('Доктор')) {
+        // if (auth()->user()->hasRole('Доктор')) {
             return $this->redirect(route('filament.admin.resources.medical-histories.view', $this->record->medical_history_id));
-        } else {
-            return $this->redirect(route('filament.admin.resources.medical-payments.view', $this->record->medical_history_id));
-        }
+        // } else {
+        //     return $this->redirect(route('filament.admin.resources.medical-payments.view', $this->record->medical_history_id));
+        // }
     }
     public function printRecord()
     {

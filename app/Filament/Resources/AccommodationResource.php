@@ -44,7 +44,7 @@ class AccommodationResource extends Resource
     protected static ?string $model = Accommodation::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-
+    
     public static function form(Form $form): Form
     {
         return $form
@@ -84,11 +84,23 @@ class AccommodationResource extends Resource
                             ->reactive()
                             // medical history vaqtni defaultiga o‘rnatamiz
                             ->default(fn (Get $get) => $get('medical_history_id') ? \App\Models\MedicalHistory::find($get('medical_history_id'))?->created_at : Carbon::now())
+                            ->afterStateUpdated(function (Set $set, $state, Get $get) {
+                                $days = self::calculateDays($state, $get('discharge_date'));
+                                $set('ward_day', $days);
+                                $set('meal_day', $days);
+                            })
                             ->columnSpan(6),
                         DateTimePicker::make('discharge_date')
                             ->label('Дата выписки')
                             ->reactive()
+                            ->afterStateUpdated(function (Set $set, $state, Get $get) {
+                                $days = self::calculateDays($get('admission_date'), $state);
+                                $set('ward_day', $days);
+                                $set('meal_day', $days);
+                            })
                             ->columnSpan(6),
+                        Hidden::make('ward_day'),
+                        Hidden::make('meal_day'),
                         Group::make()
                             ->schema([
                                     Select::make('tariff_id')
@@ -689,6 +701,18 @@ class AccommodationResource extends Resource
                                 ->columnSpan(12),
             ]);
     }
+    private static function calculateDays($admissionDate, $dischargeDate): int
+    {
+        if (!$admissionDate || !$dischargeDate) return 0;
+
+        $admission = Carbon::parse($admissionDate);
+        $discharge = Carbon::parse($dischargeDate);
+
+        $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
+        $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
+
+        return max($start->diffInDays($end), 0);
+}
     public static function shouldRegisterNavigation(): bool
     {
         return false;

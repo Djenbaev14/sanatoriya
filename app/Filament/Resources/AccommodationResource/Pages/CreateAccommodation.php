@@ -17,6 +17,7 @@ class CreateAccommodation extends CreateRecord
         ]);
         
     }
+    
     protected function afterCreate(): void
 {
     if (

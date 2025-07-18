@@ -433,7 +433,8 @@ class PaymentLogResource extends Resource
                                                     ->columnSpan(1)
                                                     ->reactive(),
                                             ])
-                                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                    ])
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                             // Lab tests
                                             $lab_tests_total = collect($get('lab_tests_payment_items') ?? [])
                                                 ->filter(fn ($item) => $item['selected'] ?? false)
@@ -458,8 +459,7 @@ class PaymentLogResource extends Resource
                                             $total = $lab_tests_total + $procedures_total + $ward_total + $meal_total;
 
                                             $set('total_amount', $total);
-                                        }),
-                                    ]),
+                                    }),
                                     Select::make('payment_type_id')
                                         ->label('Тип оплаты')
                                         ->options(PaymentType::all()->pluck('name', 'id'))
