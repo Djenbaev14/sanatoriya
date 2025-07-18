@@ -53,7 +53,7 @@ class KassaBalanceResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('medicalHistory.number')->label('История номер')->searchable()->sortable(),
-                TextColumn::make('patient.full_name')
+                TextColumn::make('patient.full_name')->searchable()
                     ->label('Больной'),
                 TextColumn::make('paymentType.name')
                     ->label('Тип платежа')
