@@ -363,14 +363,14 @@ class MedicalHistoryResource extends Resource
                     ->falseIcon('heroicon-o-x-circle')
                     ->trueColor('success')
                     ->falseColor('danger'),
-                IconColumn::make('departmentInspection')
-                    ->label('Отделение')
-                    ->boolean()
-                    ->getStateUsing(fn ($record) => !is_null($record->departmentInspection))
-                    ->trueIcon('heroicon-o-check-circle')
-                    ->falseIcon('heroicon-o-x-circle')
-                    ->trueColor('success')
-                    ->falseColor('danger'),
+                // IconColumn::make('departmentInspection')
+                //     ->label('Отделение')
+                //     ->boolean()
+                //     ->getStateUsing(fn ($record) => !is_null($record->departmentInspection))
+                //     ->trueIcon('heroicon-o-check-circle')
+                //     ->falseIcon('heroicon-o-x-circle')
+                //     ->trueColor('success')
+                //     ->falseColor('danger'),
                 IconColumn::make('labTestHistory')
                     ->label('Анализы')
                     ->boolean()

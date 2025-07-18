@@ -77,9 +77,13 @@ class ViewMedicalHistory extends ViewRecord
                                                     ->label('Побочные эффекты')
                                                     ->placeholder('Нет')
                                                     ->columnSpanFull(),
-                                                TextEntry::make('medicalInspection.admission_diagnosis')
-                                                    ->label('Диангоз')
-                                                    ->placeholder('Нет')
+                                                TextEntry::make('id')
+                                                    ->label('Диагноз')
+                                                    ->formatStateUsing(function ($record) {
+                                                        return $record->medicalInspection->admission_diagnosis
+                                                            ?? $record->medicalInspection?->mkb?->mkb_code .' - '.$record->medicalInspection?->mkb?->mkb_name
+                                                            ?? 'Нет';
+                                                    })
                                                     ->columnSpanFull(),
                                             ])
                                             ->columnSpan(1),
@@ -290,107 +294,107 @@ class ViewMedicalHistory extends ViewRecord
                             ]),
                             
                         // Tibbiy ko'rik tab
-                        Tabs\Tab::make('Отделение Осмотр')
-                            ->icon('heroicon-o-clipboard-document-check')
-                            ->schema([
-                                Section::make('Отделение Осмотр')
-                                // auth user medicalInspection dagi bekitilgan assigned_doctor_id teng bolsa kiritsin
-                                    ->visible(fn ($record) => is_null($record->departmentInspection) && auth()->user()->can(abilities: 'создать отделение осмотр') && ($record->medicalInspection?->assigned_doctor_id === auth()->id()))
-                                    ->schema([
-                                        \Filament\Infolists\Components\Actions::make([
+                        // Tabs\Tab::make('Отделение Осмотр')
+                        //     ->icon('heroicon-o-clipboard-document-check')
+                        //     ->schema([
+                        //         Section::make('Отделение Осмотр')
+                        //         // auth user medicalInspection dagi bekitilgan assigned_doctor_id teng bolsa kiritsin
+                        //             ->visible(fn ($record) => is_null($record->departmentInspection) && auth()->user()->can(abilities: 'создать отделение осмотр') && ($record->medicalInspection?->assigned_doctor_id === auth()->id()))
+                        //             ->schema([
+                        //                 \Filament\Infolists\Components\Actions::make([
                                             
-                                            Action::make('createDepartmentInspection')
-                                            ->label('Создать Отделение Осмотр')
-                                            ->icon('heroicon-o-plus')
-                                            ->button()
-                                            ->color('primary')
-                                            ->url(fn ($record) => "/admin/department-inspections/create?patient_id={$record->patient->id}&medical_history_id={$record->id}" )
-                                        ])
-                                    ]),
-                                Section::make('')
-                                    ->label('Отделение Осмотр')
-                                    ->visible(fn ($record) => $record->departmentInspection !== null) // 👈 Bu muhim
-                                    ->schema([
-                                                Grid::make(2)
-                                                    ->schema([
-                                                        TextEntry::make('departmentInspection.id')
-                                                            ->label('Скачать осмотр')
-                                                            ->visible(fn ($record) => $record->departmentInspection !== null)
-                                                            ->url(fn ($state) => route('download.department.inspection', $state))
-                                                            ->openUrlInNewTab()
-                                                            ->formatStateUsing(fn($state) => 'Отделение осмотр №' . $state)
-                                                            ->icon('heroicon-o-arrow-down-tray')
-                                                            ->color(Color::Gray),
+                        //                     Action::make('createDepartmentInspection')
+                        //                     ->label('Создать Отделение Осмотр')
+                        //                     ->icon('heroicon-o-plus')
+                        //                     ->button()
+                        //                     ->color('primary')
+                        //                     ->url(fn ($record) => "/admin/department-inspections/create?patient_id={$record->patient->id}&medical_history_id={$record->id}" )
+                        //                 ])
+                        //             ]),
+                        //         Section::make('')
+                        //             ->label('Отделение Осмотр')
+                        //             ->visible(fn ($record) => $record->departmentInspection !== null) // 👈 Bu muhim
+                        //             ->schema([
+                        //                         Grid::make(2)
+                        //                             ->schema([
+                        //                                 TextEntry::make('departmentInspection.id')
+                        //                                     ->label('Скачать осмотр')
+                        //                                     ->visible(fn ($record) => $record->departmentInspection !== null)
+                        //                                     ->url(fn ($state) => route('download.department.inspection', $state))
+                        //                                     ->openUrlInNewTab()
+                        //                                     ->formatStateUsing(fn($state) => 'Отделение осмотр №' . $state)
+                        //                                     ->icon('heroicon-o-arrow-down-tray')
+                        //                                     ->color(Color::Gray),
                                                             
-                                                        \Filament\Infolists\Components\Actions::make([
-                                                                Action::make('editDepartmentInspection')
-                                                                ->label('Редактировать')
-                                                                ->visible(fn ($record) => $record->departmentInspection !== null && auth()->user()->can(abilities: 'создать отделение осмотр') && ($record->medicalInspection?->assigned_doctor_id === auth()->id()))
-                                                                ->icon('heroicon-o-pencil')
-                                                                ->button()
-                                                                ->color('warning')
-                                                                ->url(fn ($record) => "/admin/department-inspections/{$record->departmentInspection->id}/edit?patient_id={$record->patient->id}&medical_history_id={$record->id}" )
-                                                        ])
-                                                    ]),
+                        //                                 \Filament\Infolists\Components\Actions::make([
+                        //                                         Action::make('editDepartmentInspection')
+                        //                                         ->label('Редактировать')
+                        //                                         ->visible(fn ($record) => $record->departmentInspection !== null && auth()->user()->can(abilities: 'создать отделение осмотр') && ($record->medicalInspection?->assigned_doctor_id === auth()->id()))
+                        //                                         ->icon('heroicon-o-pencil')
+                        //                                         ->button()
+                        //                                         ->color('warning')
+                        //                                         ->url(fn ($record) => "/admin/department-inspections/{$record->departmentInspection->id}/edit?patient_id={$record->patient->id}&medical_history_id={$record->id}" )
+                        //                                 ])
+                        //                             ]),
                                                     
-                                                TextEntry::make('departmentInspection.admission_diagnosis')
-                                                    ->label('Диагноз')
-                                                    ->placeholder('Не добавлено')
-                                                    ->columnSpanFull(),
+                        //                         TextEntry::make('departmentInspection.admission_diagnosis')
+                        //                             ->label('Диагноз')
+                        //                             ->placeholder('Не добавлено')
+                        //                             ->columnSpanFull(),
                                                     
-                                                TextEntry::make('departmentInspection.complaints')
-                                                    ->label('Жалобы')
-                                                    ->placeholder('Нет')
-                                                    ->columnSpanFull(),
+                        //                         TextEntry::make('departmentInspection.complaints')
+                        //                             ->label('Жалобы')
+                        //                             ->placeholder('Нет')
+                        //                             ->columnSpanFull(),
                                                     
-                                                TextEntry::make('departmentInspection.medical_history')
-                                                    ->label('ANAMNEZIS MORBI')
-                                                    ->placeholder('Не добавлено')
-                                                    ->columnSpanFull(),
+                        //                         TextEntry::make('departmentInspection.medical_history')
+                        //                             ->label('ANAMNEZIS MORBI')
+                        //                             ->placeholder('Не добавлено')
+                        //                             ->columnSpanFull(),
                                                     
-                                                TextEntry::make('departmentInspection.history_life')
-                                                    ->label('ANAMNEZIS  VITAE')
-                                                    ->placeholder('Не добавлено')
-                                                    ->columnSpanFull(),
+                        //                         TextEntry::make('departmentInspection.history_life')
+                        //                             ->label('ANAMNEZIS  VITAE')
+                        //                             ->placeholder('Не добавлено')
+                        //                             ->columnSpanFull(),
                                                     
-                                                TextEntry::make('departmentInspection.epidemiological_history')
-                                                    ->label('Эпидемиологический анамнез')
-                                                    ->placeholder('Не добавлено')
-                                                    ->columnSpanFull(),
+                        //                         TextEntry::make('departmentInspection.epidemiological_history')
+                        //                             ->label('Эпидемиологический анамнез')
+                        //                             ->placeholder('Не добавлено')
+                        //                             ->columnSpanFull(),
                                                     
-                                                TextEntry::make('departmentInspection.local_state')
-                                                    ->label('STATUS LOCALIS')
-                                                    ->placeholder('Не добавлено')
-                                                    ->columnSpanFull(),
+                        //                         TextEntry::make('departmentInspection.local_state')
+                        //                             ->label('STATUS LOCALIS')
+                        //                             ->placeholder('Не добавлено')
+                        //                             ->columnSpanFull(),
                                                     
-                                                TextEntry::make('departmentInspection.objectively')
-                                                    ->label('STATUS PREZENS OBJECTIVUS')
-                                                    ->placeholder('Не добавлено')
-                                                    ->columnSpanFull(),
+                        //                         TextEntry::make('departmentInspection.objectively')
+                        //                             ->label('STATUS PREZENS OBJECTIVUS')
+                        //                             ->placeholder('Не добавлено')
+                        //                             ->columnSpanFull(),
                                                     
-                                                TextEntry::make('departmentInspection.treatment')
-                                                    ->label('Лечение')
-                                                    ->placeholder('Не добавлено')
-                                                    ->columnSpanFull(),
+                        //                         TextEntry::make('departmentInspection.treatment')
+                        //                             ->label('Лечение')
+                        //                             ->placeholder('Не добавлено')
+                        //                             ->columnSpanFull(),
                                                     
-                                                TextEntry::make('departmentInspection.recommended')
-                                                    ->label('Рекомендовано')
-                                                    ->placeholder('Не добавлено')
-                                                    ->columnSpanFull(),
+                        //                         TextEntry::make('departmentInspection.recommended')
+                        //                             ->label('Рекомендовано')
+                        //                             ->placeholder('Не добавлено')
+                        //                             ->columnSpanFull(),
                                                     
                                                     
-                                                Grid::make(2)
-                                                    ->schema([
-                                                        TextEntry::make('departmentInspection.created_at')
-                                                            ->label('Дата создания')
-                                                            ->dateTime('d.m.Y H:i'),
+                        //                         Grid::make(2)
+                        //                             ->schema([
+                        //                                 TextEntry::make('departmentInspection.created_at')
+                        //                                     ->label('Дата создания')
+                        //                                     ->dateTime('d.m.Y H:i'),
                                                             
-                                                        TextEntry::make('departmentInspection.updated_at')
-                                                            ->label('Дата изменения')
-                                                            ->dateTime('d.m.Y H:i'),
-                                                    ])
-                                    ]),
-                            ]),
+                        //                                 TextEntry::make('departmentInspection.updated_at')
+                        //                                     ->label('Дата изменения')
+                        //                                     ->dateTime('d.m.Y H:i'),
+                        //                             ])
+                        //             ]),
+                        //     ]),
                             
                         // Laboratoriya testlari tab
                         Tabs\Tab::make('Анализы')

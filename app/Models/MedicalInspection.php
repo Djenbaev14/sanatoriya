@@ -28,6 +28,9 @@ class MedicalInspection extends Model
     }
     public function initialDoctor(){
         return $this->belongsTo(User::class,'initial_doctor_id');
+    }
+    public function mkb(){
+        return $this->belongsTo(Mkb::class,'mkb_id');
     }  
     public function assignedDoctor(){
         return $this->belongsTo(User::class,'assigned_doctor_id');

@@ -115,13 +115,21 @@ class MedicalInspectionResource extends Resource
                             ->label('STATUS LOCALIS')
                             ->rows(3)
                             ->columnSpan(12),
-                        Textarea::make('admission_diagnosis')
-                            ->label('Диагноз')
-                            ->rows(3)
-                            ->columnSpan(12),
                         Textarea::make('recommended')
                             ->label('Рекомендовано')
                             ->rows(3)
+                            ->columnSpan(12),
+                        Select::make('mkb_id')
+                            ->label('Диагноз')
+                            ->options(
+                                \App\Models\Mkb::
+                                    whereNotNull('mkb_name')
+                                    ->get()
+                                    ->mapWithKeys(fn ($mkb) => [
+                                        $mkb->id => "{$mkb->mkb_code} – {$mkb->mkb_name}"
+                                    ])
+                            )
+                            ->searchable()
                             ->columnSpan(12),
                     ])->columns(12)->columnSpan(12)
             ]);
