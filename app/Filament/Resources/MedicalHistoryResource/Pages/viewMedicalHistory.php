@@ -123,7 +123,7 @@ class ViewMedicalHistory extends ViewRecord
                                                                 ->date('d.m.Y'),
 
                                                             TextEntry::make('accommodation.discharge_date')
-                                                                ->label('Дата выхода')
+                                                                ->label('Дата выпски')
                                                                 ->date('d.m.Y'),
 
                                                             TextEntry::make('accommodation_days')
