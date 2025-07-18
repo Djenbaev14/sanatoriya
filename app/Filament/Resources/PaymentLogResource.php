@@ -164,44 +164,21 @@ class PaymentLogResource extends Resource
                 }
             }
 
-            // 4. Create accommodation_payments for ward and meal
-            $accommodations = collect([]);
+            $ward = collect($data['ward_payment'] ?? [])->firstWhere('selected', true);
+            $meal = collect($data['meal_payment'] ?? [])->firstWhere('selected', true);
 
-            $selectedWard = collect($data['ward_payment'] ?? [])
-                ->filter(fn($item) => $item['selected'] ?? false);
-
-            $selectedMeal = collect($data['meal_payment'] ?? [])
-                ->filter(fn($item) => $item['selected'] ?? false);
-
-            foreach ($selectedWard as $ward) {
-                $accommodations->push([
-                    'tariff_price' => $ward['tariff_price'],
-                    'ward_day' => $ward['ward_day'],
-                    'meal_price' => 0,
-                    'meal_day' => 0,
-                ]);
-            }
-
-            foreach ($selectedMeal as $meal) {
-                $accommodations->push([
-                    'tariff_price' => 0,
-                    'ward_day' => 0,
-                    'meal_price' => $meal['meal_price'],
-                    'meal_day' => $meal['meal_day'],
-                ]);
-            }
-
-            foreach ($accommodations as $acc) {
+            if ($ward || $meal) {
                 $payment->accommodationPayments()->create([
                     'accommodation_id' => $record->accommodation_id,
                     'medical_history_id' => $record->id,
-                    'tariff_price' => $acc['tariff_price'],
-                    'ward_day' => $acc['ward_day'],
-                    'meal_price' => $acc['meal_price'],
-                    'meal_day' => $acc['meal_day'],
+                    'tariff_price' => $ward['tariff_price'] ?? 0,
+                    'ward_day' => $ward['ward_day'] ?? 0,
+                    'meal_price' => $meal['meal_price'] ?? 0,
+                    'meal_day' => $meal['meal_day'] ?? 0,
                     'created_at' => $data['created_at'],
                 ]);
             }
+
 
             DB::commit();
         } catch (\Throwable $e) {

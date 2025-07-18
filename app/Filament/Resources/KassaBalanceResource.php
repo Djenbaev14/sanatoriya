@@ -60,10 +60,12 @@ class KassaBalanceResource extends Resource
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('amount')
+                TextColumn::make('total_paid_amount')
                     ->label('Сумма')
-                    ->money('UZS')
-                    ->summarize(Sum::make()->label('Общая сумма')),
+                    ->badge()
+                    ->getStateUsing(function ($record) {
+                        return number_format($record->getTotalPaidAmount(),0,'.',' ').' сум';
+                    }),
 
                 TextColumn::make('created_at')
                     ->label('Дата создания')
@@ -168,7 +170,7 @@ class KassaBalanceResource extends Resource
         return [
             'index' => Pages\ListKassaBalances::route('/'),
             'create' => Pages\CreateKassaBalance::route('/create'),
-            'edit' => Pages\EditKassaBalance::route('/{record}/edit'),
+            'view' => Pages\ViewKassaBalance::route('/{record}'),
         ];
     }
 }

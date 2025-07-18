@@ -1,0 +1,58 @@
+<x-filament::page>
+    <h2 class="text-xl font-bold mb-4">To'lov tafsilotlari</h2>
+
+    {{-- Lab Test To'lovlari --}}
+    <div class="mb-6">
+        <h3 class="text-lg font-semibold mb-2">Lab Test To'lovlari</h3>
+        <table class="w-full border border-gray-300 text-sm">
+            <thead>
+                <tr class="bg-gray-100">
+                    <th class="border p-2">Название</th>
+                    <th class="border p-2">Цена</th>
+                    <th class="border p-2">Сессия</th>
+                    <th class="border p-2">Сумма</th>
+                </tr>
+            </thead>
+            <tbody>
+                    @foreach ($labDetails as $detail)
+                        <tr>
+                            <td class="border p-2">{{ $detail->name ?? '-' }}</td>
+                            <td class="border p-2">{{ number_format($detail->price, 0, '.', ' ') }}</td>
+                            <td class="border p-2">{{ $detail->sessions }}</td>
+                            <td class="border p-2">{{ number_format($detail->price * $detail->sessions, 0, '.', ' ') }}</td>
+                        </tr>
+                    @endforeach
+                    @foreach ($procedures as $detail)
+                        <tr>
+                            <td class="border p-2">{{ $detail->procedure?->name ?? '-' }}</td>
+                            <td class="border p-2">{{ number_format($detail->price, 0, '.', ' ') }}</td>
+                            <td class="border p-2">{{ $detail->sessions }}</td>
+                            <td class="border p-2">{{ number_format($detail->price * $detail->sessions, 0, '.', ' ') }}</td>
+                        </tr>
+                    @endforeach
+                @foreach ($record->accommodationPayments as $acc)
+                    <tr>
+                        <td class="border p-2">Питание</td>
+                        <td class="border p-2">{{ $acc->meal_price }}</td>
+                        <td class="border p-2">{{ $acc->meal_day }}</td>
+                        <td class="border p-2">{{ number_format($acc->meal_price*$acc->meal_day, 0, '.', ' ') }}</td>
+                    </tr>
+                    <tr>
+                        <td class="border p-2">Койка</td>
+                        <td class="border p-2">{{ $acc->ward_price }}</td>
+                        <td class="border p-2">{{ number_format($acc->meal_price, 0, '.', ' ') }}</td>
+                        <td class="border p-2">
+                            {{ number_format(($acc->ward_day * $acc->tariff_price) + ($acc->meal_day * $acc->meal_price), 0, '.', ' ') }}
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+    {{-- Umumiy To'lov --}}
+    <div class="mt-8 text-right">
+        <h2 class="text-xl font-bold">Umumiy to'langan summa: 
+            {{ number_format($record->getTotalPaidAmount(), 0, '.', ' ') }} so‘m
+        </h2>
+    </div>
+</x-filament::page>
