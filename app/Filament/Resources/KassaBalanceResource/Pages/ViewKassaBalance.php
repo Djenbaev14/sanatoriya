@@ -72,7 +72,7 @@ class ViewKassaBalance extends ViewRecord
         return [
             'record' => $this->record,
             'labDetails' => $this->labDetails,
-            'procedures' => $this->procedureDetails,
+            'procedureDetails' => $this->procedureDetails,
             'accommodationDetails' => $this->accommodationDetails,
         ];
     }

@@ -22,9 +22,9 @@
                             <td class="border p-2">{{ number_format($detail->price * $detail->sessions, 0, '.', ' ') }}</td>
                         </tr>
                     @endforeach
-                    @foreach ($procedures as $detail)
+                    @foreach ($procedureDetails as $detail)
                         <tr>
-                            <td class="border p-2">{{ $detail->procedure?->name ?? '-' }}</td>
+                            <td class="border p-2">{{ $detail->name ?? '-' }}</td>
                             <td class="border p-2">{{ number_format($detail->price, 0, '.', ' ') }}</td>
                             <td class="border p-2">{{ $detail->sessions }}</td>
                             <td class="border p-2">{{ number_format($detail->price * $detail->sessions, 0, '.', ' ') }}</td>
@@ -33,17 +33,15 @@
                 @foreach ($record->accommodationPayments as $acc)
                     <tr>
                         <td class="border p-2">Питание</td>
-                        <td class="border p-2">{{ $acc->meal_price }}</td>
+                        <td class="border p-2">{{ number_format($acc->meal_price,0, '.', ' ') }}</td>
                         <td class="border p-2">{{ $acc->meal_day }}</td>
                         <td class="border p-2">{{ number_format($acc->meal_price*$acc->meal_day, 0, '.', ' ') }}</td>
                     </tr>
                     <tr>
                         <td class="border p-2">Койка</td>
-                        <td class="border p-2">{{ $acc->ward_price }}</td>
-                        <td class="border p-2">{{ number_format($acc->meal_price, 0, '.', ' ') }}</td>
-                        <td class="border p-2">
-                            {{ number_format(($acc->ward_day * $acc->tariff_price) + ($acc->meal_day * $acc->meal_price), 0, '.', ' ') }}
-                        </td>
+                        <td class="border p-2">{{ number_format($acc->tariff_price,0, '.', ' ') }}</td>
+                        <td class="border p-2">{{ $acc->ward_day }}</td>
+                        <td class="border p-2">{{ number_format($acc->tariff_price *$acc->ward_day, 0, '.', ' ') }}</td>
                     </tr>
                 @endforeach
             </tbody>
