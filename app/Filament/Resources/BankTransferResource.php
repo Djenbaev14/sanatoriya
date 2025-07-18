@@ -149,7 +149,11 @@ class BankTransferResource extends Resource
                 ]),
             ]);
     }
-public static function canAccess(): bool
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
+    public static function canAccess(): bool
     {
         return auth()->user()?->can('остаток в кассе');
     }
