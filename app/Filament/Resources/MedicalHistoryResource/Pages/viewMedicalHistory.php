@@ -239,17 +239,6 @@ class ViewMedicalHistory extends ViewRecord
                                                         ])
                                                 ]),
                                                     
-                                                TextEntry::make('medicalInspection.id')
-                                                    ->label('Диагноз')
-                                                    ->label('Диагноз')
-                                                    ->formatStateUsing(function ($record) {
-                                                        return $record->medicalInspection->admission_diagnosis
-                                                            ?? $record->medicalInspection?->mkb?->mkb_code .' - '.$record->medicalInspection?->mkb?->mkb_name
-                                                            ?? 'Нет';
-                                                    })
-                                                    ->placeholder('Не добавлено')
-                                                    ->columnSpanFull(),
-                                                    
                                                 TextEntry::make('medicalInspection.complaints')
                                                     ->label('Жалобы')
                                                     ->placeholder('Нет')
@@ -282,6 +271,17 @@ class ViewMedicalHistory extends ViewRecord
                                                     
                                                 TextEntry::make('medicalInspection.recommended')
                                                     ->label('Рекомендовано')
+                                                    ->placeholder('Не добавлено')
+                                                    ->columnSpanFull(),
+                                                    
+                                                TextEntry::make('medicalInspection.id')
+                                                    ->label('Диагноз')
+                                                    ->label('Диагноз')
+                                                    ->formatStateUsing(function ($record) {
+                                                        return $record->medicalInspection->admission_diagnosis
+                                                            ?? $record->medicalInspection?->mkb?->mkb_code .' - '.$record->medicalInspection?->mkb?->mkb_name
+                                                            ?? 'Нет';
+                                                    })
                                                     ->placeholder('Не добавлено')
                                                     ->columnSpanFull(),
                                                     
