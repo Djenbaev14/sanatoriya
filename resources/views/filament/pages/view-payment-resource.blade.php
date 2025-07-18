@@ -53,7 +53,7 @@
     </div>
     {{-- Umumiy To'lov --}}
     <div class="mt-8 text-right">
-        <h2 class="text-xl font-bold">Umumiy to'langan summa: 
+        <h2 class="text-xl font-bold">Итого оплачено: 
             {{ number_format($record->getTotalPaidAmount(), 0, '.', ' ') }} so‘m
         </h2>
     </div>
