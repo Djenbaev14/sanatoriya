@@ -13,4 +13,7 @@ class ProcedurePaymentDetail extends Model
     public function procedurePayment(){
         return $this->belongsTo(ProcedurePayment::class);
     }
+    public function procedure(){
+        return $this->belongsTo(Procedure::class);
+    }
 }
