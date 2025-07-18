@@ -37,4 +37,8 @@ class TopLabTests extends BaseWidget
                 ->money('UZS', true),
         ];
     }
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('остаток в кассе');
+    }
 }

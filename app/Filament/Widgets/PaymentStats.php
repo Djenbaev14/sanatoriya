@@ -26,6 +26,10 @@ class PaymentStats extends BaseWidget
             'all_time' => 'Barcha vaqt',
         ];
     }
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('остаток в кассе');
+    }
 
     protected function getStats(): array
     {

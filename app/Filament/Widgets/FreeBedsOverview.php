@@ -24,6 +24,10 @@ class FreeBedsOverview extends BaseWidget
             'beds as available_beds_count' => fn ($q) => $q->availableBeds(),
         ]);
     }
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('остаток в кассе');
+    }
 
     protected function getTableColumns(): array
     {
