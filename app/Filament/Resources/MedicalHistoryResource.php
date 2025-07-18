@@ -326,6 +326,7 @@ class MedicalHistoryResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('accommodation.admission_date')->label('Дата поступления')->dateTime()->sortable(),
                 BadgeColumn::make('accommodation.discharge_date')
                     ->label('Дата выпуска')
                     ->colors([
@@ -334,12 +335,7 @@ class MedicalHistoryResource extends Resource
                         'gray' => fn ($state) => is_null($state), // discharge_date null bo‘lsa
                     ])
                     ->dateTime('d.m.Y H:i'), // sana formatlash (xohlasang)
-                TextColumn::make('id')->label('Номер')->searchable()->sortable(),
-                TextColumn::make('accommodation_day')
-                ->getStateUsing(function ($record) {
-                    return $record->accommodation?->calculateDays();
-                })
-                ->label('Номер')->searchable()->sortable(),
+                TextColumn::make('number')->label('Номер')->searchable()->sortable(),
                 TextColumn::make('patient.full_name')->label('ФИО')
                 ->searchable()
                 ->limit(20)
@@ -391,7 +387,6 @@ class MedicalHistoryResource extends Resource
                     ->falseIcon('heroicon-o-x-circle')
                     ->trueColor('success')
                     ->falseColor('danger'),
-                TextColumn::make('accommodation.admission_date')->label('Дата поступления')->dateTime()->sortable(),
                 // TextColumn::make('accommodation.discharge_date')->label('Дата выписки')->dateTime()->sortable(),,
             ])
             ->filters([
