@@ -1,9 +1,9 @@
 <x-filament::page>
-    <h2 class="text-xl font-bold mb-4">To'lov tafsilotlari</h2>
+    <h2 class="text-xl font-bold mb-4"></h2>
 
     {{-- Lab Test To'lovlari --}}
     <div class="mb-6">
-        <h3 class="text-lg font-semibold mb-2">Lab Test To'lovlari</h3>
+        <h3 class="text-lg font-semibold mb-2"></h3>
         <table class="w-full border border-gray-300 text-sm">
             <thead>
                 <tr class="bg-gray-100">
@@ -24,10 +24,10 @@
                     @endforeach
                     @foreach ($labDetails as $detail)
                         <tr>
-                            <td class="border p-2">{{ $detail->name ?? '-' }}</td>
-                            <td class="border p-2">{{ number_format($detail->price, 0, '.', ' ') }}</td>
-                            <td class="border p-2">{{ $detail->sessions }}</td>
-                            <td class="border p-2">{{ number_format($detail->price * $detail->sessions, 0, '.', ' ') }}</td>
+                            <td class="border p-2">{{ $detail['name'] ?? '-' }}</td>
+                            <td class="border p-2">{{ number_format($detail['price'], 0, '.', ' ') }}</td>
+                            <td class="border p-2">{{ $detail['sessions'] }}</td>
+                            <td class="border p-2">{{ number_format($detail['price'] * $detail['sessions'], 0, '.', ' ') }}</td>
                         </tr>
                     @endforeach
                     @foreach ($record->accommodationPayments as $acc)
