@@ -13,4 +13,7 @@ class LabTestPaymentDetail extends Model
     public function labTestPayment(){
         return $this->belongsTo(LabTestPayment::class);
     }
+    public function labTest(){
+        return $this->belongsTo(LabTest::class);
+    }
 }
