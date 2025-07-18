@@ -31,18 +31,22 @@
                         </tr>
                     @endforeach
                     @foreach ($record->accommodationPayments as $acc)
-                        <tr>
+                        @if ($acc->meal_day > 0)
+                            <tr>
                             <td class="border p-2">Питание</td>
                             <td class="border p-2">{{ number_format($acc->meal_price,0, '.', ' ') }}</td>
                             <td class="border p-2">{{ $acc->meal_day }}</td>
                             <td class="border p-2">{{ number_format($acc->meal_price*$acc->meal_day, 0, '.', ' ') }}</td>
                         </tr>
-                        <tr>
-                            <td class="border p-2">Койка</td>
-                            <td class="border p-2">{{ number_format($acc->tariff_price,0, '.', ' ') }}</td>
-                            <td class="border p-2">{{ $acc->ward_day }}</td>
-                            <td class="border p-2">{{ number_format($acc->tariff_price *$acc->ward_day, 0, '.', ' ') }}</td>
-                        </tr>
+                        @endif
+                        @if ($acc->ward_day > 0)
+                            <tr>
+                                <td class="border p-2">Койка</td>
+                                <td class="border p-2">{{ number_format($acc->tariff_price,0, '.', ' ') }}</td>
+                                <td class="border p-2">{{ $acc->ward_day }}</td>
+                                <td class="border p-2">{{ number_format($acc->tariff_price *$acc->ward_day, 0, '.', ' ') }}</td>
+                            </tr>
+                        @endif
                     @endforeach
             </tbody>
         </table>
