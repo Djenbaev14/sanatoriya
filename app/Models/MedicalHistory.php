@@ -119,7 +119,7 @@ class MedicalHistory extends Model
     }
     public function getUnpaidPartnerWardDays()
     {
-        $partnerAccommodation = $this->partnerAccommodation;
+        $partnerAccommodation = $this->accommodation->partner;
         if (!$partnerAccommodation) {
             return 0; // yoki null, yoki boshqa default qiymat
         }
@@ -128,7 +128,7 @@ class MedicalHistory extends Model
     }
     public function getUnpaidPartnerMealDays()
     {
-        $partnerAccommodation = $this->partnerAccommodation;
+        $partnerAccommodation = $this->accommodation->partner;
 
         if (!$partnerAccommodation) {
             return 0; // yoki null, yoki boshqa default qiymat
