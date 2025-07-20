@@ -55,7 +55,6 @@ class ViewKassaBalance extends ViewRecord
             })->values()->all();
 
         // Accommodations — ajratish
-        $mainAccommodationId = $this->record->MedicalHistory->accommodation->id;
 
         $this->accommodationDetails = [
             'main' => [],
@@ -63,8 +62,6 @@ class ViewKassaBalance extends ViewRecord
         ];
 
         foreach ($this->record->accommodationPayments as $acc) {
-            $accAccommodationId = $acc->accommodation_id;
-
             $data = [
                 'tariff_price' => $acc->tariff_price,
                 'ward_day' => $acc->ward_day,
@@ -73,7 +70,7 @@ class ViewKassaBalance extends ViewRecord
                 'total' => ($acc->tariff_price * $acc->ward_day) + ($acc->meal_price * $acc->meal_day),
             ];
 
-            if ($accAccommodationId == $mainAccommodationId) {
+            if (!empty($acc->medical_history_id)) {
                 $this->accommodationDetails['main'][] = $data;
             } else {
                 $this->accommodationDetails['partner'][] = $data;
