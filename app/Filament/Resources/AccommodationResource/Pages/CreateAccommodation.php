@@ -37,6 +37,8 @@ class CreateAccommodation extends CreateRecord
             'meal_price' => $this->data['accomplice_meal_price'],
             'is_accomplice' => true,
             'ward_id' => $this->data['accomplice_ward_id'],
+            'ward_day' => $this->data['accomplice_ward_day'],
+            'meal_day' => $this->data['accomplice_meal_day'],
             'admission_date' => $this->data['accomplice_admission_date'],
             'discharge_date' => $this->data['accomplice_discharge_date'],
         ]);

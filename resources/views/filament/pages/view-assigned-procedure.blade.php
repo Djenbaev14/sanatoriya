@@ -292,7 +292,7 @@
                             <span>🛏️</span>
                             Koyka narxi
                         </div>
-                        <div class="calculation-value">350 000 so'm</div>
+                        <div class="calculation-value">350 000 сум</div>
                     </div>
 
                     <div class="calculation-item">
@@ -300,7 +300,7 @@
                             <span>🍽️</span>
                             Ovqat narxi
                         </div>
-                        <div class="calculation-value">75 000 so'm</div>
+                        <div class="calculation-value">75 000 сум</div>
                     </div>
 
                     <div class="calculation-item">
@@ -308,7 +308,7 @@
                             <span>🛏️</span>
                             Koyka uchun
                         </div>
-                        <div class="calculation-value">2 800 000 so'm</div>
+                        <div class="calculation-value">2 800 000 сум</div>
                     </div>
 
                     <div class="calculation-item">
@@ -316,13 +316,13 @@
                             <span>🍽️</span>
                             Ovqat uchun
                         </div>
-                        <div class="calculation-value">600 000 so'm</div>
+                        <div class="calculation-value">600 000 сум</div>
                     </div>
                 </div>
 
                 <div class="total-amount">
                     <div class="total-label">💵 Umumiy summa</div>
-                    <div class="total-value">3 400 000 so'm</div>
+                    <div class="total-value">3 400 000 сум</div>
                 </div>
             </div>
         </div>

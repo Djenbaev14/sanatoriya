@@ -54,17 +54,31 @@ class ViewKassaBalance extends ViewRecord
                 ];
             })->values()->all();
 
-        // Accommodations
-        $this->accommodationDetails = $this->record->accommodationPayments
-            ->map(function ($acc) {
-                return [
-                    'tariff_price' => $acc->tariff_price,
-                    'ward_day' => $acc->ward_day,
-                    'meal_price' => $acc->meal_price,
-                    'meal_day' => $acc->meal_day,
-                    'total' => ($acc->tariff_price * $acc->ward_day) + ($acc->meal_price * $acc->meal_day),
-                ];
-            })->values()->all();
+        // Accommodations — ajratish
+        $mainAccommodationId = $this->record->MedicalHistory->accommodation->id;
+
+        $this->accommodationDetails = [
+            'main' => [],
+            'partner' => [],
+        ];
+
+        foreach ($this->record->accommodationPayments as $acc) {
+            $accAccommodationId = $acc->accommodation_id;
+
+            $data = [
+                'tariff_price' => $acc->tariff_price,
+                'ward_day' => $acc->ward_day,
+                'meal_price' => $acc->meal_price,
+                'meal_day' => $acc->meal_day,
+                'total' => ($acc->tariff_price * $acc->ward_day) + ($acc->meal_price * $acc->meal_day),
+            ];
+
+            if ($accAccommodationId == $mainAccommodationId) {
+                $this->accommodationDetails['main'][] = $data;
+            } else {
+                $this->accommodationDetails['partner'][] = $data;
+            }
+        }
 
     }
     protected function getViewData(): array

@@ -281,11 +281,24 @@ class AccommodationResource extends Resource
                             ->label('Дата поступления')
                             ->reactive()
                             ->default(Carbon::now())
+                            ->default(fn (Get $get) => $get('medical_history_id') ? \App\Models\MedicalHistory::find($get('medical_history_id'))?->created_at : Carbon::now())
+                            ->afterStateUpdated(function (Set $set, $state, Get $get) {
+                                $days = self::calculateDays($state, $get('accomplice_discharge_date'));
+                                $set('accomplice_ward_day', $days);
+                                $set('accomplice_meal_day', $days);
+                            })
                             ->columnSpan(6),
                         DateTimePicker::make('accomplice_discharge_date')
                             ->label('Дата выписки')
                             ->reactive()
+                            ->afterStateUpdated(function (Set $set, $state, Get $get) {
+                                $days = self::calculateDays($get('accomplice_admission_date'), $state);
+                                $set('accomplice_ward_day', $days);
+                                $set('accomplice_meal_day', $days);
+                            })
                             ->columnSpan(6),
+                        Hidden::make('accomplice_ward_day'),
+                        Hidden::make('accomplice_meal_day'),
                         Group::make()
                             ->schema([
                                 Select::make('accomplice_tariff_id') 

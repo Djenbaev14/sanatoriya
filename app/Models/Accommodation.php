@@ -92,14 +92,14 @@ class Accommodation extends Model
         $partner = $this->partner;
         if (!$partner) return 0;
 
-        return $partner->tariff_price * $this->ward_day;
+        return $partner->tariff_price * $partner->ward_day;
     }
     public function calculatePartnerMealCost()
     {
         $partner = $this->partner;
         if (!$partner) return 0;
 
-        return $partner->meal_price * $this->meal_day;
+        return $partner->meal_price * $partner->meal_day;
     }
     
     public function getTotalCost()

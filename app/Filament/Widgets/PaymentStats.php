@@ -14,18 +14,7 @@ class PaymentStats extends BaseWidget
 {
     
     protected static ?int $sort = 1; // Dashboardda tartib
-    public ?string $filter = 'today';
 
-    protected function getFilters(): ?array
-    {
-        return [
-            'today' => 'Bugun',
-            'this_week' => 'Shu hafta',
-            'this_month' => 'Shu oy',
-            'this_year' => 'Shu yil',
-            'all_time' => 'Barcha vaqt',
-        ];
-    }
     public static function canAccess(): bool
     {
         return auth()->user()?->can('остаток в кассе');
@@ -33,16 +22,15 @@ class PaymentStats extends BaseWidget
 
     protected function getStats(): array
     {
-        $dateRange = $this->getDateRange();
         
         // Lab test payments statistics
-        $labTestAmount = $this->getLabTestPayments($dateRange[0], $dateRange[1]);
+        $labTestAmount = $this->getLabTestPayments();
         
         // Procedure payments statistics
-        $procedureAmount = $this->getProcedurePayments($dateRange[0], $dateRange[1]);
+        $procedureAmount = $this->getProcedurePayments();
         
         // Accommodation payments statistics (koyka va pitanie alohida)
-        $accommodationAmounts = $this->getAccommodationPayments($dateRange[0], $dateRange[1]);
+        $accommodationAmounts = $this->getAccommodationPayments();
         $koykaAmount = $accommodationAmounts['koyka'];
         $pitanieAmount = $accommodationAmounts['pitanie'];
         $totalAccommodation = $koykaAmount + $pitanieAmount;
@@ -72,19 +60,8 @@ class PaymentStats extends BaseWidget
         ];
     }
 
-    private function getDateRange(): array
-    {
-        return match ($this->filter) {
-            'today' => [Carbon::today(), Carbon::today()->endOfDay()],
-            'this_week' => [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()],
-            'this_month' => [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()],
-            'this_year' => [Carbon::now()->startOfYear(), Carbon::now()->endOfYear()],
-            'all_time' => [Carbon::create(2020, 1, 1), Carbon::now()],
-            default => [Carbon::today(), Carbon::today()->endOfDay()],
-        };
-    }
 
-    private function getLabTestPayments($startDate, $endDate): float
+    private function getLabTestPayments(): float
     {
         $query = LabTestPaymentDetail::query();
 
@@ -92,7 +69,7 @@ class PaymentStats extends BaseWidget
             ->value('total') ?? 0;
     }
 
-    private function getProcedurePayments($startDate, $endDate): float
+    private function getProcedurePayments(): float
     {
         $query = ProcedurePaymentDetail::query();
 
@@ -100,7 +77,7 @@ class PaymentStats extends BaseWidget
             ->value('total') ?? 0;
     }
 
-    private function getAccommodationPayments($startDate, $endDate): array
+    private function getAccommodationPayments(): array
     {
         $query = AccommodationPayment::query();
         
@@ -120,6 +97,6 @@ class PaymentStats extends BaseWidget
 
     private function formatCurrency(float $amount): string
     {
-        return number_format($amount, 0, '.', ' ') . ' so\'m';
+        return number_format($amount, 0, '.', ' ') . ' сум';
     }
 }

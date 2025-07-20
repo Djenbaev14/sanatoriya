@@ -169,12 +169,27 @@ class PaymentLogResource extends Resource
 
             if ($ward || $meal) {
                 $payment->accommodationPayments()->create([
-                    'accommodation_id' => $record->accommodation_id,
+                    'accommodation_id' => $record->accommodation->id,
                     'medical_history_id' => $record->id,
                     'tariff_price' => $ward['tariff_price'] ?? 0,
                     'ward_day' => $ward['ward_day'] ?? 0,
                     'meal_price' => $meal['meal_price'] ?? 0,
                     'meal_day' => $meal['meal_day'] ?? 0,
+                    'created_at' => $data['created_at'],
+                ]);
+            }
+
+            
+            $ward_uxod = collect($data['ward_payment_uxod'] ?? [])->firstWhere('selected', true);
+            $meal_uxod = collect($data['meal_payment_uxod'] ?? [])->firstWhere('selected', true);
+
+            if ($ward_uxod || $meal_uxod) {
+                $payment->accommodationPayments()->create([
+                    'accommodation_id' => $record->accommodation->partner->id,
+                    'tariff_price' => $ward_uxod['tariff_price'] ?? 0,
+                    'ward_day' => $ward_uxod['ward_day'] ?? 0,
+                    'meal_price' => $meal_uxod['meal_price'] ?? 0,
+                    'meal_day' => $meal_uxod['meal_day'] ?? 0,
                     'created_at' => $data['created_at'],
                 ]);
             }
@@ -233,25 +248,7 @@ class PaymentLogResource extends Resource
                                             ]),
                                         ])
                                         ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                            $procedures_total = collect($state)
-                                                ->filter(fn ($item) => $item['selected'] ?? false)
-                                                ->sum(fn ($item) => ($item['price'] ?? 0) * ($item['sessions'] ?? 1)); // agar 'sessions' bo'lsa
-
-                                            $lab_tests_total = collect($get('lab_tests_payment_items') ?? [])
-                                                ->filter(fn ($item) => $item['selected'] ?? false)
-                                                ->sum(fn ($item) => ($item['price'] ?? 0) * ($item['sessions'] ?? 1));
-
-                                            $ward_total = collect($get('ward_payment') ?? [])
-                                                ->filter(fn ($item) => $item['selected'] ?? false)
-                                                ->sum(fn ($item) => ($item['tariff_price'] ?? 0) * ($item['ward_day'] ?? 1));
-
-                                            $meal_total = collect($get('meal_payment') ?? [])
-                                                ->filter(fn ($item) => $item['selected'] ?? false)
-                                                ->sum(fn ($item) => ($item['meal_price'] ?? 0) * ($item['meal_day'] ?? 1));
-                                            
-                                            $total = $lab_tests_total + $procedures_total + $ward_total + $meal_total;
-
-
+                                            $total = self::calculatePaymentTotal($get, $state, 'procedures_payment_items');
                                             $set('total_amount', $total);
                                         })
                                         ->columns(1),
@@ -300,24 +297,7 @@ class PaymentLogResource extends Resource
                                             ]),
                                         ])
                                         ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                            $lab_tests_total = collect($state)
-                                                ->filter(fn ($item) => $item['selected'] ?? false)
-                                                ->sum(fn ($item) => ($item['price'] ?? 0) * ($item['sessions'] ?? 1)); // agar 'sessions' bo'lsa
-
-                                            $procedures_total = collect($get('procedures_payment_items') ?? [])
-                                                ->filter(fn ($item) => $item['selected'] ?? false)
-                                                ->sum(fn ($item) => ($item['price'] ?? 0) * ($item['sessions'] ?? 1));
-                                            
-                                            $ward_total = collect($get('ward_payment') ?? [])
-                                                ->filter(fn ($item) => $item['selected'] ?? false)
-                                                ->sum(fn ($item) => ($item['tariff_price'] ?? 0) * ($item['ward_day'] ?? 1));
-
-                                            $meal_total = collect($get('meal_payment') ?? [])
-                                                ->filter(fn ($item) => $item['selected'] ?? false)
-                                                ->sum(fn ($item) => ($item['meal_price'] ?? 0) * ($item['meal_day'] ?? 1));
-                                            
-                                            $total = $lab_tests_total + $procedures_total + $ward_total + $meal_total;
-
+                                            $total = self::calculatePaymentTotal($get, $state, 'ward_payment');
                                             $set('total_amount', $total);
                                         })
                                         ->columns(1),
@@ -354,29 +334,7 @@ class PaymentLogResource extends Resource
                                             ]),
                                         ])
                                         ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                            // Lab tests
-                                            $lab_tests_total = collect($get('lab_tests_payment_items') ?? [])
-                                                ->filter(fn ($item) => $item['selected'] ?? false)
-                                                ->sum(fn ($item) => ($item['price'] ?? 0) * ($item['sessions'] ?? 1));
-
-                                            // Procedures
-                                            $procedures_total = collect($get('procedures_payment_items') ?? [])
-                                                ->filter(fn ($item) => $item['selected'] ?? false)
-                                                ->sum(fn ($item) => ($item['price'] ?? 0) * ($item['sessions'] ?? 1));
-
-                                            // Ward (current repeater)
-                                            $ward_total = collect($state ?? [])
-                                                ->filter(fn ($item) => $item['selected'] ?? false)
-                                                ->sum(fn ($item) => ($item['tariff_price'] ?? 0) * ($item['ward_day'] ?? 1));
-
-                                            // Meal
-                                            $meal_total = collect($get('meal_payment') ?? [])
-                                                ->filter(fn ($item) => $item['selected'] ?? false)
-                                                ->sum(fn ($item) => ($item['meal_price'] ?? 0) * ($item['meal_day'] ?? 1));
-
-                                            // Total amount
-                                            $total = $lab_tests_total + $procedures_total + $ward_total + $meal_total;
-
+                                            $total = self::calculatePaymentTotal($get, $state, 'ward_payment');
                                             $set('total_amount', $total);
                                         }),
                                     Repeater::make('meal_payment')
@@ -412,31 +370,86 @@ class PaymentLogResource extends Resource
                                             ])
                                     ])
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                            // Lab tests
-                                            $lab_tests_total = collect($get('lab_tests_payment_items') ?? [])
-                                                ->filter(fn ($item) => $item['selected'] ?? false)
-                                                ->sum(fn ($item) => ($item['price'] ?? 0) * ($item['sessions'] ?? 1));
-
-                                            // Procedures
-                                            $procedures_total = collect($get('procedures_payment_items') ?? [])
-                                                ->filter(fn ($item) => $item['selected'] ?? false)
-                                                ->sum(fn ($item) => ($item['price'] ?? 0) * ($item['sessions'] ?? 1));
-
-                                            // Ward (current repeater)
-                                            $meal_total = collect($state ?? [])
-                                                ->filter(fn ($item) => $item['selected'] ?? false)
-                                                ->sum(fn ($item) => ($item['meal_price'] ?? 0) * ($item['meal_day'] ?? 1));
-
-                                            // Meal
-                                            $ward_total = collect($get('ward_payment') ?? [])
-                                                ->filter(fn ($item) => $item['selected'] ?? false)
-                                                ->sum(fn ($item) => ($item['tariff_price'] ?? 0) * ($item['ward_day'] ?? 1));
-
-                                            // Total amount
-                                            $total = $lab_tests_total + $procedures_total + $ward_total + $meal_total;
-
-                                            $set('total_amount', $total);
+                                        $total = self::calculatePaymentTotal($get, $state, 'meal_payment');
+                                        $set('total_amount', $total);
                                     }),
+                                    // Uxod: Койка
+                                    Repeater::make('ward_payment_uxod')
+                                        ->addable(false)
+                                        ->deletable(false)
+                                        ->label('')
+                                        ->visible(fn() => $record->getUnpaidPartnerWardDays() > 0)
+                                        ->schema([
+                                            Grid::make(5)->schema([
+                                                TextInput::make('tariff_name')
+                                                    ->label('койка (Уход)')
+                                                    ->default('койка (Уход)')
+                                                    ->disabled()
+                                                    ->columnSpan(2),
+
+                                                TextInput::make('tariff_price')
+                                                    ->label('Цена')
+                                                    ->default($record->accommodation?->partner?->tariff_price)
+                                                    ->readOnly()
+                                                    ->numeric()
+                                                    ->columnSpan(1),
+
+                                                TextInput::make('ward_day')
+                                                    ->label('День')
+                                                    ->default(fn() => $record->getUnpaidPartnerWardDays())
+                                                    ->numeric()
+                                                    ->columnSpan(1),
+
+                                                Toggle::make('selected')
+                                                    ->label('')
+                                                    ->inline(true)
+                                                    ->columnSpan(1)
+                                                    ->reactive(),
+                                            ]),
+                                        ])
+                                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                            $total = self::calculatePaymentTotal($get, $state, 'uxod');
+                                            $set('total_amount', $total);
+                                        }),
+
+                                    // Uxod: Питание
+                                    Repeater::make('meal_payment_uxod')
+                                        ->addable(false)
+                                        ->deletable(false)
+                                        ->visible(fn() => $record->getUnpaidPartnerMealDays() > 0)
+                                        ->label('')
+                                        ->schema([
+                                            Grid::make(5)->schema([
+                                                TextInput::make('meal_name')
+                                                    ->label('Питание (Уход)')
+                                                    ->default('Питание (Уход)')
+                                                    ->disabled()
+                                                    ->columnSpan(2),
+
+                                                TextInput::make('meal_price')
+                                                    ->label('Цена')
+                                                    ->default($record->accommodation?->partner?->meal_price)
+                                                    ->readOnly()
+                                                    ->numeric()
+                                                    ->columnSpan(1),
+
+                                                TextInput::make('meal_day')
+                                                    ->label('День')
+                                                    ->default(fn() => $record->getUnpaidPartnerMealDays())
+                                                    ->numeric()
+                                                    ->columnSpan(1),
+
+                                                Toggle::make('selected')
+                                                    ->label('')
+                                                    ->inline(true)
+                                                    ->columnSpan(1)
+                                                    ->reactive(),
+                                            ]),
+                                        ])
+                                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                            $total = self::calculatePaymentTotal($get, $state, 'uxod');
+                                            $set('total_amount', $total);
+                                        }),
                                     Select::make('payment_type_id')
                                         ->label('Тип оплаты')
                                         ->options(PaymentType::all()->pluck('name', 'id'))
@@ -471,6 +484,35 @@ class PaymentLogResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+    public static function calculatePaymentTotal($get, $state, $type = '')
+    {
+        $lab_tests_total = collect($get('lab_tests_payment_items') ?? [])
+            ->filter(fn ($item) => $item['selected'] ?? false)
+            ->sum(fn ($item) => ($item['price'] ?? 0) * ($item['sessions'] ?? 1));
+
+        $procedures_total = collect($get('procedures_payment_items') ?? [])
+            ->filter(fn ($item) => $item['selected'] ?? false)
+            ->sum(fn ($item) => ($item['price'] ?? 0) * ($item['sessions'] ?? 1));
+
+        $ward_total = collect($get('ward_payment') ?? [])
+            ->filter(fn ($item) => $item['selected'] ?? false)
+            ->sum(fn ($item) => ($item['tariff_price'] ?? 0) * ($item['ward_day'] ?? 1));
+
+        $meal_total = collect($get('meal_payment') ?? [])
+            ->filter(fn ($item) => $item['selected'] ?? false)
+            ->sum(fn ($item) => ($item['meal_price'] ?? 0) * ($item['meal_day'] ?? 1));
+
+        // Uxod variantlari
+        $uxod_ward_total = collect($get('ward_payment_uxod') ?? [])
+            ->filter(fn ($item) => $item['selected'] ?? false)
+            ->sum(fn ($item) => ($item['tariff_price'] ?? 0) * ($item['ward_day'] ?? 1));
+
+        $uxod_meal_total = collect($get('meal_payment_uxod') ?? [])
+            ->filter(fn ($item) => $item['selected'] ?? false)
+            ->sum(fn ($item) => ($item['meal_price'] ?? 0) * ($item['meal_day'] ?? 1));
+
+        return $lab_tests_total + $procedures_total + $ward_total + $meal_total + $uxod_ward_total + $uxod_meal_total;
     }
 
     public static function getRelations(): array

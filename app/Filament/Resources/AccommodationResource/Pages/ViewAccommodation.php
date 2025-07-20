@@ -166,7 +166,7 @@ class ViewAccommodation extends ViewRecord
                                         ->label('Стоимость еды')
                                         ->icon('heroicon-o-currency-dollar')
                                         ->iconColor('warning')
-                                        ->formatStateUsing(fn($state) => number_format($state, 0, '.', ' ') . ' so\'m/kun')
+                                        ->formatStateUsing(fn($state) => number_format($state, 0, '.', ' ') . ' сум/kun')
                                         ->weight(FontWeight::Bold)
                                         ->color('warning')
                                         ->size(TextEntry\TextEntrySize::Large),
@@ -260,7 +260,7 @@ class ViewAccommodation extends ViewRecord
                 //                                         </svg>
                 //                                         <span class='text-sm font-medium text-green-600'>Koyka narxi</span>
                 //                                     </div>
-                //                                     <div class='text-lg font-bold text-green-900 mt-2'>" . number_format($record->tariff->daily_price, 0, '.', ' ') . " so'm</div>
+                //                                     <div class='text-lg font-bold text-green-900 mt-2'>" . number_format($record->tariff->daily_price, 0, '.', ' ') . " сум</div>
                 //                                 </div>
                                                 
                 //                                 <div class='bg-orange-50 p-4 rounded-lg border border-orange-200'>
@@ -270,7 +270,7 @@ class ViewAccommodation extends ViewRecord
                 //                                         </svg>
                 //                                         <span class='text-sm font-medium text-orange-600'>Ovqat narxi</span>
                 //                                     </div>
-                //                                     <div class='text-lg font-bold text-orange-900 mt-2'>" . number_format($record->mealType->daily_price, 0, '.', ' ') . " so'm</div>
+                //                                     <div class='text-lg font-bold text-orange-900 mt-2'>" . number_format($record->mealType->daily_price, 0, '.', ' ') . " сум</div>
                 //                                 </div>
                 //                             </div>
                                             
@@ -282,7 +282,7 @@ class ViewAccommodation extends ViewRecord
                 //                                         </svg>
                 //                                         <span class='text-sm font-medium text-indigo-600'>Koyka uchun jami</span>
                 //                                     </div>
-                //                                     <div class='text-xl font-bold text-indigo-900 mt-2'>" . number_format($record->calculateBedCost(), 0, '.', ' ') . " so'm</div>
+                //                                     <div class='text-xl font-bold text-indigo-900 mt-2'>" . number_format($record->calculateBedCost(), 0, '.', ' ') . " сум</div>
                 //                                 </div>
                                                 
                 //                                 <div class='bg-purple-50 p-4 rounded-lg border border-purple-200'>
@@ -292,7 +292,7 @@ class ViewAccommodation extends ViewRecord
                 //                                         </svg>
                 //                                         <span class='text-sm font-medium text-purple-600'>Ovqat uchun jami</span>
                 //                                     </div>
-                //                                     <div class='text-xl font-bold text-purple-900 mt-2'>" . number_format($record->calculateMealCost(), 0, '.', ' ') . " so'm</div>
+                //                                     <div class='text-xl font-bold text-purple-900 mt-2'>" . number_format($record->calculateMealCost(), 0, '.', ' ') . " сум</div>
                 //                                 </div>
                 //                             </div>
                                             
@@ -304,7 +304,7 @@ class ViewAccommodation extends ViewRecord
                 //                                         </svg>
                 //                                         <span class=' font-medium text-lg'>UMUMIY SUMMA</span>
                 //                                     </div>
-                //                                     <div class='text-4xl font-bold '>" . number_format($record->getTotalCost(), 0, '.', ' ') . " so'm</div>
+                //                                     <div class='text-4xl font-bold '>" . number_format($record->getTotalCost(), 0, '.', ' ') . " сум</div>
                 //                                 </div>
                 //                             </div>
                 //                         </div>
