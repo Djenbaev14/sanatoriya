@@ -27,5 +27,7 @@ Route::get('/payment-receipt/{medicalHistory}', [PaymentReceiptController::class
 Route::get('/payment-receipt/{medicalHistory}/view', [PaymentReceiptController::class, 'viewReceipt'])
     ->name('payment.receipt.view');
 
+Route::get('/payment/{record}/receipt', [PaymentReceiptController::class, 'viewPaymentLog'])
+    ->name('payment-log.view');
 Route::get('/download-inspection/{id}', [InspectionController::class, 'downloadWord'])->name('download.inspection');
 Route::get('/download-department-inspection/{id}', [InspectionController::class, 'downloadDepartmentInspection'])->name('download.department.inspection');

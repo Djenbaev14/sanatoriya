@@ -73,4 +73,12 @@ class PaymentReceiptController extends Controller
             'generatedAt' => now(),
         ]);
     }
+
+    public function viewPaymentLog($record)
+    {
+        $payment = Payment::findOrFail($record);
+        return view('receipts.view-payment-log-resource', [
+            'payment'=>$payment
+        ]);
+    }
 }
