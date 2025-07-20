@@ -378,7 +378,7 @@ class PaymentLogResource extends Resource
                                         ->addable(false)
                                         ->deletable(false)
                                         ->label('')
-                                        ->visible(fn() => $record->getUnpaidPartnerWardDays() > 0)
+                                        // ->visible(fn() => $record->getUnpaidPartnerWardDays() > 0)
                                         ->schema([
                                             Grid::make(5)->schema([
                                                 TextInput::make('tariff_name')
@@ -416,7 +416,7 @@ class PaymentLogResource extends Resource
                                     Repeater::make('meal_payment_uxod')
                                         ->addable(false)
                                         ->deletable(false)
-                                        ->visible(fn() => $record->getUnpaidPartnerMealDays() > 0)
+                                        // ->visible(fn() => $record->getUnpaidPartnerMealDays() > 0)
                                         ->label('')
                                         ->schema([
                                             Grid::make(5)->schema([
