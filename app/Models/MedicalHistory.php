@@ -120,7 +120,6 @@ class MedicalHistory extends Model
     public function getUnpaidPartnerWardDays()
     {
         $partnerAccommodation = $this->partnerAccommodation;
-
         if (!$partnerAccommodation) {
             return 0; // yoki null, yoki boshqa default qiymat
         }
