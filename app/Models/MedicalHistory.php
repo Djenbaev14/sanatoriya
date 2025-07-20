@@ -119,15 +119,23 @@ class MedicalHistory extends Model
     }
     public function getUnpaidPartnerWardDays()
     {
-        return $this->partnerAccommodation->ward_day;
-        // $paid = AccommodationPayment::where('accommodation_id','=',$this->partnerAccommodation?->id)->sum('ward_day');
-        // return max(0, $this->partnerAccommodation->ward_day - $paid);
+        $partnerAccommodation = $this->partnerAccommodation;
+
+        if (!$partnerAccommodation) {
+            return 0; // yoki null, yoki boshqa default qiymat
+        }
+        $paid = AccommodationPayment::where('accommodation_id','=',$partnerAccommodation?->id)->sum('ward_day');
+        return max(0, $partnerAccommodation->ward_day - $paid);
     }
     public function getUnpaidPartnerMealDays()
     {
-        return $this->partnerAccommodation->ward_day;
-        // $paid = AccommodationPayment::where('accommodation_id','=',$this->partnerAccommodation?->id)->sum('meal_day');
-        // return max(0, $this->partnerAccommodation->meal_day - $paid);
+        $partnerAccommodation = $this->partnerAccommodation;
+
+        if (!$partnerAccommodation) {
+            return 0; // yoki null, yoki boshqa default qiymat
+        }
+        $paid = AccommodationPayment::where('accommodation_id','=',$partnerAccommodation?->id)->sum('meal_day');
+        return max(0, $partnerAccommodation->meal_day - $paid);
     }
     
     public function getTotalReturned()
