@@ -77,8 +77,52 @@ class PaymentReceiptController extends Controller
     public function viewPaymentLog($record)
     {
         $payment = Payment::findOrFail($record);
+        $labDetails = $payment->labTestPayments
+            ->flatMap->labTestPaymentDetails
+            ->map(function ($detail) {
+                return [
+                    'name' => $detail->labTest->name ?? '-',
+                    'price' => $detail->price,
+                    'sessions' => $detail->sessions,
+                    'total' => $detail->price * $detail->sessions,
+                ];
+            })->values()->all();
+        $procedureDetails = $payment->procedurePayments
+            ->flatMap->procedurePaymentDetails
+            ->map(function ($detail) {
+                return [
+                    'name' => $detail->procedure->name ?? '-',
+                    'price' => $detail->price,
+                    'sessions' => $detail->sessions,
+                    'total' => $detail->price * $detail->sessions,
+                ];
+            })->values()->all();
+        $accommodationDetails = [
+            'main' => [],
+            'partner' => [],
+        ];
+
+        foreach ($payment->accommodationPayments as $acc) {
+            $data = [
+                'tariff_price' => $acc->tariff_price,
+                'ward_day' => $acc->ward_day,
+                'meal_price' => $acc->meal_price,
+                'meal_day' => $acc->meal_day,
+                'total' => ($acc->tariff_price * $acc->ward_day) + ($acc->meal_price * $acc->meal_day),
+            ];
+
+            if (!empty($acc->medical_history_id)) {
+                $accommodationDetails['main'][] = $data;
+            } else {
+                $accommodationDetails['partner'][] = $data;
+            }
+        }
+        
         return view('receipts.view-payment-log-resource', [
-            'payment'=>$payment
+            'payment'=>$payment,
+            'labDetails' => $labDetails,
+            'procedureDetails' => $procedureDetails,
+            'accommodationDetails' => $accommodationDetails,
         ]);
     }
 }

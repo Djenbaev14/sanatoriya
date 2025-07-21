@@ -55,6 +55,17 @@
             border: 1px solid #000;
             text-align: center;
             padding: 5px;
+            vertical-align: middle;
+            word-break: break-word;
+        }
+        th:nth-child(4), td:nth-child(2) {
+            min-width: 70px; /* "Сумма" ustuniga minimal kenglik */
+        }
+        th:nth-child(4), td:nth-child(3) {
+            min-width: 70px; /* "Сумма" ustuniga minimal kenglik */
+        }
+        th:nth-child(4), td:nth-child(4) {
+            min-width: 70px; /* "Сумма" ustuniga minimal kenglik */
         }
 
         .signature {
@@ -114,38 +125,75 @@
         </section>
 
         <section>
-            <h4>3. Назначенные процедуры</h4>
+            <h4>3. Общая таблица по оказанным услугам</h4>
             <table>
                 <thead>
                     <tr>
-                        <th>№</th>
-                        <th>Название процедуры</th>
-                        <th>Кол-во раз</th>
+                        {{-- <th>№</th> --}}
+                        <th>Название</th>
                         <th>Стоимость (за 1)</th>
+                        <th>Кол-во раз</th>
                         <th>Сумма</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($payment->procedurePayments as $procedurePayment)
-                        @foreach ($procedurePayment->procedurePaymentDetails as $key=> $detail)
+                        @foreach ($procedureDetails as $detail)
                             <tr>
-                                <td>{{++$key}}</td>
-                                <td>{{$detail->procedure->name}}</td>
-                                <td>{{$detail->sessions}}</td>
-                                <td>{{number_format($detail->price,0,',',' ')}}</td>
-                                <td>{{number_format($detail->price * $detail->sessions,0,',',' ')}} сум</td>
+                                <td class="border p-2">{{ $detail['name'] ?? '-' }}</td>
+                                <td class="border p-2">{{ number_format($detail['price'], 0, '.', ' ') }}</td>
+                                <td class="border p-2">{{ $detail['sessions'] }}</td>
+                                <td class="border p-2">{{ number_format($detail['price'] * $detail['sessions'], 0, '.', ' ') }}</td>
                             </tr>
                         @endforeach
-                        @empty
-                        <tr>
-                            <td colspan="5">нет процедур</td>
-                        </tr>
-                    @endforelse
+                        @foreach ($labDetails as $detail)
+                            <tr>
+                                <td class="border p-2">{{ $detail['name'] ?? '-' }}</td>
+                                <td class="border p-2">{{ number_format($detail['price'], 0, '.', ' ') }}</td>
+                                <td class="border p-2">{{ $detail['sessions'] }}</td>
+                                <td class="border p-2">{{ number_format($detail['price'] * $detail['sessions'], 0, '.', ' ') }}</td>
+                            </tr>
+                        @endforeach
+                        @foreach ($accommodationDetails['main'] as $acc)
+                            @if ($acc['meal_day'] > 0)
+                                <tr>
+                                <td class="border p-2">Питание</td>
+                                <td class="border p-2">{{ number_format($acc['meal_price'],0, '.', ' ') }}</td>
+                                <td class="border p-2">{{ $acc['meal_day'] }}</td>
+                                <td class="border p-2">{{ number_format($acc['meal_price']*$acc['meal_day'], 0, '.', ' ') }}</td>
+                            </tr>
+                            @endif
+                            @if ($acc['ward_day'] > 0)
+                                <tr>
+                                    <td class="border p-2">Койка</td>
+                                    <td class="border p-2">{{ number_format($acc['tariff_price'],0, '.', ' ') }}</td>
+                                    <td class="border p-2">{{ $acc['ward_day'] }}</td>
+                                    <td class="border p-2">{{ number_format($acc['tariff_price'] *$acc['ward_day'], 0, '.', ' ') }}</td>
+                                </tr>
+                            @endif
+                        @endforeach
+                        @foreach ($accommodationDetails['partner'] as $acc)
+                            @if ($acc['meal_day'] > 0)
+                                <tr>
+                                <td class="border p-2">Питание (Уход)</td>
+                                <td class="border p-2">{{ number_format($acc['meal_price'],0, '.', ' ') }}</td>
+                                <td class="border p-2">{{ $acc['meal_day'] }}</td>
+                                <td class="border p-2">{{ number_format($acc['meal_price']*$acc['meal_day'], 0, '.', ' ') }}</td>
+                            </tr>
+                            @endif
+                            @if ($acc['ward_day'] > 0)
+                                <tr>
+                                    <td class="border p-2">Койка (Уход)</td>
+                                    <td class="border p-2">{{ number_format($acc['tariff_price'],0, '.', ' ') }}</td>
+                                    <td class="border p-2">{{ $acc['ward_day'] }}</td>
+                                    <td class="border p-2">{{ number_format($acc['tariff_price'] *$acc['ward_day'], 0, '.', ' ') }}</td>
+                                </tr>
+                            @endif
+                        @endforeach
                 </tbody>
             </table>
         </section>
         
-        <section>
+        {{-- <section>
             <h4>4. Назначенные анализы</h4>
             <table>
                 <thead>
@@ -175,9 +223,9 @@
                     @endforelse
                 </tbody>
             </table>
-        </section>
+        </section> --}}
 
-        <section>
+        {{-- <section>
             <h4>5. Проживание и питание</h4>
             <div class="row">
                 <span>Тип палаты: {{$payment->accommodationPayments->sum('ward_day')}} день * {{number_format($payment->medicalHistory->accommodation->tariff_price,0,',',' ')}}</span>
@@ -187,10 +235,10 @@
                 <span>Питание: {{$payment->accommodationPayments->sum('meal_day')}} день * {{number_format($payment->medicalHistory->accommodation->meal_price,0,',',' ')}}</span>
                 <span>Сумма: {{ number_format($payment->accommodationPayments->sum('meal_day')*$payment->medicalHistory->accommodation->meal_price,0,',',' ')}}</span>
             </div>
-        </section>
+        </section> --}}
 
         <section>
-            <h4>6. Финансовая информация</h4>
+            <h4>4. Финансовая информация</h4>
             <div class="row">
                 <span>Общая сумма оплаты: {{number_format($payment->medicalHistory->getTotalCost(),0,',',' ')}}</span>
             </div>
@@ -200,7 +248,7 @@
         </section>
 
         <section>
-            <h4>7. Номер койки и место</h4>
+            <h4>5. Номер койки и место</h4>
             <div class="row">
                 <span>Палата №: {{$payment->medicalHistory->accommodation->ward->name}}</span>
                 {{-- <span>Койка №: {{$payment->medicalHistory->accommodation->bed->number}}</span> --}}
