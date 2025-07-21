@@ -33,6 +33,8 @@ class PaymentStats extends BaseWidget
         $accommodationAmounts = $this->getAccommodationPayments();
         $koykaAmount = $accommodationAmounts['koyka'];
         $pitanieAmount = $accommodationAmounts['pitanie'];
+        $koykaAmountUxod = $accommodationAmounts['koykaUxod'];
+        $pitanieAmountUxod = $accommodationAmounts['pitanieUxod'];
         $totalAccommodation = $koykaAmount + $pitanieAmount;
         
         // Total payments
@@ -57,6 +59,14 @@ class PaymentStats extends BaseWidget
             Stat::make('Питание', $this->formatCurrency($pitanieAmount))
                 ->descriptionIcon('heroicon-m-cake')
                 ->color('gray'),
+                
+            Stat::make('Койка(Уход)', $this->formatCurrency($koykaAmountUxod))
+                ->descriptionIcon('heroicon-m-home')
+                ->color('primary'),
+
+            Stat::make('Питание(Уход)', $this->formatCurrency($pitanieAmountUxod))
+                ->descriptionIcon('heroicon-m-cake')
+                ->color('gray'),
         ];
     }
 
@@ -79,7 +89,8 @@ class PaymentStats extends BaseWidget
 
     private function getAccommodationPayments(): array
     {
-        $query = AccommodationPayment::query();
+        $query = AccommodationPayment::query()->whereNotNull('medical_history_id');
+        $query1 = AccommodationPayment::query()->whereNull('medical_history_id');
         
         // Koyka uchun (tariff_price * ward_day)
         $koykaAmount = $query->selectRaw('SUM(tariff_price * COALESCE(ward_day, 0)) as total')
@@ -88,10 +99,20 @@ class PaymentStats extends BaseWidget
         // Pitanie uchun (meal_price * meal_day)
         $pitanieAmount = $query->selectRaw('SUM(meal_price * COALESCE(meal_day, 0)) as total')
             ->value('total') ?? 0;
+            
+            // Koyka uchun (tariff_price * ward_day)
+        $koykaUxodAmount = $query1->selectRaw('SUM(tariff_price * COALESCE(ward_day, 0)) as total')
+            ->value('total') ?? 0;
+        
+        // Pitanie uchun (meal_price * meal_day)
+        $pitanieUxodAmount = $query1->selectRaw('SUM(meal_price * COALESCE(meal_day, 0)) as total')
+            ->value('total') ?? 0;
         
         return [
             'koyka' => $koykaAmount,
             'pitanie' => $pitanieAmount,
+            'koykaUxod' => $koykaUxodAmount,
+            'pitanieUxod' => $pitanieUxodAmount,
         ];
     }
 
