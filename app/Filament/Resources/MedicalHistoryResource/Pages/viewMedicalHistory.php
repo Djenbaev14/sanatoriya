@@ -298,111 +298,6 @@ class ViewMedicalHistory extends ViewRecord
                                                     ])
                                     ]),
                             ]),
-                            
-                        // Tibbiy ko'rik tab
-                        // Tabs\Tab::make('Отделение Осмотр')
-                        //     ->icon('heroicon-o-clipboard-document-check')
-                        //     ->schema([
-                        //         Section::make('Отделение Осмотр')
-                        //         // auth user medicalInspection dagi bekitilgan assigned_doctor_id teng bolsa kiritsin
-                        //             ->visible(fn ($record) => is_null($record->departmentInspection) && auth()->user()->can(abilities: 'создать отделение осмотр') && ($record->medicalInspection?->assigned_doctor_id === auth()->id()))
-                        //             ->schema([
-                        //                 \Filament\Infolists\Components\Actions::make([
-                                            
-                        //                     Action::make('createDepartmentInspection')
-                        //                     ->label('Создать Отделение Осмотр')
-                        //                     ->icon('heroicon-o-plus')
-                        //                     ->button()
-                        //                     ->color('primary')
-                        //                     ->url(fn ($record) => "/admin/department-inspections/create?patient_id={$record->patient->id}&medical_history_id={$record->id}" )
-                        //                 ])
-                        //             ]),
-                        //         Section::make('')
-                        //             ->label('Отделение Осмотр')
-                        //             ->visible(fn ($record) => $record->departmentInspection !== null) // 👈 Bu muhim
-                        //             ->schema([
-                        //                         Grid::make(2)
-                        //                             ->schema([
-                        //                                 TextEntry::make('departmentInspection.id')
-                        //                                     ->label('Скачать осмотр')
-                        //                                     ->visible(fn ($record) => $record->departmentInspection !== null)
-                        //                                     ->url(fn ($state) => route('download.department.inspection', $state))
-                        //                                     ->openUrlInNewTab()
-                        //                                     ->formatStateUsing(fn($state) => 'Отделение осмотр №' . $state)
-                        //                                     ->icon('heroicon-o-arrow-down-tray')
-                        //                                     ->color(Color::Gray),
-                                                            
-                        //                                 \Filament\Infolists\Components\Actions::make([
-                        //                                         Action::make('editDepartmentInspection')
-                        //                                         ->label('Редактировать')
-                        //                                         ->visible(fn ($record) => $record->departmentInspection !== null && auth()->user()->can(abilities: 'создать отделение осмотр') && ($record->medicalInspection?->assigned_doctor_id === auth()->id()))
-                        //                                         ->icon('heroicon-o-pencil')
-                        //                                         ->button()
-                        //                                         ->color('warning')
-                        //                                         ->url(fn ($record) => "/admin/department-inspections/{$record->departmentInspection->id}/edit?patient_id={$record->patient->id}&medical_history_id={$record->id}" )
-                        //                                 ])
-                        //                             ]),
-                                                    
-                        //                         TextEntry::make('departmentInspection.admission_diagnosis')
-                        //                             ->label('Диагноз')
-                        //                             ->placeholder('Не добавлено')
-                        //                             ->columnSpanFull(),
-                                                    
-                        //                         TextEntry::make('departmentInspection.complaints')
-                        //                             ->label('Жалобы')
-                        //                             ->placeholder('Нет')
-                        //                             ->columnSpanFull(),
-                                                    
-                        //                         TextEntry::make('departmentInspection.medical_history')
-                        //                             ->label('ANAMNEZIS MORBI')
-                        //                             ->placeholder('Не добавлено')
-                        //                             ->columnSpanFull(),
-                                                    
-                        //                         TextEntry::make('departmentInspection.history_life')
-                        //                             ->label('ANAMNEZIS  VITAE')
-                        //                             ->placeholder('Не добавлено')
-                        //                             ->columnSpanFull(),
-                                                    
-                        //                         TextEntry::make('departmentInspection.epidemiological_history')
-                        //                             ->label('Эпидемиологический анамнез')
-                        //                             ->placeholder('Не добавлено')
-                        //                             ->columnSpanFull(),
-                                                    
-                        //                         TextEntry::make('departmentInspection.local_state')
-                        //                             ->label('STATUS LOCALIS')
-                        //                             ->placeholder('Не добавлено')
-                        //                             ->columnSpanFull(),
-                                                    
-                        //                         TextEntry::make('departmentInspection.objectively')
-                        //                             ->label('STATUS PREZENS OBJECTIVUS')
-                        //                             ->placeholder('Не добавлено')
-                        //                             ->columnSpanFull(),
-                                                    
-                        //                         TextEntry::make('departmentInspection.treatment')
-                        //                             ->label('Лечение')
-                        //                             ->placeholder('Не добавлено')
-                        //                             ->columnSpanFull(),
-                                                    
-                        //                         TextEntry::make('departmentInspection.recommended')
-                        //                             ->label('Рекомендовано')
-                        //                             ->placeholder('Не добавлено')
-                        //                             ->columnSpanFull(),
-                                                    
-                                                    
-                        //                         Grid::make(2)
-                        //                             ->schema([
-                        //                                 TextEntry::make('departmentInspection.created_at')
-                        //                                     ->label('Дата создания')
-                        //                                     ->dateTime('d.m.Y H:i'),
-                                                            
-                        //                                 TextEntry::make('departmentInspection.updated_at')
-                        //                                     ->label('Дата изменения')
-                        //                                     ->dateTime('d.m.Y H:i'),
-                        //                             ])
-                        //             ]),
-                        //     ]),
-                            
-                        // Laboratoriya testlari tab
                         Tabs\Tab::make('Анализы')
                             ->icon('heroicon-o-beaker')
                             ->schema([
@@ -443,12 +338,12 @@ class ViewMedicalHistory extends ViewRecord
                                                 RepeatableEntry::make('labTestHistory.labTestDetails')
                                                         ->label('')
                                                         ->schema([
-                                                            TextEntry::make('lab_test.name')->label('Название анализа'),
-                                                            TextEntry::make('sessions')->label('Сеансы'),
-                                                            TextEntry::make('price')->label('Цена')->formatStateUsing(fn($state) => number_format($state, 0) . ' сум'),
-                                                            TextEntry::make('result')->label('Результат')->placeholder('Yo‘q'),
+                                                            TextEntry::make('lab_test.name')->label(''),
+                                                            // TextEntry::make('sessions')->label('Сеансы'),
+                                                            TextEntry::make('price')->label('')->formatStateUsing(fn($state) => number_format($state, 0) . ' сум'),
+                                                            // TextEntry::make('result')->label('Результат')->placeholder('Yo‘q'),
                                                         ])
-                                                        ->columns(5)
+                                                        ->columns(3)
                                                         ->default([]),
                                                                                                 
                                                 Grid::make(1)
@@ -506,7 +401,7 @@ class ViewMedicalHistory extends ViewRecord
                                                             TextEntry::make('sessions')->label('Сеансы'),
                                                             TextEntry::make('price')->label('Цена')->formatStateUsing(fn($state) => number_format($state, 0) . ' сум'),
                                                         ])
-                                                        ->columns(5)
+                                                        ->columns(4)
                                                         ->default([]),
                                                         
                                                                                                 
@@ -521,6 +416,59 @@ class ViewMedicalHistory extends ViewRecord
                                                     ])
                                     ]),
                             ]),
+                            Tabs\Tab::make('Платежи')
+    ->icon('heroicon-o-banknotes')
+    ->schema([
+        Section::make('Список оплат')
+            ->schema([
+                RepeatableEntry::make('payments')
+                    ->label('')
+                    ->schema([
+                        TextEntry::make('amount')->label('Сумма')
+                            ->getStateUsing(fn($record) => number_format($record->getTotalPaidAmount(),0,',',' ').' сум'),
+                        TextEntry::make('paymentType.name')->label('Тип оплаты'),
+                        TextEntry::make('created_at')->label('Дата'),
+                        \Filament\Infolists\Components\Actions::make([
+                            Action::make('view')
+                                ->label('просмотр')
+                                ->url(fn ($record) => route('filament.admin.resources.kassa-balances.view', ['record' => $record->id]))
+                                ->color('primary')
+                                ->openUrlInNewTab(),
+                            Action::make('receipt')
+                                ->label('чек')
+                                ->url(fn ($record) => route('payment-log.view', ['record' => $record->id]))
+                                ->color('primary')
+                                ->openUrlInNewTab(),
+                        ]),
+                    ])
+                    ->columns(4),
+            ]),
+
+        Section::make('Финансовая информация')
+            ->schema([
+                Grid::make(3)
+                    ->schema([
+                        TextEntry::make('total_cost')
+                            ->label('Общая сумма оплаты')
+                            ->default(fn ($record) => number_format($record->getTotalCost(), 0, '.', ' ') . ' сум')
+                            ->badge()
+                            ->color('gray'),
+
+                        TextEntry::make('paid_amount')
+                            ->label('Оплачено')
+                            ->default(fn ($record) => number_format($record->getTotalPaidAmount(), 0, '.', ' ') . ' сум')
+                            ->badge()
+                            ->color('green'),
+
+                        TextEntry::make('debt_amount')
+                            ->label('Долг сумма')
+                            ->default(fn ($record) => number_format(max(0, $record->getTotalCost() - $record->getTotalPaidAmount()), 0, '.', ' ') . ' сум')
+                            ->badge()
+                            ->color('red'),
+                    ])
+            ])
+    ])
+
                             
                     ])->columnspan(12)
                     ->activeTab(1)

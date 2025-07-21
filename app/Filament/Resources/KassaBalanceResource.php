@@ -13,6 +13,7 @@ use Filament\Forms\Components\Grid;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
@@ -111,28 +112,33 @@ class KassaBalanceResource extends Resource
                 ],layout: FiltersLayout::AboveContent)
             ->persistFiltersInSession()    // 👈 Foydalanuvchi filtrlasa, u saqlanadi
             ->defaultPaginationPageOption(50)
+            ->actions([
+                Action::make('check')
+                    ->url(fn ($record) => route('payment-log.view', ['record' => $record->id]))
+                    ->openUrlInNewTab()
+            ])
             
-            ->bulkActions([
-                BulkAction::make('mark_as_submitted')
-            ->label('Отметить как сданные в банк')
-            ->icon('heroicon-m-banknotes')
-            ->color('success')
-            ->action(function ($records) {
-                foreach ($records as $record) {
-                        $record->update([
-                            'is_submitted_to_bank' => true,
-                        ]);
-                }
-            })
-            // ->modalHeading('Подтверждение сдачи в банк')
-            ->modalHeading(function ($records) {
-                $sum = $records->sum('amount');
-                return number_format($sum, 0, '.', ' ') . ' сум будут переданы в банк';
-            })
-            ->requiresConfirmation()
-            ->deselectRecordsAfterCompletion()
-            ->modalSubmitActionLabel('Сдать в банк'),
-                    ])
+            // ->bulkActions([
+            //     BulkAction::make('mark_as_submitted')
+            // ->label('Отметить как сданные в банк')
+            // ->icon('heroicon-m-banknotes')
+            // ->color('success')
+            // ->action(function ($records) {
+            //     foreach ($records as $record) {
+            //             $record->update([
+            //                 'is_submitted_to_bank' => true,
+            //             ]);
+            //     }
+            // })
+            // // ->modalHeading('Подтверждение сдачи в банк')
+            // ->modalHeading(function ($records) {
+            //     $sum = $records->sum('amount');
+            //     return number_format($sum, 0, '.', ' ') . ' сум будут переданы в банк';
+            // })
+            // ->requiresConfirmation()
+            // ->deselectRecordsAfterCompletion()
+            // ->modalSubmitActionLabel('Сдать в банк'),
+            //         ])
             ->defaultSort('created_at', 'desc');
         }
     
