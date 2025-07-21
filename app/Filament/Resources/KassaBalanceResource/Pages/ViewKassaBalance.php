@@ -15,8 +15,6 @@ use Filament\Forms\Components\Section;
 class ViewKassaBalance extends ViewRecord
 {
     protected static string $resource = KassaBalanceResource::class;
-    protected static ?string $navigationLabel = 'Просмотр истории анализов';
-    protected static ?string $title = 'История анализов';
     protected static string $view = 'filament.pages.view-payment-resource';
 
     public $labDetails;
@@ -86,6 +84,11 @@ class ViewKassaBalance extends ViewRecord
             'procedureDetails' => $this->procedureDetails,
             'accommodationDetails' => $this->accommodationDetails,
         ];
+    }
+    
+    public function getTitle(): string
+    {
+        return 'Платежи: ' . '№'.$this->record->medicalHistory->number . ' - '. $this->record->patient->full_name;
     }
 
 }
