@@ -73,6 +73,15 @@ class KassaBalanceResource extends Resource
                     ->date('d.m.Y h:i'),
             ])
             ->headerActions([
+                Action::make('total_amount_summary')
+                    ->label(function ($livewire) {
+                        $filtered = $livewire->getFilteredTableQuery()->get();
+                        $total = $filtered->sum(fn ($item) => $item->getTotalPaidAmount());
+
+                        return 'Общая выплаченная сумма: ' . number_format($total, 0, '.', ' ') . ' сум';
+                    })
+                    ->disabled()
+                    ->color('gray'),
                 ExportAction::make('export_excel')
                     ->label('Экспортировать в Excel')
                     ->exports([
