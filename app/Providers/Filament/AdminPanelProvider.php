@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsPlugin;
 use App\Filament\Auth\Login;
+use App\Filament\Pages\Dashboard;
 use App\Filament\Widgets\SanatoriumStats;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -62,12 +63,12 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 SanatoriumStats::class,
             ])
+            ->pages([
+                Dashboard::class,
+            ])
             // ->plugin(FilamentSpatieRolesPermissionsPlugin::make())
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
-            ->pages([
-                Pages\Dashboard::class,
-            ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->middleware([
                 EncryptCookies::class,
