@@ -91,10 +91,10 @@ class FinancialReportResource extends Resource
                                 
                             Column::make('patient.full_name')
                                 ->heading('Ф.И.Ш'),
-                            Column::make('patient.district.name') // tartib raqami
-                                ->heading('Яшаш манзили'),
-                            Column::make('patient.birth_date') // tartib raqami
-                                ->heading('Тугилган йили'),
+                            // Column::make('patient.district.name') // tartib raqami
+                            //     ->heading('Яшаш манзили'),
+                            // Column::make('patient.birth_date') // tartib raqami
+                            //     ->heading('Тугилган йили'),
                             Column::make('accommodation.admission_date') // tartib raqami
                                 ->formatStateUsing(function ($state) {
                                     return $state ? \Carbon\Carbon::parse($state)->format('d-m-Y') : null;
@@ -105,28 +105,27 @@ class FinancialReportResource extends Resource
                                     return $state ? \Carbon\Carbon::parse($state)->format('d-m-Y') : null;
                                 })
                                 ->heading('Чикган вакти'),
-                            Column::make('accommodation.ward_day') // tartib raqami
-                                ->heading('Бажарилган койка уринлар сони'),
-                            Column::make('accommodation.admission_date') // tartib raqami
-                                ->formatStateUsing(function ($state) {
-                                    return $state ? \Carbon\Carbon::parse($state)->format('d-m-Y') : null;
-                                })
-                                ->heading('Шартнома санаси'),
+                            // Column::make('accommodation.ward_day') // tartib raqami
+                            //     ->heading('Бажарилган койка уринлар сони'),
+                            // Column::make('accommodation.admission_date') // tartib raqami
+                            //     ->formatStateUsing(function ($state) {
+                            //         return $state ? \Carbon\Carbon::parse($state)->format('d-m-Y') : null;
+                            //     })
+                            //     ->heading('Шартнома санаси'),
                             Column::make('total_cost') // tartib raqami
                                 ->heading('Шартнома суммаси'),
                             Column::make('total_ward_payment') // tartib raqami
                                 ->heading('Койка учун туланган сумма'),
                             Column::make('total_meal_payment') // tartib raqami
-                                ->heading('Овкатланиш харажати'),
+                                ->heading('Питание'),
                             Column::make('total_medical_services_payment') // tartib raqami
-                                ->heading('даволаниш учун'),
-                            Column::make('total_meal_payment_partner') // tartib raqami
+                                ->heading('Мед услуг'),
+                            Column::make('total_ward_payment_partner') // tartib raqami
                                 ->heading('Койка (Уход)'),
-                            Column::make('total_meal_payment') // tartib raqami
+                            Column::make('total_meal_payment_partner') // tartib raqami
                                 ->heading('Питание (Уход)'),
 
-
-                        ]),
+                        ])
                     ])
             ])
             ->filters([
