@@ -26,7 +26,10 @@ class FinancialReportResource extends Resource
 {
     protected static ?string $model = MedicalHistory::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    public static function getNavigationGroup(): string
+    {
+        return 'Касса';
+    }
 
     public static function form(Form $form): Form
     {
