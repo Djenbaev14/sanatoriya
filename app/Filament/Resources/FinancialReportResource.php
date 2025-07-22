@@ -113,17 +113,35 @@ class FinancialReportResource extends Resource
                             //     })
                             //     ->heading('Шартнома санаси'),
                             Column::make('total_cost') // tartib raqami
-                                ->heading('Шартнома суммаси'),
+                                ->heading('Шартнома суммаси')
+                                ->formatStateUsing(function ($state) {
+                                    return number_format($state,0,'.',' ');
+                                }),
                             Column::make('total_ward_payment') // tartib raqami
-                                ->heading('Койка учун туланган сумма'),
+                                ->heading('Койка учун туланган сумма')
+                                ->formatStateUsing(function ($state) {
+                                    return number_format($state,0,'.',' ');
+                                }),
                             Column::make('total_meal_payment') // tartib raqami
-                                ->heading('Питание'),
+                                ->heading('Питание')
+                                ->formatStateUsing(function ($state) {
+                                    return number_format($state,0,'.',' ');
+                                }),
                             Column::make('total_medical_services_payment') // tartib raqami
-                                ->heading('Мед услуг'),
+                                ->heading('Мед услуг')
+                                ->formatStateUsing(function ($state) {
+                                    return number_format($state,0,'.',' ');
+                                }),
                             Column::make('total_ward_payment_partner') // tartib raqami
-                                ->heading('Койка (Уход)'),
+                                ->heading('Койка (Уход)')
+                                ->formatStateUsing(function ($state) {
+                                    return number_format($state,0,'.',' ');
+                                }),
                             Column::make('total_meal_payment_partner') // tartib raqami
-                                ->heading('Питание (Уход)'),
+                                ->heading('Питание (Уход)')
+                                ->formatStateUsing(function ($state) {
+                                    return number_format($state,0,'.',' ');
+                                }),
 
                         ])
                     ])
