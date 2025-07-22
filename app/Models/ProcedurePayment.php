@@ -10,8 +10,12 @@ class ProcedurePayment extends Model
     use HasFactory;
     protected $guarded=['id'];
     public function procedurePaymentDetails()
-{
-    return $this->hasMany(\App\Models\ProcedurePaymentDetail::class);
-}
+    {
+        return $this->hasMany(\App\Models\ProcedurePaymentDetail::class);
+    }
+    public function payment()
+    {
+        return $this->belongsTo(\App\Models\Payment::class);
+    }
 
 }

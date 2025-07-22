@@ -80,6 +80,11 @@ class MedicalHistory extends Model
         return $procedureCost + $accommodationCost + $labTestCost;
     }
     
+    public function getTotalCostAttribute()
+    {
+        return $this->getTotalCost();
+    }
+    
     public function getTotalPaidAmount(): float
     {
         return $this->payments->sum(fn ($payment) => $payment->getTotalPaidAmount());
@@ -136,21 +141,10 @@ class MedicalHistory extends Model
         $paid = AccommodationPayment::where('accommodation_id','=',$partnerAccommodation?->id)->sum('meal_day');
         return max(0, $partnerAccommodation->meal_day - $paid);
     }
-    
-    public function getTotalReturned()
-    {
-        return abs($this->payments()->where('amount', '<', 0)->sum('amount'));
-    }
-    
-    public function getTotalPaidAndReturned()
-    {
-        return $this->getTotalPaidAmount() - $this->getTotalReturned();
-    }
     public function getRemainingDebt(): float
     {
         return max(0, $this->getTotalCost() - $this->getTotalPaidAmount());
     }
-    
     public function scopeWithDebt($query)
     {
         return $query->whereRaw('
@@ -176,6 +170,56 @@ class MedicalHistory extends Model
                 WHERE payments.medical_history_id = medical_histories.id
             ), 0)
         ');
+    }
+
+    public function getTotalWardPaymentAttribute(): int
+    {
+        return $this->accommodationPayments()
+            ->selectRaw('SUM(ward_day * tariff_price) as total')
+            ->value('total') ?? 0;
+    }
+    
+    public function getTotalMealPaymentAttribute(): int
+    {
+        return $this->accommodationPayments()
+            ->selectRaw('SUM(meal_day * meal_price) as total')
+            ->value('total') ?? 0;
+    }
+    public function getTotalWardPaymentPartnerAttribute()
+    {
+        if (!$this->accommodation || !$this->accommodation->partner) {
+            return 0;
+        }
+
+        return AccommodationPayment::where('accommodation_id', $this->accommodation->partner->id)
+            ->selectRaw('SUM(ward_day * tariff_price) as total')
+            ->value('total') ?? 0;
+    }
+    public function getTotalMealPaymentPartnerAttribute()
+    {
+        if (!$this->accommodation || !$this->accommodation->partner) {
+            return 0;
+        }
+
+        return AccommodationPayment::where('accommodation_id', $this->accommodation->partner->id)
+            ->selectRaw('SUM(meal_day * meal_price) as total')
+            ->value('total') ?? 0;
+    }
+    public function getTotalProcedurePaymentAttribute(): float
+    {
+        return \App\Models\ProcedurePaymentDetail::whereHas('procedurePayment.payment', function ($query) {
+            $query->where('medical_history_id', $this->id);
+        })->sum(\DB::raw('price * sessions')) ?? 0;
+    }
+    public function getTotalLabTestPaymentAttribute(): float
+    {
+        return \App\Models\LabTestPaymentDetail::whereHas('labTestPayment.payment', function ($query) {
+            $query->where('medical_history_id', $this->id);
+        })->sum(\DB::raw('price * sessions')) ?? 0;
+    }
+    public function getTotalMedicalServicesPaymentAttribute(): float
+    {
+        return $this->total_lab_test_payment + $this->total_procedure_payment;
     }
 
 }

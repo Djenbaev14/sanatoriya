@@ -11,8 +11,12 @@ class LabTestPayment extends Model
 
     protected $guarded=['id'];
     public function labTestPaymentDetails()
-{
-    return $this->hasMany(\App\Models\LabTestPaymentDetail::class);
-}
+    {
+        return $this->hasMany(\App\Models\LabTestPaymentDetail::class);
+    }
+    public function payment()
+    {
+        return $this->belongsTo(\App\Models\Payment::class);
+    }
 
 }

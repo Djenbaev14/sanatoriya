@@ -103,6 +103,31 @@ class Payment extends Model
     {
         return $this->hasMany(\App\Models\AccommodationPayment::class);
     }
+    public function getAccommodationPaymentStatsAttribute()
+    {
+        $accommodationPayments = $this->accommodationPayments; // Payment modeldagi relation
+
+        $result = [
+            'main' => [
+                'ward' => 0,
+                'meal' => 0,
+            ],
+            'partner' => [
+                'ward' => 0,
+                'meal' => 0,
+            ],
+        ];
+
+        foreach ($accommodationPayments as $payment) {
+            $isMain = $payment->medical_history_id !== null;
+            $personType = $isMain ? 'main' : 'partner';
+
+            $result[$personType]['ward'] += $payment->tariff_price * $payment->ward_day;
+            $result[$personType]['meal'] += $payment->meal_price * $payment->meal_day;
+        }
+
+        return $result;
+    }
     public function getTotalPaidAmount(): float
     {
         // Lab test summasi
@@ -135,6 +160,7 @@ class Payment extends Model
 
         return $labTestTotal + $procedureTotal + $accommodationTotal;
     }
+    
 
 
 }
