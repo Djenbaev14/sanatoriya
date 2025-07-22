@@ -47,7 +47,7 @@ class PaymentStats extends BaseWidget
         $pitanieAmount = $accommodationAmounts['pitanie'];
         $koykaAmountUxod = $accommodationAmounts['koykaUxod'];
         $pitanieAmountUxod = $accommodationAmounts['pitanieUxod'];
-        $totalAccommodation = $koykaAmount + $pitanieAmount;
+        $totalAccommodation = $koykaAmount + $pitanieAmount +$pitanieAmountUxod +$pitanieAmountUxod;
         
         // Total payments
         $totalAmount = $labTestAmount + $procedureAmount + $totalAccommodation;
