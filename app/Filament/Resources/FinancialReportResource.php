@@ -82,6 +82,9 @@ class FinancialReportResource extends Resource
                     ->label('Экспортировать в Excel')
                     ->exports([
                          ExcelExport::make()
+                        ->modifyQueryUsing(function ($query, $livewire) {
+                            return $livewire->getFilteredTableQuery(); // Filtrlangan queryni qaytaradi
+                        })
                          ->withColumns([
                             Column::make('№') // tartib raqami
                                 ->formatStateUsing(fn ($record, $loopIndex) => $loopIndex + 1), // 0-based bo'lsa +1 qilamiz
