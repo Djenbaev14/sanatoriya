@@ -83,7 +83,7 @@ class FinancialReportResource extends Resource
                     ->exports([
                          ExcelExport::make()
                         ->modifyQueryUsing(function ($query, $livewire) {
-                            return $livewire->getFilteredTableQuery(); // Filtrlangan queryni qaytaradi
+                            return $livewire->getFilteredTableQuery()->orderBy('number','desc'); // Filtrlangan queryni qaytaradi
                         })
                          ->withColumns([
                             Column::make('№') // tartib raqami
