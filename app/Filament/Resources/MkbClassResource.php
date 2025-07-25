@@ -38,6 +38,7 @@ class MkbClassResource extends Resource
                 TextColumn::make('has_child'),
                 TextColumn::make('node_cd'),
             ])
+            ->defaultPaginationPageOption(50)
             ->filters([
                 //
             ])

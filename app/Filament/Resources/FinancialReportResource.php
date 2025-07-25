@@ -160,6 +160,11 @@ class FinancialReportResource extends Resource
                 ],layout: FiltersLayout::AboveContent);
             
     }
+    
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('остаток в кассе');
+    }
 
     public static function getRelations(): array
     {
