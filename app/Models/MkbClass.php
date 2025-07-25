@@ -16,4 +16,18 @@ class MkbClass extends Model
     {
         return $this->belongsToMany(Procedure::class, 'procedure_mkbs');
     }
+    // App\Models\MkbClass.php
+    public function getAllParentIds(): array
+    {
+        $ids = [];
+        $current = $this;
+
+        while ($current && $current->parent_id) {
+            $ids[] = $current->parent_id;
+            $current = MkbClass::find($current->parent_id);
+        }
+
+        return $ids;
+    }
+
 }

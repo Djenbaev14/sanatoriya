@@ -149,16 +149,19 @@ class AssignedProcedureResource extends Resource
                                         $mkbNodeCd = \App\Models\Mkb::find($mkbId)?->mkb_class_id;
 
                                         if ($mkbNodeCd) {
-                                            $mkbClassIds = \App\Models\MkbClass::where('node_cd', $mkbNodeCd)
-                                                ->get()
-                                                ->map(function ($item) {
-                                                    return is_null($item->parent_id) ? $item->id : $item->parent_id;
-                                                });
+                                            $mkbClass = \App\Models\MkbClass::where('node_cd', $mkbNodeCd)->first();
 
-                                            $procedures = \App\Models\Procedure::whereHas('mkbClasses', function ($query) use ($mkbClassIds) {
-                                                $query->whereIn('mkb_class_id', $mkbClassIds);
+                                            $allParentIds = [];
+                                            if ($mkbClass) {
+                                                $allParentIds = $mkbClass->getAllParentIds(); // recursive parent ids
+                                                $allParentIds[] = $mkbClass->id; // o‘zini ham qo‘shamiz
+                                            }
+
+                                            $procedures = \App\Models\Procedure::whereHas('mkbClasses', function ($query) use ($allParentIds) {
+                                                $query->whereIn('mkb_class_id', $allParentIds);
                                             })->get(['id', 'name', 'price_per_day']);
                                         }
+
                                     }
                                 }
 
