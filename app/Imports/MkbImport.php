@@ -17,6 +17,7 @@ class MkbImport implements ToModel
         return new Mkb([
             'mkb_code' => $row[0],   // Excelda ustun nomlari: mkb_code, mkb_name
             'mkb_name' => $row[1],
+            'mkb_class_id' => $row[2]
         ]);
     }
 }

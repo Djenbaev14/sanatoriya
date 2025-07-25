@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('mkbs', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('mkb_class_id')->nullable();
+            $table->foreign('mkb_class_id')->references('node_cd')->on('mkb_classes')->onDelete('cascade');
             $table->string('mkb_code')->nullable();
             $table->string('mkb_name')->nullable();
             $table->timestamps();

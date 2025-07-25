@@ -10,6 +10,8 @@ use App\Models\Inspection;
 use App\Models\MealType;
 use App\Models\MedicalBed;
 use App\Models\MedicalMeal;
+use App\Models\Mkb;
+use App\Models\MkbClass;
 use App\Models\Patient;
 use App\Models\PaymentType;
 use App\Models\Procedure;
@@ -17,6 +19,7 @@ use App\Models\Tariff;
 use App\Models\Ward;
 use Carbon\Carbon;
 use Filament\Forms;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
@@ -28,10 +31,12 @@ use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Notifications\Notification;
+use Filament\Resources\Pages\CreateRecord;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\MaxWidth;
 use Filament\Tables;
@@ -39,6 +44,7 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Log;
 
@@ -90,107 +96,244 @@ class AssignedProcedureResource extends Resource
                             ->required()
                             ->columnSpan(4),
                         Repeater::make('procedureDetails')
-                                                ->label('')
-                                                ->defaultItems(1)
-                                                ->relationship('procedureDetails')
-                                                ->schema([
-                                                    Select::make('procedure_id')
-                                                        ->label('Тип процедура')
-                                                        ->options(function (Get $get, $state, $context) {
-                                                            // Foydalanuvchi tanlagan barcha inspection_id larni to'plab olamiz
-                                                            $selectedIds = collect($get('../../procedureDetails'))
-                                                                ->pluck('procedure_id')
-                                                                ->filter()
-                                                                ->toArray();
+                            ->relationship('procedureDetails')
+                            ->label('')
+                            ->default([])
+                            ->disableItemDeletion()
+                            ->disableItemCreation()
+                            ->schema([
+                                TextInput::make('procedure_name')
+                                    ->label('Процедура номи')
+                                    ->disabled(),
+                                Hidden::make('procedure_id'),
 
-                                                            // Agar bu `Select` allaqachon tanlangan bo‘lsa, uni istisno qilamiz
-                                                            // Aks holda o‘zi ham option ro‘yxatdan yo‘qolib qoladi
-                                                            if ($state) {
-                                                                $selectedIds = array_diff($selectedIds, [$state]);
-                                                            }
+                                TextInput::make('price')
+                                    ->label('Нархи')
+                                    ->readOnly(),
 
-                                                            // Tanlanmagan inspection larni qaytaramiz
-                                                            return Procedure::query()
-                                                                ->whereNotIn('id', $selectedIds)
-                                                                ->pluck('name', 'id');
-                                                        })
-                                                        ->searchable()
-                                                        ->required()
-                                                        ->reactive()
-                                                        ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
-                                                            $patientId = $get('../../patient_id'); // yoki `request()->get('patient_id')`
-                                                                if (!$patientId || !$state) {
-                                                                    $set('price', 0);
-                                                                    return;
-                                                                }
+                                TextInput::make('sessions')
+                                    ->numeric()
+                                    ->label('Кол сеансов')
+                                    ->default(1)
+                                    ->reactive()
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        $price = $get('price') ?? 0;
+                                        $set('total_price', (float)$price * (int)$state);
+                                    }),
 
-                                                                $isForeign = Patient::find($patientId)?->is_foreign;
+                                TextInput::make('total_price')
+                                    ->label('Общая стоимость')
+                                    ->disabled(),
+                                
+                                Toggle::make('selected')
+                                    ->label('Активен')
+                                    ->inline(false)
+                                    ->columnSpan(1)
+                                    ->reactive(),
+                            ])
+                            ->columns(5)
+                            ->columnSpanFull()
+                            ->afterStateHydrated(function (Get $get, Set $set, $state) {
+                                $medicalHistoryId = $get('medical_history_id');
 
-                                                                $procedure = Procedure::find($state);
-                                                                $price = $isForeign == 1 ? $procedure->price_foreign : $procedure->price_per_day;
+                                $existingProcedureIds = collect($state)->pluck('procedure_id')->filter()->unique()->toArray();
 
-                                                                $set('price', $price ?? 0);
-                                                                $set('total_price', $price * ($get('sessions') ?? 1));
-                                                                
-                                                                static::recalculateTotalSum($get, $set);
-                                                        })
-                                                        ->columnSpan(4),
+                                $procedures = collect();
 
-                                                    TextInput::make('price')
-                                                        ->label('Цена')
-                                                        ->numeric()
-                                                        ->reactive()
-                                                        ->afterStateUpdated(function (Get $get, Set $set, $state) {
-                                                            // sessions maydonini olamiz
-                                                            $sessions = $get('sessions') ?? 1;
+                                // 1. Agar MedicalInspection bo‘lsa, shunga qarab procedure larni olamiz
+                                if ($medicalHistoryId) {
+                                    $mkbId = \App\Models\MedicalInspection::where('medical_history_id', $medicalHistoryId)
+                                        ->value('mkb_id');
 
-                                                            // total_price ni hisoblab yangilaymiz
-                                                            $set('total_price', $state * $sessions);
+                                    if ($mkbId) {
+                                        $mkbNodeCd = \App\Models\Mkb::find($mkbId)?->mkb_class_id;
 
-                                                            // umumiy summa qayta hisoblanadi
-                                                            static::recalculateTotalSum($get, $set);
-                                                        })
-                                                        ->columnSpan(3),
+                                        if ($mkbNodeCd) {
+                                            $mkbClassIds = \App\Models\MkbClass::where('node_cd', $mkbNodeCd)
+                                                ->get()
+                                                ->map(function ($item) {
+                                                    return is_null($item->parent_id) ? $item->id : $item->parent_id;
+                                                });
 
-                                                    TextInput::make('sessions')
-                                                        ->label('Кол сеансов')
-                                                        ->numeric()
-                                                        ->default(1)
-                                                        ->required()
-                                                        ->reactive()
-                                                        ->afterStateUpdated(function (Get $get, Set $set, $state) {
-                                                            $set('total_price', ($get('price') ?? 0) * ($state ?? 1));
-                                                            
-                                                            static::recalculateTotalSum($get, $set);
-                                                        })
-                                                        ->columnSpan(2),
+                                            $procedures = \App\Models\Procedure::whereHas('mkbClasses', function ($query) use ($mkbClassIds) {
+                                                $query->whereIn('mkb_class_id', $mkbClassIds);
+                                            })->get(['id', 'name', 'price_per_day']);
+                                        }
+                                    }
+                                }
 
-                                                    TextInput::make('total_price')
-                                                        ->label('Общая стоимость')
-                                                        ->disabled()
-                                                        ->numeric()
-                                                        ->columnSpan(3)
-                                                        ->afterStateUpdated(function (Get $get, Set $set) {
-                                                            static::recalculateTotalSum($get, $set);
-                                                        }),
-                                                ])
-                                                ->afterStateHydrated(function (Get $get, Set $set, $state) {
-                                                    foreach ($state as $index => $item) {
-                                                        $price = $item['price'] ?? 0;
-                                                        $sessions = $item['sessions'] ?? 1;
-                                                        $total = $price * $sessions;
-                                                        $set("procedureDetails.{$index}.total_price", $total);
-                                                    }
-                                                })
-                                                ->columns(12)->columnSpan(12),
+                                // 2. Agar MedicalInspection yo‘q bo‘lsa yoki natija topilmasa, eski saqlangan procedure_id lar bo‘yicha olish
+                                if ($procedures->isEmpty() && !empty($existingProcedureIds)) {
+                                    $procedures = \App\Models\Procedure::whereIn('id', $existingProcedureIds)
+                                        ->get(['id', 'name', 'price_per_day']);
+                                }
+
+                                // 3. Eski state'ni id bo‘yicha indexlab olamiz
+                                $oldProcedureById = collect($state)->keyBy('procedure_id');
+
+                                $updatedProcedures = $procedures->map(function ($item) use ($oldProcedureById) {
+                                    $existing = $oldProcedureById->get($item->id);
+
+                                    return [
+                                        'procedure_id' => $item->id,
+                                        'procedure_name' => $item->name,
+                                        'price' => $existing['price'] ?? $item->price_per_day,
+                                        'sessions' => $existing['sessions'] ?? 1,
+                                        'selected' => $existing ? true : false, // bu doim eski tanlanganlar uchun true bo‘ladi
+                                        'total_price' => ($existing['price'] ?? $item->price_per_day) * ($existing['sessions'] ?? 1),
+                                    ];
+                                });
+
+                                $set('procedureDetails', $updatedProcedures->toArray());
+                            })
+
+                            ->saveRelationshipsUsing(function (Repeater $component, Model $record, array $state) {
+                                // Mavjud yozuvlarni olish
+                                $existingProcedures = $record->procedureDetails()->pluck('procedure_id')->toArray();
+                                
+                                // Selected bo'lgan proceduralar
+                                $selectedProcedures = collect($state)->where('selected', true);
+                                $selectedProcedureIds = $selectedProcedures->pluck('procedure_id')->toArray();
+                                
+                                // Selected bo'lgan proceduralarni saqlash/yangilash
+                                foreach ($selectedProcedures as $procedure) {
+                                    $record->procedureDetails()->updateOrCreate(
+                                        ['procedure_id' => $procedure['procedure_id']],
+                                        [
+                                            'sessions' => $procedure['sessions'] ?? 1,
+                                            'price' => $procedure['price'],
+                                            'total_price' => $procedure['total_price'],
+                                        ]
+                                    );
+                                }
+                                
+                                // Selected bo'lmagan lekin mavjud bo'lgan yozuvlarni o'chirish
+                                $toDelete = array_diff($existingProcedures, $selectedProcedureIds);
+                                if (!empty($toDelete)) {
+                                    $record->procedureDetails()->whereIn('procedure_id', $toDelete)->delete();
+                                }
+                            }),
+
+                        Hidden::make('procedureDetails')->dehydrateStateUsing(function ($state, Get $get) {
+                                return $get('procedureDetails');
+                        }),
                         Placeholder::make('total_sum')
-                                                    ->label('Общая стоимость (всего)')
-                                                    ->content(function (Get $get) {
-                                                        $items = $get('procedureDetails') ?? [];
-                                                        $total = collect($items)->sum('total_price');
-                                                        return number_format($total, 2, '.', ' ') . ' сум';
-                                                    })
-                                                    ->columnSpanFull(), 
+                            ->label('Общая стоимость (всего)')
+                            ->content(function (Get $get) {
+                                $items = $get('procedureDetails') ?? [];
+                                $total = collect($items)->sum(function ($item) {
+                                    return ($item['selected'] ?? false) ? ($item['total_price'] ?? 0) : 0;
+                                });
+
+                                return number_format($total, 2, '.', ' ') . ' сум';
+                            })
+                            ->reactive()
+                            ->columnSpanFull(),
+
+
+
+                        // Repeater::make('procedureDetails')
+                        //                         ->label('')
+                        //                         ->defaultItems(1)
+                        //                         ->relationship('procedureDetails')
+                        //                         ->schema([
+                        //                             Select::make('procedure_id')
+                        //                                 ->label('Тип процедура')
+                        //                                 ->options(function (Get $get, $state, $context) {
+                        //                                     // Foydalanuvchi tanlagan barcha inspection_id larni to'plab olamiz
+                        //                                     $selectedIds = collect($get('../../procedureDetails'))
+                        //                                         ->pluck('procedure_id')
+                        //                                         ->filter()
+                        //                                         ->toArray();
+
+                        //                                     // Agar bu `Select` allaqachon tanlangan bo‘lsa, uni istisno qilamiz
+                        //                                     // Aks holda o‘zi ham option ro‘yxatdan yo‘qolib qoladi
+                        //                                     if ($state) {
+                        //                                         $selectedIds = array_diff($selectedIds, [$state]);
+                        //                                     }
+
+                        //                                     // Tanlanmagan inspection larni qaytaramiz
+                        //                                     return Procedure::query()
+                        //                                         ->whereNotIn('id', $selectedIds)
+                        //                                         ->pluck('name', 'id');
+                        //                                 })
+                        //                                 ->searchable()
+                        //                                 ->required()
+                        //                                 ->reactive()
+                        //                                 ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
+                        //                                     $patientId = $get('../../patient_id'); // yoki `request()->get('patient_id')`
+                        //                                         if (!$patientId || !$state) {
+                        //                                             $set('price', 0);
+                        //                                             return;
+                        //                                         }
+
+                        //                                         $isForeign = Patient::find($patientId)?->is_foreign;
+
+                        //                                         $procedure = Procedure::find($state);
+                        //                                         $price = $isForeign == 1 ? $procedure->price_foreign : $procedure->price_per_day;
+
+                        //                                         $set('price', $price ?? 0);
+                        //                                         $set('total_price', $price * ($get('sessions') ?? 1));
+                                                                
+                        //                                         static::recalculateTotalSum($get, $set);
+                        //                                 })
+                        //                                 ->columnSpan(4),
+
+                        //                             TextInput::make('price')
+                        //                                 ->label('Цена')
+                        //                                 ->numeric()
+                        //                                 ->reactive()
+                        //                                 ->afterStateUpdated(function (Get $get, Set $set, $state) {
+                        //                                     // sessions maydonini olamiz
+                        //                                     $sessions = $get('sessions') ?? 1;
+
+                        //                                     // total_price ni hisoblab yangilaymiz
+                        //                                     $set('total_price', $state * $sessions);
+
+                        //                                     // umumiy summa qayta hisoblanadi
+                        //                                     static::recalculateTotalSum($get, $set);
+                        //                                 })
+                        //                                 ->columnSpan(3),
+
+                        //                             TextInput::make('sessions')
+                        //                                 ->label('Кол сеансов')
+                        //                                 ->numeric()
+                        //                                 ->default(1)
+                        //                                 ->required()
+                        //                                 ->reactive()
+                        //                                 ->afterStateUpdated(function (Get $get, Set $set, $state) {
+                        //                                     $set('total_price', ($get('price') ?? 0) * ($state ?? 1));
+                                                            
+                        //                                     static::recalculateTotalSum($get, $set);
+                        //                                 })
+                        //                                 ->columnSpan(2),
+
+                        //                             TextInput::make('total_price')
+                        //                                 ->label('Общая стоимость')
+                        //                                 ->disabled()
+                        //                                 ->numeric()
+                        //                                 ->columnSpan(3)
+                        //                                 ->afterStateUpdated(function (Get $get, Set $set) {
+                        //                                     static::recalculateTotalSum($get, $set);
+                        //                                 }),
+                        //                         ])
+                        //                         ->afterStateHydrated(function (Get $get, Set $set, $state) {
+                        //                             foreach ($state as $index => $item) {
+                        //                                 $price = $item['price'] ?? 0;
+                        //                                 $sessions = $item['sessions'] ?? 1;
+                        //                                 $total = $price * $sessions;
+                        //                                 $set("procedureDetails.{$index}.total_price", $total);
+                        //                             }
+                        //                         })
+                        // //                         ->columns(12)->columnSpan(12),
+                        // Placeholder::make('total_sum')
+                        //                             ->label('Общая стоимость (всего)')
+                        //                             ->content(function (Get $get) {
+                        //                                 $items = $get('procedureDetails') ?? [];
+                        //                                 $total = collect($items)->sum('total_price');
+                        //                                 return number_format($total, 2, '.', ' ') . ' сум';
+                        //                             })
+                        //                             ->columnSpanFull(), 
                     ])->columnSpan(12)->columns(12),
             ]);
     }

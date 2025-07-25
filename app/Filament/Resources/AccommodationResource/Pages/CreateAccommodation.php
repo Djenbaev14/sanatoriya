@@ -44,38 +44,4 @@ class CreateAccommodation extends CreateRecord
         ]);
     }
 }
-//     protected function mutateFormDataBeforeCreate(array $data): array
-// {
-//     // Asosiy bemor accommodation
-//     $main = Accommodation::create([
-//         'patient_id' => $data['patient_id'],
-//         'created_id' => $data['created_id'],
-//         'medical_history_id' => $data['medical_history_id'],
-//         'bed_id' => $data['bed_id'],
-//         'ward_id' => $data['ward_id'],
-//         'tariff_id' => $data['tariff_id'],
-//         'meal_type_id' => $data['meal_type_id'],
-//         'admission_date' => $data['admission_date'],
-//         'discharge_date' => $data['discharge_date'],
-//         'is_accomplice' => false,
-//     ]);
-
-//     // Qarovchi bo‘lsa uni ham yaratamiz
-//     if (!empty($data['has_accomplice']) && !empty($data['accomplice_patient_id'])) {
-//         Accommodation::create([
-//             'patient_id' => $data['accomplice_patient_id'],
-//             'main_patient_id' => $data['patient_id'],
-//             'bed_id' => $data['accomplice_bed_id'],
-//             'ward_id' => $data['accomplice_ward_id'],
-//             'tariff_id' => $data['accomplice_tariff_id'],
-//             'meal_type_id' => $data['accomplice_meal_type_id'],
-//             'admission_date' => $data['accomplice_admission_date'],
-//             'discharge_date' => $data['accomplice_discharge_date'],
-//             'is_accomplice' => true,
-//         ]);
-//     }
-
-//     // Boshqa qiymatlar asl yozuvga qaytmaydi (model ochilmaydi)
-//     return $data;
-// }
 }

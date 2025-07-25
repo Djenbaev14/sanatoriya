@@ -237,8 +237,8 @@ class PaymentLogResource extends Resource
                                                     ->label('Кол сеансов')
                                                     ->columnSpan(1),
                                                 Toggle::make('selected')
-                                                    ->label('')
-                                                    ->inline(true) // yonma-yon bo‘ladi
+                                                    ->label('Активен')
+                                                    ->inline(false) // yonma-yon bo‘ladi
                                                     ->columnSpan(1)
                                                     ->reactive(),
                                                 Hidden::make('procedure_id'),
@@ -286,8 +286,8 @@ class PaymentLogResource extends Resource
                                                     ->label('Кол сеансов')
                                                     ->columnSpan(1),
                                                 Toggle::make('selected')
-                                                    ->label('')
-                                                    ->inline(true) // yonma-yon bo‘ladi
+                                                    ->label('Активен')
+                                                    ->inline(false) // yonma-yon bo‘ladi
                                                     ->columnSpan(1)
                                                     ->reactive(),
                                                 Hidden::make('lab_test_id'),
@@ -325,8 +325,8 @@ class PaymentLogResource extends Resource
                                                     ->numeric()
                                                     ->columnSpan(1),
                                                 Toggle::make('selected')
-                                                    ->label('')
-                                                    ->inline(true) // yonma-yon bo‘ladi
+                                                    ->label('Активен')
+                                                    ->inline(false) // yonma-yon bo‘ladi
                                                     ->columnSpan(1)
                                                     ->reactive(),
                                             ]),
@@ -361,8 +361,8 @@ class PaymentLogResource extends Resource
                                                     ->default(fn() => $record->getUnpaidMealDays())
                                                     ->columnSpan(1),
                                                 Toggle::make('selected')
-                                                    ->label('')
-                                                    ->inline(true) // yonma-yon bo‘ladi
+                                                    ->label('Активен')
+                                                    ->inline(false) // yonma-yon bo‘ladi
                                                     ->columnSpan(1)
                                                     ->reactive(),
                                             ])
@@ -399,8 +399,8 @@ class PaymentLogResource extends Resource
                                                     ->columnSpan(1),
 
                                                 Toggle::make('selected')
-                                                    ->label('')
-                                                    ->inline(true)
+                                                    ->label('Активен')
+                                                    ->inline(false) // yonma-yon bo‘ladi
                                                     ->columnSpan(1)
                                                     ->reactive(),
                                             ]),
@@ -438,8 +438,8 @@ class PaymentLogResource extends Resource
                                                     ->columnSpan(1),
 
                                                 Toggle::make('selected')
-                                                    ->label('')
-                                                    ->inline(true)
+                                                    ->label('Активен')
+                                                    ->inline(false) // yonma-yon bo‘ladi
                                                     ->columnSpan(1)
                                                     ->reactive(),
                                             ]),

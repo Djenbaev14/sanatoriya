@@ -4,6 +4,7 @@ namespace App\Filament\Resources\AssignedProcedureResource\Pages;
 
 use App\Filament\Resources\AssignedProcedureResource;
 use Filament\Actions;
+use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\Section;
@@ -28,7 +29,7 @@ class ViewAssignedProcedure extends ViewRecord
     protected function getActions(): array
     {
         return [
-            Action::make('delete')
+            DeleteAction::make('delete')
                 ->label('Удалить')
                 ->icon('heroicon-o-trash')
                 ->color('danger')
@@ -36,8 +37,7 @@ class ViewAssignedProcedure extends ViewRecord
                 ->modalHeading('Удалить запись')
                 ->modalDescription('Вы уверены, что хотите удалить эту запись? Это действие нельзя отменить.')
                 ->modalSubmitActionLabel('Да, удалить')
-                ->visible(fn () => $this->record->status_payment_id == 1)
-                ->action(fn () => $this->deleteRecord()),
+                ->visible(fn () => $this->record->status_payment_id == 1),
 
             Action::make('edit')
                 ->label('Редактировать')

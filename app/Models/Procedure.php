@@ -13,6 +13,13 @@ class Procedure extends Model
     protected $casts = [
         'is_operation' => 'boolean',
     ];
+    public function procedureMkbs(){
+        return $this->hasMany(ProcedureMkb::class);
+    }
+    public function mkbClasses()
+    {
+        return $this->belongsToMany(MkbClass::class, 'procedure_mkbs');
+    }
 
     protected static function booted()
 {

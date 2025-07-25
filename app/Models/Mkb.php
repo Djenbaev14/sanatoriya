@@ -10,5 +10,5 @@ class Mkb extends Model
     use HasFactory;
 
     protected $guarded=['id'];
-    protected $fillable = ['mkb_code', 'mkb_name'];
+    protected $fillable = ['mkb_code', 'mkb_name','mkb_class_id'];
 }

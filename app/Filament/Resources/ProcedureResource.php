@@ -4,11 +4,14 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProcedureResource\Pages;
 use App\Filament\Resources\ProcedureResource\RelationManagers;
+use App\Models\MkbClass;
 use App\Models\Procedure;
 use Filament\Forms;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -19,6 +22,7 @@ use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -49,7 +53,21 @@ class ProcedureResource extends Resource
                         ->label('Иностранная цена')
                         ->required()
                         ->maxLength(255)->columnSpan(12),
-                        // is_operation
+                    Repeater::make('procedureMkbs')
+                        ->relationship('procedureMkbs')
+                        ->label('')
+                        ->defaultItems(1)
+                        ->columnSpan(12)
+                        ->schema([
+                            Select::make('mkb_class_id')
+                                ->label('Мкб')
+                                ->searchable()
+                                ->columnSpan(12)
+                                ->options(function () {
+                                    $allMkb = MkbClass::whereNull('parent_id')->pluck('name', 'id')->toArray(); // Hammasi
+                                    return $allMkb;
+                                }),
+                        ]),
                     Radio::make('is_operation')
                         ->label('Операция?')
                         ->required()
@@ -62,7 +80,10 @@ class ProcedureResource extends Resource
                 ])->columns(12)->columnSpan(12)
             ]);
     }
-
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->with('procedureMkbs.mkbClass');
+    }
     public static function table(Table $table): Table
     {
         return $table
@@ -84,13 +105,25 @@ class ProcedureResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->label('Название')
                     ->searchable()
+                    ->sortable()
                     ->extraAttributes([
                         'class' => 'text-gray-500 dark:text-gray-300 text-xs'
                     ])
                     ->columnSpan(3),
+                TextColumn::make('procedureMkbs_names')
+                    ->label('МКБлар')
+                    ->getStateUsing(function ($record) {
+                        return $record->procedureMkbs
+                            ->map(fn($item) => $item->mkbClass?->name)
+                            ->filter()
+                            ->join(', ');
+                    })
+                    ->limit(50)
+                    ->html(),
                 Tables\Columns\TextColumn::make('price_per_day')
                     ->label(label: 'Цена')
                     ->searchable()
+                    ->sortable()
                     ->formatStateUsing(function ($state) {
                         return number_format($state, 0, '.', ' ') . " сум";  // Masalan, 1000.50 ni 1,000.50 formatida
                     })
@@ -108,6 +141,14 @@ class ProcedureResource extends Resource
                         'class' => 'text-gray-500 dark:text-gray-300 text-xs'
                     ])
                     ->columnSpan(3),
+                // Tables\Columns\TextColumn::make('procedureMkbs.name')
+                //     ->label('Мкб')
+                //     ->searchable()
+                //     ->sortable()
+                //     ->extraAttributes([
+                //         'class' => 'text-gray-500 dark:text-gray-300 text-xs'
+                //     ])
+                //     ->columnSpan(3),
                 IconColumn::make('is_operation')
                     ->label('Операция')
                     ->boolean()

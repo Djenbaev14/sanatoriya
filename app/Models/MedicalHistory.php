@@ -124,7 +124,7 @@ class MedicalHistory extends Model
     }
     public function getUnpaidPartnerWardDays()
     {
-        $partnerAccommodation = $this->accommodation->partner;
+        $partnerAccommodation = $this->accommodation?->partner;
         if (!$partnerAccommodation) {
             return 0; // yoki null, yoki boshqa default qiymat
         }
@@ -133,7 +133,7 @@ class MedicalHistory extends Model
     }
     public function getUnpaidPartnerMealDays()
     {
-        $partnerAccommodation = $this->accommodation->partner;
+        $partnerAccommodation = $this->accommodation?->partner;
 
         if (!$partnerAccommodation) {
             return 0; // yoki null, yoki boshqa default qiymat
@@ -187,21 +187,21 @@ class MedicalHistory extends Model
     }
     public function getTotalWardPaymentPartnerAttribute()
     {
-        if (!$this->accommodation || !$this->accommodation->partner) {
+        if (!$this->accommodation || !$this->accommodation?->partner) {
             return 0;
         }
 
-        return AccommodationPayment::where('accommodation_id', $this->accommodation->partner->id)
+        return AccommodationPayment::where('accommodation_id', $this->accommodation?->partner->id)
             ->selectRaw('SUM(ward_day * tariff_price) as total')
             ->value('total') ?? 0;
     }
     public function getTotalMealPaymentPartnerAttribute()
     {
-        if (!$this->accommodation || !$this->accommodation->partner) {
+        if (!$this->accommodation || !$this->accommodation?->partner) {
             return 0;
         }
 
-        return AccommodationPayment::where('accommodation_id', $this->accommodation->partner->id)
+        return AccommodationPayment::where('accommodation_id', $this->accommodation?->partner->id)
             ->selectRaw('SUM(meal_day * meal_price) as total')
             ->value('total') ?? 0;
     }
