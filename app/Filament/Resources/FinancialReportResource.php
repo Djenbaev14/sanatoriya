@@ -192,6 +192,7 @@ class FinancialReportResource extends Resource
             'index' => Pages\ListFinancialReports::route('/'),
             'create' => Pages\CreateFinancialReport::route('/create'),
             'edit' => Pages\EditFinancialReport::route('/{record}/edit'),
+            'income' => Pages\IncomeReport::route('/income-report'),
         ];
     }
 }
