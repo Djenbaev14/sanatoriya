@@ -60,7 +60,6 @@ class AdminPanelProvider extends PanelProvider
             ->spa()
             ->brandName('Sanatoriya')
             ->plugins([
-                ReportsPlugin::make(),
                 ThemesPlugin::make()
             ]
             )
