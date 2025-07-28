@@ -48,6 +48,9 @@ class AdminPanelProvider extends PanelProvider
                     ->label('Касса')
                     ->icon('heroicon-o-banknotes'),
                 NavigationGroup::make()
+                    ->label('Отчет')
+                    ->icon('heroicon-o-banknotes'),
+                NavigationGroup::make()
                     ->label('Настройка')
                     ->icon('fas-gear'),
                 NavigationGroup::make()

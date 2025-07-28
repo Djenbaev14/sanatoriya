@@ -22,7 +22,10 @@ class SectionResource extends Resource
 {
     protected static ?string $model = Ward::class;
 
-    protected static ?string $navigationIcon = 'fas-bed';
+    public static function getNavigationGroup(): string
+    {
+        return 'Отчет';
+    }
 
     public static function form(Form $form): Form
     {
@@ -37,41 +40,68 @@ class SectionResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+        ->header(function () {
+            // Statistika olish
+            $wardsCount = \App\Models\Ward::count();
+            $totalPlaces = \App\Models\Ward::all()->sum(function ($ward) {
+                return $ward->total_places;
+            });
+            $busyBeds = \App\Models\Ward::all()->sum(function ($ward) {
+                return $ward->beds_count;
+            });
+            $freeBeds = \App\Models\Ward::all()->sum(function ($ward) {
+                return $ward->available_beds_count;
+            });
+
+            return view('filament.components.ward-summary', [
+                'wardsCount' => $wardsCount,
+                'totalPlaces' => $totalPlaces,
+                'busyBeds' => $busyBeds,
+                'freeBeds' => $freeBeds,
+            ]);
+        })
             ->columns([
                 TextColumn::make('name')
                     ->label('Название')
-                    ->searchable()
                     ->sortable(),
-            
-           TextColumn::make('current_patients_display')
-            ->label('Больные')
-            ->wrap()
-            ->html(),
+                TextColumn::make('total_places')
+                    ->label('Всего месты')
+                    ->sortable(),
+                TextColumn::make('beds_count')
+                    ->label('Занято')
+                    ->sortable(),
+                TextColumn::make('available_beds_count')
+                    ->label('Свободно')
+                    ->sortable(),
+                TextColumn::make('current_patients_display')
+                    ->label('Больные')
+                    ->wrap()
+                    ->html(),
             ])
-            ->defaultPaginationPageOption(50)
-            ->filters([
+            ->defaultPaginationPageOption(50);
+            // ->filters([
                 
-            SelectFilter::make('doctor')
-                ->label('Врач')
-                ->options(function () {
-                    return \App\Models\User::role('Доктор')
-                        ->pluck('name', 'id')
-                        ->toArray();
-                })
-                ->query(function (Builder $query, array $data): Builder {
-                    if (filled($data['value'])) {
-                        return $query->whereHas('currentAccommodations.medicalHistory.medicalInspection', function ($q) use ($data) {
-                            $q->where('assigned_doctor_id', $data['value']);
-                        });
-                    }
-                    return $query;
-                })
-            ],layout:FiltersLayout::AboveContent);
+            // SelectFilter::make('doctor')
+            //     ->label('Врач')
+            //     ->options(function () {
+            //         return \App\Models\User::role('Доктор')
+            //             ->pluck('name', 'id')
+            //             ->toArray();
+            //     })
+            //     ->query(function (Builder $query, array $data): Builder {
+            //         if (filled($data['value'])) {
+            //             return $query->whereHas('currentAccommodations.medicalHistory.medicalInspection', function ($q) use ($data) {
+            //                 $q->where('assigned_doctor_id', $data['value']);
+            //             });
+            //         }
+            //         return $query;
+            //     })
+            // ],layout:FiltersLayout::AboveContent);
             
     }
     public static function canAccess(): bool
     {
-        return auth()->user()?->can('отделение');
+        return auth()->user()?->can('Отчет');
     }
 
     

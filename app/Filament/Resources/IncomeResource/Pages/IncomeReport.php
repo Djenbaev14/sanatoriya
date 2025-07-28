@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Filament\Resources\FinancialReportResource\Pages;
+namespace App\Filament\Resources\IncomeResource\Pages;
 
-use App\Filament\Resources\FinancialReportResource;
+use App\Filament\Resources\IncomeResource;
 use Filament\Actions;
+use Filament\Forms\Components\Group;
 use Filament\Resources\Pages\page;
 use App\Models\Payment;
 use Filament\Forms\Components\DatePicker;
@@ -14,7 +15,9 @@ use Carbon\Carbon;
 
 class IncomeReport extends page
 {
-    protected static string $resource = FinancialReportResource::class;
+    protected static string $resource = IncomeResource::class;
+    protected static ?string $title = 'Отчет по доходам';
+
     protected static string $view = 'filament.resources.payment-resource.income-report';
 
     public $startDate;
@@ -78,8 +81,18 @@ class IncomeReport extends page
     protected function getFormSchema(): array
     {
         return [
-            DatePicker::make('startDate')->label('Начальная дата'),
-            DatePicker::make('endDate')->label('Конечная дата'),
+            Group::make()
+                ->schema([
+                    DatePicker::make('startDate')
+                        ->label('Начальная дата')
+                        ->default(now()->startOfMonth())
+                        ->required(),
+                    DatePicker::make('endDate')
+                        ->label('Конечная дата')
+                        ->default(now())
+                        ->required(),
+                ])
+                ->columns(2),
         ];
     }
 }
