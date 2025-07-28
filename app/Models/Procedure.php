@@ -16,6 +16,9 @@ class Procedure extends Model
     public function procedureMkbs(){
         return $this->hasMany(ProcedureMkb::class);
     }
+    public function procedurePaymentDetails(){
+        return $this->hasMany(ProcedurePaymentDetail::class);
+    }
     public function mkbClasses()
     {
         return $this->belongsToMany(MkbClass::class, 'procedure_mkbs');
