@@ -37,7 +37,7 @@ class FreeBedsOverview extends BaseWidget
                 ->label('Палата'),
 
             TextColumn::make('beds_count')
-                ->label('Кол Койка'),
+                ->label('Занятой койки'),
 
             TextColumn::make('available_beds_count')
                 ->label('Пустая койка')
