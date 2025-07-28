@@ -55,16 +55,13 @@ class IncomeReport extends Page
         $this->generateReport();
         $this->getPayments();
     }
-
     public function updated($property)
     {
         $this->generateReport();
         $this->getPayments();
     }
-
     public function getPayments(): void
     {
-
         $labTests=LabTestPaymentDetail::query()
             ->join('lab_test_payments', 'lab_test_payment_details.lab_test_payment_id', '=', 'lab_test_payments.id')
             ->join('payments', 'lab_test_payments.payment_id', '=', 'payments.id')->whereBetween('payments.created_at', [$this->startDate, $this->endDate]);
@@ -237,6 +234,21 @@ class IncomeReport extends Page
         usort($this->tableData, function ($a, $b) {
             return $b['amount'] <=> $a['amount'];
         });
+
+        // $accommodations=AccommodationPayment::query()
+        //     ->join('payments', 'accommodation_payments.payment_id', '=', 'payments.id')
+        //     ->whereNotNull('accommodation_payments.medical_history_id')->whereBetween('payments.created_at', [$this->startDate, $this->endDate])
+        //     ->select(
+        //         DB::raw('SUM(tariff_price * COALESCE(ward_day, 0)) as total_ward'),
+        //         DB::raw('SUM(meal_price * COALESCE(meal_day, 0)) as total_meal'),
+        //     );
+        // $accommodationPartner=AccommodationPayment::query()
+        //     ->join('payments', 'accommodation_payments.payment_id', '=', 'payments.id')
+        //     ->whereNull('accommodation_payments.medical_history_id')->whereBetween('payments.created_at', [$this->startDate, $this->endDate])->select(
+        //         DB::raw('SUM(tariff_price * COALESCE(ward_day, 0)) as total_uxod_ward'),
+        //         DB::raw('SUM(meal_price * COALESCE(meal_day, 0)) as total_uxod_meal'),
+        //     );
+        
         
     }
 

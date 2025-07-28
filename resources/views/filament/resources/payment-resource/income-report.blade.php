@@ -40,7 +40,14 @@
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         <div class="bg-white shadow rounded p-4">
-            <canvas id="amountChart" style="height: 300px;"></canvas>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+                    Статистика тип
+                </h2>
+            </div>
+            <div class="relative">
+                <canvas id="amountChart" style="height: 400px;"></canvas>
+            </div>
         </div>
         <div class="bg-white shadow rounded p-4">
             <h2 class="text-lg font-semibold mb-4">
@@ -88,7 +95,7 @@
         <div class="bg-white shadow rounded p-4">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-bold text-gray-900 dark:text-white">
-                    Статистика по услуга {{ number_format($totalIncome, 0, ',', ' ') }} сум
+                    Статистика по процедуы
                 </h2>
             </div>
             <div class="relative">
@@ -140,11 +147,11 @@
         <div class="bg-white shadow rounded p-4">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-bold text-gray-900 dark:text-white">
-                    Статистика по анализы {{ number_format($totalIncome2, 0, ',', ' ') }} сум
+                    Статистика по анализы 
                 </h2>
             </div>
             <div class="relative">
-                <canvas id="labTestsChart" style="height: 400px;"></canvas>
+                <canvas id="labTests" style="height: 400px;"></canvas>
             </div>
         </div>
 
@@ -194,7 +201,7 @@
         let servicesChart = null;
         
         function initChart() {
-            const ctx = document.getElementById('servicesChart');
+            const ctx = document.getElementById('servicesChart').getContext('2d');
             if (!ctx) return;
             
             // Destroy existing chart
@@ -290,7 +297,7 @@
         let labTestsChart = null;
         
         function initLabTestChart() {
-            const ctx = document.getElementById('labTestsChart');
+            const ctx = document.getElementById('labTests').getContext('2d');
             if (!ctx) return;
             
             // Destroy existing chart
@@ -386,7 +393,7 @@
         let amountChart = null;
 
         function initAmountChart() {
-            const ctx = document.getElementById('amountChart');
+            const ctx = document.getElementById('amountChart').getContext('2d');
             if (!ctx) return;
             
             // Destroy existing chart
@@ -550,7 +557,9 @@
 
         // Livewire hooks for updating chart
         document.addEventListener('livewire:init', () => {
+            
             Livewire.hook('morph.updated', ({ el, component }) => {
+                
                 if (component.name === 'app.filament.resources.income-resource.pages.income-report') {
                     setTimeout(() => {
                         initAmountChart();
@@ -560,11 +569,6 @@
                     }, 100);
                 }
             });
-        });
-
-        // Print functionality
-        window.addEventListener('print-report', function() {
-            window.print();
         });
     </script>
 
