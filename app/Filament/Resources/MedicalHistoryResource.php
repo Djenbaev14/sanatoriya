@@ -326,7 +326,8 @@ class MedicalHistoryResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('accommodation.admission_date')->label('Дата поступления')->dateTime()->sortable(),
+                TextColumn::make('accommodation.admission_date')->label('Дата поступления')
+                ->dateTime('d.m.Y H:i')->sortable(),
                 BadgeColumn::make('accommodation.discharge_date')
                     ->label('Дата выпуска')
                     ->colors([
