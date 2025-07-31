@@ -169,7 +169,7 @@ class LabTestHistoryResource extends Resource
                                                 //         $set("labTestDetails.{$index}.total_price", $total);
                                                 //     }
                                                 // })
-                                                // ->columns(12)->columnSpan(12),
+                                                ->columns(12)->columnSpan(12),
                                                 // Placeholder::make('total_sum')
                                                 //     ->label('Общая стоимость (всего)')
                                                 //     ->content(function (Get $get) {
