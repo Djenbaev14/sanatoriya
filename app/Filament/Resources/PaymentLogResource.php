@@ -76,13 +76,13 @@ class PaymentLogResource extends Resource
                 TextColumn::make('number')->label('История номер')->searchable()->sortable(),
                 TextColumn::make('patient.full_name')->label('ФИО')->searchable()->sortable(),
                 TextColumn::make('total_cost')
-                    ->label('Обшый сумма')
+                    ->label('Общая сумма')
                     ->badge()
                     ->getStateUsing(function ($record) {
                         return number_format($record->getTotalCost(),0,'.',' ').' сум';
                     }),
                 TextColumn::make('total_amount')
-                    ->label('Одобрено')
+                    ->label('Оплачено')
                     ->color('success')
                     ->badge()
                     ->getStateUsing(function ($record) {
