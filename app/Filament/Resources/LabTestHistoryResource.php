@@ -123,21 +123,21 @@ class LabTestHistoryResource extends Resource
                                                         })
                                                         ->columnSpan(4),
 
-                                                    TextInput::make('price')
-                                                        ->label('Цена')
-                                                        ->numeric()
-                                                        ->reactive()
-                                                        ->afterStateUpdated(function (Get $get, Set $set, $state) {
-                                                            // sessions maydonini olamiz
-                                                            $sessions = $get('sessions') ?? 1;
+                                                    Hidden::make('price')
+                                                        ->label('Цена'),
+                                                        // ->numeric()
+                                                        // ->reactive()
+                                                        // ->afterStateUpdated(function (Get $get, Set $set, $state) {
+                                                        //     // sessions maydonini olamiz
+                                                        //     $sessions = $get('sessions') ?? 1;
 
-                                                            // total_price ni hisoblab yangilaymiz
-                                                            $set('total_price', $state * $sessions);
+                                                        //     // total_price ni hisoblab yangilaymiz
+                                                        //     $set('total_price', $state * $sessions);
 
-                                                            // umumiy summa qayta hisoblanadi
-                                                            static::recalculateTotalSum($get, $set);
-                                                        })
-                                                        ->columnSpan(3),
+                                                        //     // umumiy summa qayta hisoblanadi
+                                                        //     static::recalculateTotalSum($get, $set);
+                                                        // })
+                                                        // ->columnSpan(3),
 
                                                     TextInput::make('sessions')
                                                         ->label('Кол сеансов')
@@ -145,39 +145,39 @@ class LabTestHistoryResource extends Resource
                                                         ->default(1)
                                                         ->required()
                                                         ->reactive()
-                                                        ->afterStateUpdated(function (Get $get, Set $set, $state) {
-                                                            $set('total_price', ($get('price') ?? 0) * ($state ?? 1));
+                                                        // ->afterStateUpdated(function (Get $get, Set $set, $state) {
+                                                        //     $set('total_price', ($get('price') ?? 0) * ($state ?? 1));
                                                             
-                                                            static::recalculateTotalSum($get, $set);
-                                                        })
+                                                        //     static::recalculateTotalSum($get, $set);
+                                                        // })
                                                         ->columnSpan(2),
 
-                                                    TextInput::make('total_price')
-                                                        ->label('Общая стоимость')
-                                                        ->disabled()
-                                                        ->numeric()
-                                                        ->columnSpan(3)
-                                                        ->afterStateUpdated(function (Get $get, Set $set) {
-                                                            static::recalculateTotalSum($get, $set);
-                                                        }),
+                                                    // TextInput::make('total_price')
+                                                    //     ->label('Общая стоимость')
+                                                    //     ->disabled()
+                                                    //     ->numeric()
+                                                    //     ->columnSpan(3)
+                                                    //     ->afterStateUpdated(function (Get $get, Set $set) {
+                                                    //         static::recalculateTotalSum($get, $set);
+                                                    //     }),
                                                 ])
-                                                ->afterStateHydrated(function (Get $get, Set $set, $state) {
-                                                    foreach ($state as $index => $item) {
-                                                        $price = $item['price'] ?? 0;
-                                                        $sessions = $item['sessions'] ?? 1;
-                                                        $total = $price * $sessions;
-                                                        $set("labTestDetails.{$index}.total_price", $total);
-                                                    }
-                                                })
-                                                ->columns(12)->columnSpan(12),
-                                                Placeholder::make('total_sum')
-                                                    ->label('Общая стоимость (всего)')
-                                                    ->content(function (Get $get) {
-                                                        $items = $get('labTestDetails') ?? [];
-                                                        $total = collect($items)->sum('total_price');
-                                                        return number_format($total, 2, '.', ' ') . ' сум';
-                                                    })
-                                                    ->columnSpanFull(), 
+                                                // ->afterStateHydrated(function (Get $get, Set $set, $state) {
+                                                //     foreach ($state as $index => $item) {
+                                                //         $price = $item['price'] ?? 0;
+                                                //         $sessions = $item['sessions'] ?? 1;
+                                                //         $total = $price * $sessions;
+                                                //         $set("labTestDetails.{$index}.total_price", $total);
+                                                //     }
+                                                // })
+                                                // ->columns(12)->columnSpan(12),
+                                                // Placeholder::make('total_sum')
+                                                //     ->label('Общая стоимость (всего)')
+                                                //     ->content(function (Get $get) {
+                                                //         $items = $get('labTestDetails') ?? [];
+                                                //         $total = collect($items)->sum('total_price');
+                                                //         return number_format($total, 2, '.', ' ') . ' сум';
+                                                //     })
+                                                //     ->columnSpanFull(), 
                     ])->columnSpan(12)->columns(12)
             ]);
     }
