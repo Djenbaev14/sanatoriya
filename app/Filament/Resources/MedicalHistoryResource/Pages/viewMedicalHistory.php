@@ -352,6 +352,7 @@ class ViewMedicalHistory extends ViewRecord
                                                     ->schema([
                                                         TextEntry::make('labTestHistory.total_cost')
                                                             ->label('Общая сумма')
+                                                            ->visible(fn () => !auth()->user()->hasRole('Доктор'))
                                                             ->color(Color::Blue)
                                                             ->badge()
                                                             ->formatStateUsing(fn($state) => number_format($state, 0, '.', ' ') . ' сум'),
@@ -413,6 +414,7 @@ class ViewMedicalHistory extends ViewRecord
                                                     ->schema([
                                                         TextEntry::make('assignedProcedure.total_cost')
                                                             ->label('Общая сумма')
+                                                            ->visible(fn () => !auth()->user()->hasRole('Доктор'))
                                                             ->color(Color::Blue)
                                                             ->badge()
                                                             ->formatStateUsing(fn($state) => number_format($state, 0, '.', ' ') . ' сум'),
