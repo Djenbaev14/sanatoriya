@@ -284,7 +284,7 @@ class AssignedProcedureResource extends Resource
                                                     TextInput::make('price')
                                                         ->label('Цена')
                                                         ->reactive()
-                                                        ->visible(fn () => auth()->user()->role->name === 'Доктор')
+                                                        ->visible(fn () => !auth()->user()->hasRole('Доктор'))
                                                         ->afterStateUpdated(function (Get $get, Set $set, $state) {
                                                             // sessions maydonini olamiz
                                                             $sessions = $get('sessions') ?? 1;
@@ -303,39 +303,41 @@ class AssignedProcedureResource extends Resource
                                                         ->default(1)
                                                         ->required()
                                                         ->reactive()
-                                                        // ->afterStateUpdated(function (Get $get, Set $set, $state) {
-                                                        //     $set('total_price', ($get('price') ?? 0) * ($state ?? 1));
+                                                        ->afterStateUpdated(function (Get $get, Set $set, $state) {
+                                                            $set('total_price', ($get('price') ?? 0) * ($state ?? 1));
                                                             
-                                                        //     static::recalculateTotalSum($get, $set);
-                                                        // })
+                                                            static::recalculateTotalSum($get, $set);
+                                                        })
                                                         ->columnSpan(2),
 
-                                                    // TextInput::make('total_price')
-                                                    //     ->label('Общая стоимость')
-                                                    //     ->disabled()
-                                                    //     ->numeric()
-                                                    //     ->columnSpan(3)
-                                                    //     ->afterStateUpdated(function (Get $get, Set $set) {
-                                                    //         static::recalculateTotalSum($get, $set);
-                                                    //     }),
+                                                    TextInput::make('total_price')
+                                                        ->label('Общая стоимость')
+                                                        ->disabled()
+                                                        ->visible(fn () => !auth()->user()->hasRole('Доктор'))
+                                                        ->numeric()
+                                                        ->columnSpan(3)
+                                                        ->afterStateUpdated(function (Get $get, Set $set) {
+                                                            static::recalculateTotalSum($get, $set);
+                                                        }),
                                                 ])
-                                                // ->afterStateHydrated(function (Get $get, Set $set, $state) {
-                                                //     foreach ($state as $index => $item) {
-                                                //         $price = $item['price'] ?? 0;
-                                                //         $sessions = $item['sessions'] ?? 1;
-                                                //         $total = $price * $sessions;
-                                                //         $set("procedureDetails.{$index}.total_price", $total);
-                                                //     }
-                                                // })
+                                                ->afterStateHydrated(function (Get $get, Set $set, $state) {
+                                                    foreach ($state as $index => $item) {
+                                                        $price = $item['price'] ?? 0;
+                                                        $sessions = $item['sessions'] ?? 1;
+                                                        $total = $price * $sessions;
+                                                        $set("procedureDetails.{$index}.total_price", $total);
+                                                    }
+                                                })
                                                 ->columns(12)->columnSpan(12),
-                                                // Placeholder::make('total_sum')
-                                                //     ->label('Общая стоимость (всего)')
-                                                //     ->content(function (Get $get) {
-                                                //         $items = $get('procedureDetails') ?? [];
-                                                //         $total = collect($items)->sum('total_price');
-                                                //         return number_format($total, 2, '.', ' ') . ' сум';
-                                                //     })
-                                                //     ->columnSpanFull(), 
+                                                Placeholder::make('total_sum')
+                                                    ->label('Общая стоимость (всего)')
+                                                    ->visible(fn () => !auth()->user()->hasRole('Доктор'))
+                                                    ->content(function (Get $get) {
+                                                        $items = $get('procedureDetails') ?? [];
+                                                        $total = collect($items)->sum('total_price');
+                                                        return number_format($total, 2, '.', ' ') . ' сум';
+                                                    })
+                                                    ->columnSpanFull(), 
                     ])->columnSpan(12)->columns(12),
             ]);
     }

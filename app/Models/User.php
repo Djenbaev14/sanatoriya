@@ -36,10 +36,6 @@ class User extends Authenticatable
     protected $casts = [
         'password' => 'hashed',
     ];
-    public function role()
-    {
-        return $this->belongsTo(Role::class);
-    }
     // cashboxSessions
     public function cashboxSessions(){
         return $this->hasMany(CashboxSession::class,'opened_by');
