@@ -340,7 +340,9 @@ class ViewMedicalHistory extends ViewRecord
                                                         ->schema([
                                                             TextEntry::make('lab_test.name')->label(''),
                                                             // TextEntry::make('sessions')->label('Сеансы'),
-                                                            TextEntry::make('price')->label('')->formatStateUsing(fn($state) => number_format($state, 0) . ' сум'),
+                                                            TextEntry::make('price')
+                                                            ->visible(fn () => !auth()->user()->hasRole('Доктор'))
+                                                            ->label('')->formatStateUsing(fn($state) => number_format($state, 0) . ' сум'),
                                                             // TextEntry::make('result')->label('Результат')->placeholder('Yo‘q'),
                                                         ])
                                                         ->columns(3)
@@ -397,9 +399,11 @@ class ViewMedicalHistory extends ViewRecord
                                                 RepeatableEntry::make('assignedProcedure.procedureDetails')
                                                         ->label('')
                                                         ->schema([
-                                                            TextEntry::make('procedure.name')->label('Название процедуры'),
-                                                            TextEntry::make('sessions')->label('Сеансы'),
-                                                            TextEntry::make('price')->label('Цена')->formatStateUsing(fn($state) => number_format($state, 0) . ' сум'),
+                                                            TextEntry::make('procedure.name')->label(''),
+                                                            TextEntry::make('sessions')->label(''),
+                                                            TextEntry::make('price')->label('')
+                                                            ->visible(fn () => !auth()->user()->hasRole('Доктор'))
+                                                            ->formatStateUsing(fn($state) => number_format($state, 0) . ' сум'),
                                                         ])
                                                         ->columns(4)
                                                         ->default([]),
