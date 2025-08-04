@@ -69,7 +69,7 @@ class MkbClassResource extends Resource
                 //
             ])
             ->actions([
-                // EditAction::make()
+                EditAction::make()
                 //     ->modal()
                 //     ->modalHeading('Изменение')
                 //     ->modalWidth('lg')
