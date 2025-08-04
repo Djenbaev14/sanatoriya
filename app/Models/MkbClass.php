@@ -9,12 +9,18 @@ class MkbClass extends Model
 {
     use HasFactory;
     protected $guarded=[];
-    public function procedureMkbs(){
-        return $this->hasMany(ProcedureMkb::class);
+    public function procedureMkbs()
+    {
+        return $this->hasMany(\App\Models\ProcedureMkb::class, 'mkb_class_id');
     }
     public function procedures()
     {
-        return $this->belongsToMany(Procedure::class, 'procedure_mkbs');
+        return $this->belongsToMany(
+            \App\Models\Procedure::class,
+            'procedure_mkbs',        // pivot table nomi
+            'mkb_class_id',          // ushbu modelga tegishli foreign key
+            'procedure_id'           // boshqa modelga tegishli foreign key
+        );
     }
     // App\Models\MkbClass.php
     public function getAllParentIds(): array

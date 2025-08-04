@@ -53,21 +53,6 @@ class ProcedureResource extends Resource
                         ->label('Иностранная цена')
                         ->required()
                         ->maxLength(255)->columnSpan(12),
-                    Repeater::make('procedureMkbs')
-                        ->relationship('procedureMkbs')
-                        ->label('')
-                        ->defaultItems(1)
-                        ->columnSpan(12)
-                        ->schema([
-                            Select::make('mkb_class_id')
-                                ->label('Мкб')
-                                ->searchable()
-                                ->columnSpan(12)
-                                ->options(function () {
-                                    $allMkb = MkbClass::whereNull('parent_id')->pluck('name', 'id')->toArray(); // Hammasi
-                                    return $allMkb;
-                                }),
-                        ]),
                     Radio::make('is_operation')
                         ->label('Операция?')
                         ->required()
@@ -79,10 +64,6 @@ class ProcedureResource extends Resource
                         ->columnSpan(12),
                 ])->columns(12)->columnSpan(12)
             ]);
-    }
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()->with('procedureMkbs.mkbClass');
     }
     public static function table(Table $table): Table
     {
@@ -110,16 +91,6 @@ class ProcedureResource extends Resource
                         'class' => 'text-gray-500 dark:text-gray-300 text-xs'
                     ])
                     ->columnSpan(3),
-                TextColumn::make('procedureMkbs_names')
-                    ->label('МКБлар')
-                    ->getStateUsing(function ($record) {
-                        return $record->procedureMkbs
-                            ->map(fn($item) => $item->mkbClass?->name)
-                            ->filter()
-                            ->join(', ');
-                    })
-                    ->limit(50)
-                    ->html(),
                 Tables\Columns\TextColumn::make('price_per_day')
                     ->label(label: 'Цена')
                     ->searchable()

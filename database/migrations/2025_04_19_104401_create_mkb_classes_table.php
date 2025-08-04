@@ -13,11 +13,7 @@ return new class extends Migration
     {
         Schema::create('mkb_classes', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('parent_id')->nullable();
-            $table->foreign('parent_id')->references('id')->on('mkb_classes')->onDelete('cascade');
             $table->string('name')->nullable();
-            $table->integer('has_child')->nullable();
-            $table->unsignedBigInteger('node_cd')->unique();
             $table->timestamps();
         });
     }
@@ -30,3 +26,4 @@ return new class extends Migration
         Schema::dropIfExists('mkb_classes');
     }
 };
+

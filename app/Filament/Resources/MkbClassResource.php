@@ -5,10 +5,16 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\MkbClassResource\Pages;
 use App\Filament\Resources\MkbClassResource\RelationManagers;
 use App\Models\MkbClass;
+use App\Models\Procedure;
 use Filament\Forms;
+use Filament\Forms\Components\Group;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -26,7 +32,21 @@ class MkbClassResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Group::make()
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->label('Название')
+                            ->required()
+                            ->columnSpan(12)
+                            ->maxLength(255),
+                        Select::make('procedures')
+                            ->label('Процедуры')
+                            ->relationship('procedures', 'name') // relationship nomi va ko‘rsatiladigan ustun
+                            ->multiple()
+                            ->preload()
+                            ->searchable()
+                            ->columnSpanFull(),
+                    ])->columns(12)->columnSpan(12)
             ]);
     }
 
@@ -34,20 +54,35 @@ class MkbClassResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name'),
-                TextColumn::make('has_child'),
-                TextColumn::make('node_cd'),
+                TextColumn::make('name')
+                ->limit(50),
+                BadgeColumn::make('procedures')
+                    ->label('Процедуры')
+                    ->getStateUsing(function ($record) {
+                        return $record->procedures->pluck('name')->toArray();
+                    })
+                    ->colors(['primary'])
+                    ->limit(25)
             ])
             ->defaultPaginationPageOption(50)
             ->filters([
                 //
             ])
             ->actions([
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // EditAction::make()
+                //     ->modal()
+                //     ->modalHeading('Изменение')
+                //     ->modalWidth('lg')
+                //     ->modalAlignment('end')
+                //     ->using(function (Procedure $record, array $data): Procedure {
+                //         // Filial ma'lumotlarini yangilash
+                //         $record->update([
+                //                 'name' => $data['name'],
+                //         ]);
+
+
+                //         return $record;
+                //     }),
             ]);
     }
 
@@ -63,15 +98,15 @@ class MkbClassResource extends Resource
     }
     public static function getNavigationLabel(): string
     {
-        return 'МКБ 10 клас'; // Rus tilidagi nom
+        return 'Диагнозы'; // Rus tilidagi nom
     }
     public static function getModelLabel(): string
     {
-        return 'МКБ 10 клас'; // Rus tilidagi yakka holdagi nom
+        return 'Диагнозы'; // Rus tilidagi yakka holdagi nom
     }
     public static function getPluralModelLabel(): string
     {
-        return 'МКБ 10 клас'; // Rus tilidagi ko'plik shakli
+        return 'Диагнозы'; // Rus tilidagi ko'plik shakli
     }
 
 
@@ -80,7 +115,7 @@ class MkbClassResource extends Resource
         return [
             'index' => Pages\ListMkbClasses::route('/'),
             'create' => Pages\CreateMkbClass::route('/create'),
-            'edit' => Pages\EditMkbClass::route('/{record}/edit'),
+            'edit' => Pages\EditMkbClass::route('/edit/{record}'),
         ];
     }
 }

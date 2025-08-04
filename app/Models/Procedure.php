@@ -13,15 +13,17 @@ class Procedure extends Model
     protected $casts = [
         'is_operation' => 'boolean',
     ];
-    public function procedureMkbs(){
-        return $this->hasMany(ProcedureMkb::class);
+    public function mkbClasses()
+    {
+        return $this->belongsToMany(
+            \App\Models\MkbClass::class,
+            'procedure_mkbs',
+            'procedure_id',
+            'mkb_class_id'
+        );
     }
     public function procedurePaymentDetails(){
         return $this->hasMany(ProcedurePaymentDetail::class);
-    }
-    public function mkbClasses()
-    {
-        return $this->belongsToMany(MkbClass::class, 'procedure_mkbs');
     }
 
     protected static function booted()

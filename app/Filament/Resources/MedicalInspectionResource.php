@@ -119,14 +119,12 @@ class MedicalInspectionResource extends Resource
                             ->label('Рекомендовано')
                             ->rows(3)
                             ->columnSpan(12),
-                        Select::make('mkb_id')
+                        Select::make('mkb_class_id')
                             ->label('Диагноз')
                             ->options(
-                                \App\Models\Mkb::
-                                    whereNotNull('mkb_name')
-                                    ->get()
+                                \App\Models\MkbClass::all()
                                     ->mapWithKeys(fn ($mkb) => [
-                                        $mkb->id => "{$mkb->mkb_code} – {$mkb->mkb_name}"
+                                        $mkb->id => $mkb->name
                                     ])
                             )
                             ->searchable()

@@ -88,7 +88,9 @@ class PermissionSeeder extends Seeder
             'создать отделение осмотр',
             'создать анализы',
             'создать процедуры',
-            'лог'
+            'лог',
+            'Отчет',
+            
         ];
 
         foreach ($permissions as $permission) {

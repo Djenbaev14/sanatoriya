@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('medical_inspections', function (Blueprint $table) {
-            $table->unsignedBigInteger('mkb_id')->nullable();
-            $table->foreign('mkb_id')->references('id')->on('mkbs');
+            $table->unsignedBigInteger('mkb_class_id')->nullable();
+            $table->foreign('mkb_class_id')->references('id')->on('mkb_classes');
         });
     }
 

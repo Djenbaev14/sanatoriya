@@ -15,11 +15,7 @@ class MkbClassImport implements ToModel
     public function model(array $row)
     {
         return new MkbClass([
-            'id' => $row[0],   // Excelda ustun nomlari: mkb_code, mkb_name
-            'parent_id' => $row[1],
-            'name' => $row[2],
-            'has_child' => $row[3],
-            'node_cd' => $row[4],
+            'name' => $row[1],
         ]);
     }
 }
