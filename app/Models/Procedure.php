@@ -22,6 +22,9 @@ class Procedure extends Model
             'mkb_class_id'
         );
     }
+    public function procedureMkbs(){
+        return $this->hasMany(ProcedureMkb::class);
+    }
     public function procedurePaymentDetails(){
         return $this->hasMany(ProcedurePaymentDetail::class);
     }

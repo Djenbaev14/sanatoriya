@@ -26,7 +26,7 @@ class InspectionController extends Controller
         $templateProcessor->setValue('objectively', $inspection->objectively);
         $templateProcessor->setValue('local_state', $inspection->local_state);
         $templateProcessor->setValue('admission_diagnosis', $inspection->admission_diagnosis
-                                                            ?? $inspection?->mkb?->mkb_code .' - '.$inspection?->mkb?->mkb_name
+                                                            ?? $inspection?->mkbClass?->name
                                                             ?? 'Нет');
         $templateProcessor->setValue('recommended', $inspection->recommended);
         $templateProcessor->setValue('doctor_name', $inspection->initialDoctor->name);

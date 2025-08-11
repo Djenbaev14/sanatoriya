@@ -14,13 +14,13 @@ return new class extends Migration
         Schema::create('procedure_payments', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('payment_id');
-            $table->foreign('payment_id')->references('id')->on('payments');
+            $table->foreign('payment_id')->references('id')->on('payments')->onDelete('cascade');
             
             $table->unsignedBigInteger('medical_history_id');
-            $table->foreign('medical_history_id')->references('id')->on('medical_histories')->onDelete('cascade');
+            $table->foreign('medical_history_id')->references('id')->on('medical_histories');
             
             $table->unsignedBigInteger('assigned_procedure_id');
-            $table->foreign('assigned_procedure_id')->references('id')->on('assigned_procedures');
+            $table->foreign('assigned_procedure_id')->references('id')->on('assigned_procedures')->onDelete('cascade');
             $table->softDeletes();
             $table->timestamps();
         });

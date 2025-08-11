@@ -46,6 +46,13 @@ class MkbClassResource extends Resource
                             ->preload()
                             ->searchable()
                             ->columnSpanFull(),
+                        Select::make('labTests')
+                            ->label('Анализы')
+                            ->relationship('labTests', 'name') // relationship nomi va ko‘rsatiladigan ustun
+                            ->multiple()
+                            ->preload()
+                            ->searchable()
+                            ->columnSpanFull(),
                     ])->columns(12)->columnSpan(12)
             ]);
     }
@@ -60,6 +67,13 @@ class MkbClassResource extends Resource
                     ->label('Процедуры')
                     ->getStateUsing(function ($record) {
                         return $record->procedures->pluck('name')->toArray();
+                    })
+                    ->colors(['primary'])
+                    ->limit(25),
+                BadgeColumn::make('labTests')
+                    ->label('Анализы')
+                    ->getStateUsing(function ($record) {
+                        return $record->labTests->pluck('name')->toArray();
                     })
                     ->colors(['primary'])
                     ->limit(25)

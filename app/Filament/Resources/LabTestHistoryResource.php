@@ -9,6 +9,7 @@ use App\Models\LabTestHistory;
 use App\Models\Patient;
 use App\Models\PaymentType;
 use Filament\Forms;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
@@ -28,6 +29,7 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Log;
 
@@ -75,7 +77,120 @@ class LabTestHistoryResource extends Resource
                                                 })
                                                 ->required()
                                                 ->columnSpan(4),
-                                                
+                                            // Repeater::make('labTestDetails')
+                                            //     ->relationship('labTestDetails')
+                                            //     ->label('')
+                                            //     ->default([])
+                                            //     ->disableItemDeletion()
+                                            //     ->disableItemCreation()
+                                            //     ->schema([
+                                            //         Checkbox::make('selected')
+                                            //             ->label('')
+                                            //             ->columnSpan(1)
+                                            //             ->reactive(),
+                                            //         TextInput::make('lab_test_name')
+                                            //             ->label('')
+                                            //             ->columnSpan(6)
+                                            //             ->disabled(),
+                                            //         Hidden::make('lab_test_id'),
+
+                                            //         Hidden::make('sessions')
+                                            //             ->default(1),
+
+                                            //         TextInput::make('price')
+                                            //             ->label('')
+                                            //             ->visible(fn () => !auth()->user()->hasRole('Доктор'))
+                                            //             ->columnSpan(6)
+                                            //             ->readOnly(),
+                                            //     ])
+                                            //     ->columns(24)
+                                            //     ->columnSpanFull()
+                                            //     ->afterStateHydrated(function (Get $get, Set $set, $state) {
+                                            //         $medicalHistoryId = $get('medical_history_id');
+
+                                            //         $existinglabTestIds = collect($state)->pluck('lab_test_id')->filter()->unique()->toArray();
+
+                                            //         $lab_tests = collect();
+
+                                            //         // 1. Agar MedicalInspection bo‘lsa, shunga qarab procedure larni olamiz
+                                            //         if ($medicalHistoryId) {
+                                            //             $mkbClassId = \App\Models\MedicalInspection::where('medical_history_id', $medicalHistoryId)
+                                            //                 ->value('mkb_class_id');
+
+                                            //             if ($mkbClassId) {
+
+                                            //                 $lab_tests = \App\Models\LabTest::whereHas('LabTestMkbs', function ($query) use ($mkbClassId): void {
+                                            //                     $query->where('mkb_class_id', $mkbClassId);
+                                            //                 })->get(['id', 'name', 'price']);
+
+                                            //             }
+                                            //         }
+
+                                            //         // 2. Agar MedicalInspection yo‘q bo‘lsa yoki natija topilmasa, eski saqlangan procedure_id lar bo‘yicha olish
+                                            //         if ($lab_tests->isEmpty() && !empty($existinglabTestIds)) {
+                                            //             $lab_tests = \App\Models\LabTest::whereIn('id', $existinglabTestIds)
+                                            //                 ->get(['id', 'name', 'price']);
+                                            //         }
+
+                                            //         // 3. Eski state'ni id bo‘yicha indexlab olamiz
+                                            //         $oldLabTestById = collect($state)->keyBy('lab_test_id');
+
+                                            //         $updatedLabTests = $lab_tests->map(function ($item) use ($oldLabTestById) {
+                                            //             $existing = $oldLabTestById->get($item->id);
+
+                                            //             return [
+                                            //                 'lab_test_id' => $item->id,
+                                            //                 'lab_test_name' => $item->name,
+                                            //                 'sessions' => $existing['sessions'] ?? 1,
+                                            //                 'price' => $existing['price'] ?? $item->price,
+                                            //                 'selected' => $existing ? true : false, // bu doim eski tanlanganlar uchun true bo‘ladi
+                                            //             ];
+                                            //         });
+
+                                            //         $set('labTestDetails', $updatedLabTests->toArray());
+                                            //     })
+                                            //     ->saveRelationshipsUsing(function (Repeater $component, Model $record, array $state) {
+                                            //         // Mavjud yozuvlarni olish
+                                            //         $existinglabTests = $record->labTestDetails()->pluck('lab_test_id')->toArray();
+                                                    
+                                            //         // Selected bo'lgan proceduralar
+                                            //         $selectedLabTests = collect($state)->where('selected', true);
+                                            //         $selectedLabTestIds = $selectedLabTests->pluck('lab_test_id')->toArray();
+                                                    
+                                            //         // Selected bo'lgan proceduralarni saqlash/yangilash
+                                            //         foreach ($selectedLabTests as $lab_test) {
+                                            //             $record->labTestDetails()->updateOrCreate(
+                                            //                 ['lab_test_id' => $lab_test['lab_test_id']],
+                                            //                 [
+                                            //                     'sessions' => $lab_test['sessions'] ?? 1,
+                                            //                     'price' => $lab_test['price'],
+                                            //                 ]
+                                            //             );
+                                            //         }
+                                                    
+                                            //         // Selected bo'lmagan lekin mavjud bo'lgan yozuvlarni o'chirish
+                                            //         $toDelete = array_diff($existinglabTests, $selectedLabTestIds);
+                                            //         if (!empty($toDelete)) {
+                                            //             $record->labTestDetails()->whereIn('lab_test_id', $toDelete)->delete();
+                                            //         }
+                                            //     }),
+
+                                            // Hidden::make('labTestDetails')->dehydrateStateUsing(function ($state, Get $get) {
+                                            //         return $get('labTestDetails');
+                                            // }),
+                                            // Placeholder::make('total_sum')
+                                            //     ->label('Общая стоимость (всего)')
+                                            //     ->content(function (Get $get) {
+                                            //         $items = $get('labTestDetails') ?? [];
+                                            //         $total = collect($items)->sum(function ($item) {
+                                            //             return ($item['selected'] ?? false) ? ($item['price'] ?? 0) : 0;
+                                            //         });
+
+                                            //         return number_format($total, 2, '.', ' ') . ' сум';
+                                            //     })
+                                            //     ->visible(fn () => !auth()->user()->hasRole('Доктор'))
+                                            //     ->reactive()
+                                            //     ->columnSpanFull(),
                                             Repeater::make('labTestDetails')
                                                 ->label('Анализ')
                                                 ->relationship('labTestDetails')

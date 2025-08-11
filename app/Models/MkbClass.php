@@ -13,6 +13,10 @@ class MkbClass extends Model
     {
         return $this->hasMany(\App\Models\ProcedureMkb::class, 'mkb_class_id');
     }
+    public function labTestMkbs()
+    {
+        return $this->hasMany(\App\Models\LabTestMkb::class, 'mkb_class_id');
+    }
     public function procedures()
     {
         return $this->belongsToMany(
@@ -20,6 +24,16 @@ class MkbClass extends Model
             'procedure_mkbs',        // pivot table nomi
             'mkb_class_id',          // ushbu modelga tegishli foreign key
             'procedure_id'           // boshqa modelga tegishli foreign key
+        );
+    }
+    
+    public function labTests()
+    {
+        return $this->belongsToMany(
+            \App\Models\LabTest::class,
+            'lab_test_mkbs',        // pivot table nomi
+            'mkb_class_id',          // ushbu modelga tegishli foreign key
+            'lab_test_id'           // boshqa modelga tegishli foreign key
         );
     }
     // App\Models\MkbClass.php

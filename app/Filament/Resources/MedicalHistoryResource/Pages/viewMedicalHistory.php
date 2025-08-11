@@ -279,7 +279,7 @@ class ViewMedicalHistory extends ViewRecord
                                                     ->label('Диагноз')
                                                     ->formatStateUsing(function ($record) {
                                                         return $record->medicalInspection->admission_diagnosis
-                                                            ?? $record->medicalInspection?->mkb?->mkb_code .' - '.$record->medicalInspection?->mkb?->mkb_name
+                                                            ?? $record->medicalInspection?->mkbClass?->name 
                                                             ?? 'Нет';
                                                     })
                                                     ->placeholder('Не добавлено')
