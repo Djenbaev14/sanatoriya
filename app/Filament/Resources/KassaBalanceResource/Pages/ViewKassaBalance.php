@@ -5,6 +5,7 @@ namespace App\Filament\Resources\KassaBalanceResource\Pages;
 use App\Filament\Resources\KassaBalanceResource;
 use App\Models\Payment;
 use Filament\Actions;
+use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\ViewRecord;
 use App\Filament\Resources\PaymentResource;
 use Filament\Forms;
@@ -20,6 +21,15 @@ class ViewKassaBalance extends ViewRecord
     public $labDetails;
     public $procedureDetails;
     public $accommodationDetails;
+    protected function getHeaderActions(): array
+    {
+        return [
+            DeleteAction::make()
+                ->successNotificationTitle('Платеж удален')
+                ->color('danger')
+                ->requiresConfirmation()
+        ];
+    }
     public function mount($record): void
     {
         $this->record = Payment::with([

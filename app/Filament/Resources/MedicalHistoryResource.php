@@ -329,14 +329,14 @@ class MedicalHistoryResource extends Resource
                 TextColumn::make('accommodation.admission_date')->label('Дата поступления')
                 ->dateTime('d.m.Y H:i')->sortable(),
                 BadgeColumn::make('accommodation.discharge_date')
-                    ->label('Дата выпуска')
+                    ->label('Дата выписки')
                     ->colors([
                         'danger' => fn ($state) => $state && Carbon::parse($state)->lt(Carbon::today()), // bugundan oldin
                         'success' => fn ($state) => $state && Carbon::parse($state)->gte(Carbon::today()), // bugun yoki keyin
                         'gray' => fn ($state) => is_null($state), // discharge_date null bo‘lsa
                     ])
                     ->dateTime('d.m.Y H:i'), // sana formatlash (xohlasang)
-                TextColumn::make('number')->label('Номер')->searchable()->sortable(),
+                TextColumn::make('number')->label('Номер карты')->searchable()->sortable(),
                 TextColumn::make('patient.full_name')->label('ФИО')
                 ->searchable()
                 ->limit(20)
