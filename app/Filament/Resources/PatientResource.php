@@ -212,30 +212,30 @@ class PatientResource extends Resource
                 //
             ])
             ->actions([
-                // EditAction::make()
-                //     ->modal()
-                //     ->slideOver()
-                //     ->modalHeading('Изменение')
-                //     ->modalWidth('lg')
-                //     ->modalAlignment('end')
-                //     ->using(function (Patient $record, array $data): Patient {
-                //         // Filial ma'lumotlarini yangilash
-                //         $record->update([
-                //                 'full_name' => $data['full_name'],
-                //                 'birth_date' => $data['birth_date'],
-                //                 'gender' => $data['gender'],
-                //                 'address' => $data['address'],
-                //                 'profession' => $data['profession'],
-                //                 'phone' => $data['phone'],
-                //         ]);
+                EditAction::make()
+                    ->modal()
+                    ->slideOver()
+                    ->modalHeading('Изменение')
+                    ->modalWidth('lg')
+                    ->modalAlignment('end')
+                    ->using(function (Patient $record, array $data): Patient {
+                        // Filial ma'lumotlarini yangilash
+                        $record->update([
+                                'full_name' => $data['full_name'],
+                                'birth_date' => $data['birth_date'],
+                                'gender' => $data['gender'],
+                                'address' => $data['address'],
+                                'profession' => $data['profession'],
+                                'phone' => $data['phone'],
+                        ]);
 
-                //         Notification::make()
-                //             ->title($data['full_name'].' табыслы редакторланды!')
-                //             ->success()
-                //             ->send();
+                        Notification::make()
+                            ->title($data['full_name'].' табыслы редакторланды!')
+                            ->success()
+                            ->send();
 
-                //         return $record;
-                //     }),
+                        return $record;
+                    }),
             ]);
     }
     public static function canAccess(): bool
