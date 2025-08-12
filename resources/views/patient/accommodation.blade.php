@@ -26,22 +26,23 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($accommodations as $key => $accommodation)
-                <tr style="border-bottom: 1px solid #929292;">
-                    <td style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">{{str_pad('№'.$accommodation->medicalHistory->number, 10) }}</td>
-                    <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $accommodation->admission_date }}</td>
-                    <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $accommodation->discharge_date }}</td>
-                    <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $accommodation->calculateDays() }} день</td>
-                    <td style="border: 1px solid #d1d5db; padding: 12px;">{{ number_format($accommodation->getTotalCost()) }} сум</td>
-                    <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $accommodation->statusPayment->name }}</td>
-                    <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $accommodation->created_at }}</td>
-                    <td style="border: 1px solid #d1d5db; padding: 12px;">
-                        {{-- <a href="/admin/accommodations/{{$accommodation->id}}" style="color: #094ecd;">Просмотр</a> --}}
-                        <a href="/admin/accommodations/{{$accommodation->id}}/edit" style="color: #cd0909">Редактировать</a>
-                        {{-- <a href="/admin/returned-accommodations/create?accommodation_id={{$accommodation->id}}" style="color: #dd0c0c;margin-left:5px;">Возврат</a> --}}
-                    </td>
-                </tr>
-                @endforeach
+                @forelse ($accommodations as $key => $accommodation)
+                    <tr style="border-bottom: 1px solid #929292;">
+                        <td style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">{{str_pad('№'.$accommodation->medicalHistory->number, 10) }}</td>
+                        <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $accommodation->admission_date }}</td>
+                        <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $accommodation->discharge_date }}</td>
+                        <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $accommodation->calculateDays() }} день</td>
+                        <td style="border: 1px solid #d1d5db; padding: 12px;">{{ number_format($accommodation->getTotalCost()) }} сум</td>
+                        <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $accommodation->statusPayment->name }}</td>
+                        <td style="border: 1px solid #d1d5db; padding: 12px;">{{ $accommodation->created_at }}</td>
+                        <td style="border: 1px solid #d1d5db; padding: 12px;">
+                            {{-- <a href="/admin/accommodations/{{$accommodation->id}}" style="color: #094ecd;">Просмотр</a> --}}
+                            <a href="/admin/accommodations/{{$accommodation->id}}/edit" style="color: #cd0909">Редактировать</a>
+                            {{-- <a href="/admin/returned-accommodations/create?accommodation_id={{$accommodation->id}}" style="color: #dd0c0c;margin-left:5px;">Возврат</a> --}}
+                        </td>
+                    </tr>
+                @empty
+                @endforelse
             </tbody>
         </table>
     </div>
