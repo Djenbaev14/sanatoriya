@@ -201,9 +201,6 @@ class PatientResource extends Resource
                     ->label('День рождения')
                     ->date()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('phone')
-                    ->label('Телефон номер')
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Время создания')
                     ->dateTime()
