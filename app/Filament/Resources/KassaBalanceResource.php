@@ -89,7 +89,7 @@ class KassaBalanceResource extends Resource
                             ->modifyQueryUsing(function ($query, $livewire) {
                                 return $livewire->getFilteredTableQuery()
                                     ->join('medical_histories', 'medical_histories.id', '=', 'payments.medical_history_id')
-                                    ->orderBy('medical_histories.number', 'asc')
+                                    ->orderBy('medical_histories.number', 'desc')
                                     ->select('payments.*'); // asosiy jadval ustunlarini tanlash
                             })
                             ->withColumns([
