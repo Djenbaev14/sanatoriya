@@ -87,7 +87,10 @@ class KassaBalanceResource extends Resource
                     ->exports([
                         ExcelExport::make()
                             ->modifyQueryUsing(function ($query, $livewire) {
-                                return $livewire->getFilteredTableQuery()->orderBy('medicalHistory.number','asc'); // Filtrlangan queryni qaytaradi
+                                return $livewire->getFilteredTableQuery()
+                                    ->join('medical_histories', 'medical_histories.id', '=', 'payments.medical_history_id')
+                                    ->orderBy('medical_histories.number', 'asc')
+                                    ->select('payments.*'); // asosiy jadval ustunlarini tanlash
                             })
                             ->withColumns([
                                 Column::make('medicalHistory.number')
@@ -100,7 +103,7 @@ class KassaBalanceResource extends Resource
                                     ->heading('Сумма'),
                                 Column::make('created_at')
                                     ->heading('Дата создания'),
-                            ]) // 0-based bo'lsa +1 qilamiz
+                            ]) 
 
                     ])
             ])
