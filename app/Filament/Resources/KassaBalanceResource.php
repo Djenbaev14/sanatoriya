@@ -85,15 +85,21 @@ class KassaBalanceResource extends Resource
                 ExportAction::make('export_excel')
                     ->label('Экспортировать в Excel')
                     ->exports([
-                        ExcelExport::make()
-                        ->modifyQueryUsing(function ($query, $livewire) {
-                            return $livewire->getFilteredTableQuery()
-                                ->with('medicalHistory') // munosabatni oldindan yuklash
-                                ->orderBy(
-                                    'medicalHistory.number',
-                                    'asc'
-                                );
-                        })
+                        ExcelExport::make()->fromTable()
+                            ->withColumns([
+                                Column::make('medicalHistory.number')->heading('История номер'),
+                                Column::make('patient.full_name')->heading('Больной'),
+                                Column::make('paymentType.name')->heading('Тип платежа'),
+                                Column::make('total_paid_amount')->heading('Сумма')
+                                    ->getStateUsing(fn ($record) => number_format($record->getTotalPaidAmount(), 0, '.', ' ') . ' сум'),
+                                Column::make('created_at')->heading('Дата создания'),
+                            ])
+                            // orderby MedicalHistory number desc   
+                            ->modifyQueryUsing(function ($query, $livewire) {
+                                return $livewire->getFilteredTableQuery()
+                                    ->with('medicalHistory') // munosabatni oldindan yuklash
+                                    ->orderBy('medicalHistory.number', 'asc');
+                            }),
 
                     ])
             ])
