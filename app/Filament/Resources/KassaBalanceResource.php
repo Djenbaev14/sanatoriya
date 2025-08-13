@@ -102,7 +102,7 @@ class KassaBalanceResource extends Resource
                                     ->orderBy(
                                         MedicalHistory::select('number')
                                             ->whereColumn('medical_histories.id', 'payments.medical_history_id'),
-                                        'asc'
+                                        'desc'
                                     );
                             }),
 
