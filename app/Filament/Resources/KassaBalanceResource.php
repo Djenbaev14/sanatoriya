@@ -84,7 +84,10 @@ class KassaBalanceResource extends Resource
                 ExportAction::make('export_excel')
                     ->label('Экспортировать в Excel')
                     ->exports([
-                        ExcelExport::make()->fromTable()
+                        ExcelExport::make()
+                        ->modifyQueryUsing(function ($query, $livewire) {
+                            return $livewire->getFilteredTableQuery()->orderBy('medicalHistory.number','asc'); // Filtrlangan queryni qaytaradi
+                        })->fromTable()
                     ])
             ])
             ->filters([
