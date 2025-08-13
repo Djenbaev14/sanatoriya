@@ -131,10 +131,10 @@ class KassaBalanceResource extends Resource
                     ])
                     ->query(function (Builder $query, array $data) {
                         return $query->when($data['from'], fn ($q) =>
-                            $q->whereDate('created_at', '>=', $data['from'])
+                            $q->whereDate('payments.created_at', '>=', $data['from'])
                         )
                             ->when($data['until'], fn ($q) =>
-                                    $q->whereDate('created_at', '<=', $data['until'])
+                                    $q->whereDate('payments.created_at', '<=', $data['until'])
                             );
                     }),
                 ],layout: FiltersLayout::AboveContent)
