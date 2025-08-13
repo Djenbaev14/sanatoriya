@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\KassaBalanceResource\Pages;
 use App\Filament\Resources\KassaBalanceResource\RelationManagers;
 use App\Models\KassaBalance;
+use App\Models\MedicalHistory;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use Filament\Forms;
@@ -88,22 +89,13 @@ class KassaBalanceResource extends Resource
                         ExcelExport::make()
                             ->modifyQueryUsing(function ($query, $livewire) {
                                 return $livewire->getFilteredTableQuery()
-                                    ->join('medical_histories', 'medical_histories.id', '=', 'payments.medical_history_id')
-                                    ->orderBy('medical_histories.number', 'desc')
-                                    ->select('payments.*'); // asosiy jadval ustunlarini tanlash
+                                    ->with('medicalHistory') // munosabatni oldindan yuklash
+                                    ->orderBy(
+                                        MedicalHistory::select('number')
+                                            ->whereColumn('medical_histories.id', 'payments.medical_history_id'),
+                                        'desc'
+                                    );
                             })
-                            ->withColumns([
-                                Column::make('medicalHistory.number')
-                                    ->heading('История номер'),
-                                Column::make('patient.full_name')
-                                    ->heading('Больной'),
-                                Column::make('paymentType.name')
-                                    ->heading('Тип платежа'),
-                                Column::make('total_paid_amount')
-                                    ->heading('Сумма'),
-                                Column::make('created_at')
-                                    ->heading('Дата создания'),
-                            ]) 
 
                     ])
             ])
@@ -131,10 +123,10 @@ class KassaBalanceResource extends Resource
                     ])
                     ->query(function (Builder $query, array $data) {
                         return $query->when($data['from'], fn ($q) =>
-                            $q->whereDate('payments.created_at', '>=', $data['from'])
+                            $q->whereDate('created_at', '>=', $data['from'])
                         )
                             ->when($data['until'], fn ($q) =>
-                                    $q->whereDate('payments.created_at', '<=', $data['until'])
+                                    $q->whereDate('created_at', '<=', $data['until'])
                             );
                     }),
                 ],layout: FiltersLayout::AboveContent)
