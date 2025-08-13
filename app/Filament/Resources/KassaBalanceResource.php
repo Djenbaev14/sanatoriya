@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
+use pxlrbt\FilamentExcel\Columns\Column;
 
 class KassaBalanceResource extends Resource
 {
@@ -85,9 +86,22 @@ class KassaBalanceResource extends Resource
                     ->label('Экспортировать в Excel')
                     ->exports([
                         ExcelExport::make()
-                        ->modifyQueryUsing(function ($query, $livewire) {
-                            return $livewire->getFilteredTableQuery()->orderBy('medicalHistory.number','asc'); // Filtrlangan queryni qaytaradi
-                        })->fromTable()
+                            ->modifyQueryUsing(function ($query, $livewire) {
+                                return $livewire->getFilteredTableQuery()->orderBy('medicalHistory.number','asc'); // Filtrlangan queryni qaytaradi
+                            })
+                            ->withColumns([
+                                Column::make('medicalHistory.number')
+                                    ->heading('История номер'),
+                                Column::make('patient.full_name')
+                                    ->heading('Больной'),
+                                Column::make('paymentType.name')
+                                    ->heading('Тип платежа'),
+                                Column::make('total_paid_amount')
+                                    ->heading('Сумма'),
+                                Column::make('created_at')
+                                    ->heading('Дата создания'),
+                            ]) // 0-based bo'lsa +1 qilamiz
+
                     ])
             ])
             ->filters([
