@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\KassaBalanceResource\Pages;
 use App\Filament\Resources\KassaBalanceResource\RelationManagers;
 use App\Models\KassaBalance;
+use App\Models\MedicalHistory;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use Filament\Forms;
@@ -98,7 +99,11 @@ class KassaBalanceResource extends Resource
                             ->modifyQueryUsing(function ($query, $livewire) {
                                 return $livewire->getFilteredTableQuery()
                                     ->with('medicalHistory') // munosabatni oldindan yuklash
-                                    ->orderBy('medicalHistory.number', 'asc');
+                                    ->orderBy(
+                                        MedicalHistory::select('number')
+                                            ->whereColumn('medical_histories.id', 'payments.medical_history_id'),
+                                        'asc'
+                                    );
                             }),
 
                     ])
