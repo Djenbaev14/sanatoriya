@@ -436,7 +436,7 @@ class AccommodationResource extends Resource
 
                                             $total = $tariff_price * $days;
 
-                                            return number_format($total, 0, '.', ' ') . ' сум (' . $days . ' дней × ' . number_format($dailyPrice, 0, '.', ' ') . ')';
+                                            return number_format($total, 0, '.', ' ') . ' сум (' . $days . ' дней × ' . number_format($tariff_price, 0, '.', ' ') . ')';
                                         })
                                         ->columnSpan(6),
 
@@ -480,7 +480,7 @@ class AccommodationResource extends Resource
                                             $days= max($start->diffInDays($end), 0);
 
                                             $total = $meal_price * $days;
-                                            return number_format($total, 0, '.', ' ') . ' сум (' . $days . ' дней × ' . number_format($dailyPrice, 0, '.', ' ') . ')';
+                                            return number_format($total, 0, '.', ' ') . ' сум (' . $days . ' дней × ' . number_format($meal_price, 0, '.', ' ') . ')';
                                         })
                                         ->columnSpan(6),
                                     Placeholder::make('partner_bed_total')
@@ -576,6 +576,7 @@ class AccommodationResource extends Resource
                                             // Koyka
                                             $bedTotal = 0;
                                             $bedId = $get('bed_id');
+                                            $tariff_price = $get('tariff_price');
                                             $admissionDate = $get('admission_date');
                                             $dischargeDate = $get('discharge_date');
                                             $patientId = $get('patient_id');
@@ -602,7 +603,7 @@ class AccommodationResource extends Resource
                                                     $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
                                                     $days= max($start->diffInDays($end), 0);
                                                     $bedPrice=$isForeign ? $bed->ward->tariff->foreign_daily_price : $bed->ward->tariff->daily_price;
-                                                    $bedTotal = $bedPrice * $days;
+                                                    $bedTotal = $tariff_price * $days;
                                                 }
                                             }
 
@@ -634,7 +635,8 @@ class AccommodationResource extends Resource
                                             $days= max($start->diffInDays($end), 0);
 
                                                     $mealPrice=$isForeign ? $mealType->foreign_daily_price : $mealType->daily_price;
-                                                    $mealTotal = $mealPrice * $days;
+                                                    $meal_price = $get('meal_price');
+                                                    $mealTotal = $meal_price * $days;
                                                 }
                                             }
                                             
