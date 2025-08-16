@@ -126,7 +126,7 @@ class AccommodationResource extends Resource
                                             $set('tariff_price', $price);
                                         })
                                         ->columnSpan(4), 
-                                    Hidden::make('tariff_price')
+                                    TextInput::make('tariff_price')
                                         ->dehydrated(true),
                                     Select::make('ward_id')
                                         ->label('Палата')
