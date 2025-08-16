@@ -399,6 +399,7 @@ class AccommodationResource extends Resource
                                         ->label('Стоимость койки')
                                         ->content(function (Get $get) {
                                             $bedId = $get('bed_id');
+                                            $tariff_price=$get('tariff_price');
                                             $admissionDate = $get('admission_date');
                                             $dischargeDate = $get('discharge_date');
 
@@ -433,7 +434,7 @@ class AccommodationResource extends Resource
                                             $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
                                             $days= max($start->diffInDays($end), 0);
 
-                                            $total = $dailyPrice * $days;
+                                            $total = $tariff_price * $days;
 
                                             return number_format($total, 0, '.', ' ') . ' сум (' . $days . ' дней × ' . number_format($dailyPrice, 0, '.', ' ') . ')';
                                         })
@@ -444,6 +445,7 @@ class AccommodationResource extends Resource
                                         ->label('Стоимость питания')
                                         ->content(function (Get $get) {
                                             $mealTypeId = $get('meal_type_id');
+                                            $meal_price=$get('meal_price');
                                             $admissionDate = $get('admission_date');
                                             $dischargeDate = $get('discharge_date');
 
@@ -477,7 +479,7 @@ class AccommodationResource extends Resource
                                             $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
                                             $days= max($start->diffInDays($end), 0);
 
-                                            $total = $dailyPrice * $days;
+                                            $total = $meal_price * $days;
                                             return number_format($total, 0, '.', ' ') . ' сум (' . $days . ' дней × ' . number_format($dailyPrice, 0, '.', ' ') . ')';
                                         })
                                         ->columnSpan(6),
