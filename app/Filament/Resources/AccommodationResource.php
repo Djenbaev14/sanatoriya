@@ -249,21 +249,12 @@ class AccommodationResource extends Resource
                                                 ->required()
                                                 ->maxLength(255)
                                                 ->columnSpan(12),
-                                            TextInput::make('phone')
-                                                ->prefix('+998')
-                                                ->label('Телефон номер')
-                                                ->unique(table: 'patients', column: 'phone')
-                                                ->required()
-                                                ->tel()
-                                                ->maxLength(255)
-                                                ->columnSpan(12),
                                         ])->columns(12)->columnSpan(12)
                                 ])
                                 ->action(function (array $data,Get $get, Set $set) {
                                     $patientId = $get('patient_id');
                                     $accomplicePatient = \App\Models\Patient::create([
                                         'full_name' => $data['full_name'],
-                                        'phone' => $data['phone'],
                                         'is_accomplice' => 1,
                                         'main_patient_id' => $patientId,
                                     ]);

@@ -143,16 +143,6 @@ class ReturnedAccommodationResource extends Resource
                                                 return $record?->patient ? "{$record->patient->full_name} " : 'Информация не найдена';
                                             }),
 
-                                        Forms\Components\Placeholder::make('patient_phone')
-                                            ->label('Телефон')
-                                            ->content(function ($record, Get $get) {
-                                                $accommodationId = $get('accommodation_id') ?? request()->get('accommodation_id');
-                                                if ($accommodationId) {
-                                                    $accommodation = Accommodation::with('patient')->find($accommodationId);
-                                                    return $accommodation?->patient?->phone ?? 'Телефон не добавлен';
-                                                }
-                                                return $record?->patient?->phone ?? 'Телефон не добавлен';
-                                            }),
 
                                         Forms\Components\Placeholder::make('ward_info')
                                             ->label('Койка')

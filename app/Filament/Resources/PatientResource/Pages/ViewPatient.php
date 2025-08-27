@@ -48,11 +48,6 @@ class ViewPatient extends ViewRecord
                                     ]),
                                     
                                     Components\Group::make([
-                                        Components\TextEntry::make('phone')
-                                            ->label('Телефон')
-                                            ->copyable()
-                                            ->copyMessage('Номер скопирован!')
-                                            ->url(fn ($record) => 'tel:' . $record->phone), 
                                         Components\TextEntry::make('address')
                                             ->label('Адрес')
                                             ->state(function ($record) {

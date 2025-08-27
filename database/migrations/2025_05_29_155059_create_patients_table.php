@@ -26,7 +26,7 @@ return new class extends Migration
             $table->date('birth_date')->nullable();
             $table->enum('gender', ['male', 'female'])->nullable();
             $table->string('profession')->nullable();
-            $table->string('phone')->unique();
+            $table->string('phone')->nullable();
             $table->longText('address')->nullable();
             $table->boolean('is_foreign')->default(false);
             $table->timestamps();

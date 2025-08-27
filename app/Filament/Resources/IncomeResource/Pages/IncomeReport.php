@@ -21,7 +21,6 @@ class IncomeReport extends Page
 {
     protected static string $resource = IncomeResource::class;
     protected static ?string $title = 'Статистика по услугам';
-
     protected static string $view = 'filament.resources.payment-resource.income-report';
 
     public $startDate;
@@ -234,22 +233,6 @@ class IncomeReport extends Page
         usort($this->tableData, function ($a, $b) {
             return $b['amount'] <=> $a['amount'];
         });
-
-        // $accommodations=AccommodationPayment::query()
-        //     ->join('payments', 'accommodation_payments.payment_id', '=', 'payments.id')
-        //     ->whereNotNull('accommodation_payments.medical_history_id')->whereBetween('payments.created_at', [$this->startDate, $this->endDate])
-        //     ->select(
-        //         DB::raw('SUM(tariff_price * COALESCE(ward_day, 0)) as total_ward'),
-        //         DB::raw('SUM(meal_price * COALESCE(meal_day, 0)) as total_meal'),
-        //     );
-        // $accommodationPartner=AccommodationPayment::query()
-        //     ->join('payments', 'accommodation_payments.payment_id', '=', 'payments.id')
-        //     ->whereNull('accommodation_payments.medical_history_id')->whereBetween('payments.created_at', [$this->startDate, $this->endDate])->select(
-        //         DB::raw('SUM(tariff_price * COALESCE(ward_day, 0)) as total_uxod_ward'),
-        //         DB::raw('SUM(meal_price * COALESCE(meal_day, 0)) as total_uxod_meal'),
-        //     );
-        
-        
     }
 
     protected function getFormSchema(): array

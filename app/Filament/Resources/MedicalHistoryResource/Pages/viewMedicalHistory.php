@@ -46,10 +46,6 @@ class ViewMedicalHistory extends ViewRecord
                                                     ->date('d.m.Y')
                                                     ->placeholder('Не добавлено'),
                                                     
-                                                TextEntry::make('patient.phone')
-                                                    ->label('Телефон')
-                                                    ->placeholder('Не добавлено'),
-                                                    
                                                 TextEntry::make('patient.address')
                                                     ->label('Адрес')
                                                     ->placeholder('Не добавлено'),

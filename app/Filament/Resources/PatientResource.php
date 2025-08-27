@@ -61,14 +61,6 @@ class PatientResource extends Resource
                             ->label('День рождения')
                             ->required()
                             ->columnSpan(6),
-                        TextInput::make('phone')
-                            ->prefix('+998')
-                            ->label('Телефон номер')
-                            ->unique(ignoreRecord: true)
-                            ->required()
-                            ->tel()
-                            ->maxLength(255)
-                            ->columnSpan(6),
                         Select::make('country_id') 
                             ->label('Страна ') 
                             ->required()
@@ -180,7 +172,6 @@ class PatientResource extends Resource
                                 'passport' => $data['passport'],
                                 'address' => $data['address'],
                                 'profession' => $data['profession'],
-                                'phone' => $data['phone'],
                                 'created_at' => $data['created_at'],
                                 'is_accomplice' => $data['is_accomplice'],
                                 'main_patient_id' => array_key_exists('main_patient_id', $data) ? $data['main_patient_id'] : null,
@@ -226,7 +217,6 @@ class PatientResource extends Resource
                                 'gender' => $data['gender'],
                                 'address' => $data['address'],
                                 'profession' => $data['profession'],
-                                'phone' => $data['phone'],
                         ]);
 
                         Notification::make()

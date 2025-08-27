@@ -103,14 +103,6 @@ class MedicalHistoryResource extends Resource
                                                     ->label('День рождения')
                                                     ->required()
                                                     ->columnSpan(6),
-                                                TextInput::make('phone')
-                                                    ->prefix('+998')
-                                                    ->label('Телефон номер')
-                                                    ->unique(ignoreRecord: true)
-                                                    ->required()
-                                                    ->tel()
-                                                    ->maxLength(255)
-                                                    ->columnSpan(6),
                                                 Select::make('country_id') 
                                                     ->label('Страна ') 
                                                     ->required()
