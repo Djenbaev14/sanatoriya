@@ -108,13 +108,6 @@ class FinancialReportResource extends Resource
                                     return $state ? \Carbon\Carbon::parse($state)->format('d-m-Y') : null;
                                 })
                                 ->heading('Чикган вакти'),
-                            // Column::make('accommodation.ward_day') // tartib raqami
-                            //     ->heading('Бажарилган койка уринлар сони'),
-                            // Column::make('accommodation.admission_date') // tartib raqami
-                            //     ->formatStateUsing(function ($state) {
-                            //         return $state ? \Carbon\Carbon::parse($state)->format('d-m-Y') : null;
-                            //     })
-                            //     ->heading('Шартнома санаси'),
                             Column::make('total_cost') // tartib raqami
                                 ->heading('Шартнома суммаси'),
                             Column::make('total_ward_payment') // tartib raqami

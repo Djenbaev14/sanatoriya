@@ -71,6 +71,7 @@ class KassaBalanceResource extends Resource
 
                 TextColumn::make('created_at')
                     ->label('Дата создания')
+                    ->sortable()
                     ->date('d.m.Y h:i'),
             ])
             ->headerActions([
