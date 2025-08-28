@@ -85,10 +85,6 @@ class MedicalHistory extends Model
         return $this->getTotalCost();
     }
     
-    public function getTotalPaidAmount(): float
-    {
-        return $this->payments->sum(fn ($payment) => $payment->getTotalPaidAmount());
-    }
     public function getUnpaidProcedureSessions($procedureDetail)
     {
         $paidSessions = ProcedurePaymentDetail::where('assigned_procedure_id', $procedureDetail->assigned_procedure_id)
@@ -141,9 +137,9 @@ class MedicalHistory extends Model
         $paid = AccommodationPayment::where('accommodation_id','=',$partnerAccommodation?->id)->sum('meal_day');
         return max(0, $partnerAccommodation->meal_day - $paid);
     }
-    public function getRemainingDebt(): float
+    public function getRemainingDebtAttribute(): float
     {
-        return max(0, $this->getTotalCost() - $this->getTotalPaidAmount());
+        return max(0, $this->getTotalCostAttribute() - $this->getTotalPaidSumAttribute());
     }
     public function scopeWithDebt($query)
     {
@@ -178,7 +174,15 @@ class MedicalHistory extends Model
             ->selectRaw('SUM(ward_day * tariff_price) as total')
             ->value('total') ?? 0;
     }
-    
+    public function getTotalPaidSumAttribute()
+    {
+        return
+            ($this->total_ward_payment ?? 0) +
+            ($this->total_meal_payment ?? 0) +
+            ($this->total_medical_services_payment ?? 0) +
+            ($this->total_ward_payment_partner ?? 0) +
+            ($this->total_meal_payment_partner ?? 0);
+    }
     public function getTotalMealPaymentAttribute(): int
     {
         return $this->accommodationPayments()

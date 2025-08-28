@@ -110,6 +110,11 @@ class FinancialReportResource extends Resource
                                 ->heading('Чикган вакти'),
                             Column::make('total_cost') // tartib raqami
                                 ->heading('Шартнома суммаси'),
+                            // ✅ Yangi ustun — jami hisoblangan summa
+                            Column::make('total_paid_sum')
+                                ->heading('Жами тўланган сумма'),
+                            Column::make('remaining_debt')
+                                ->heading('Кариз суммаси'),
                             Column::make('total_ward_payment') // tartib raqami
                                 ->heading('Койка учун туланган сумма'),
                             Column::make('total_meal_payment') // tartib raqami
@@ -135,22 +140,23 @@ class FinancialReportResource extends Resource
                                 DatePicker::make('until')
                                     ->label('Последняя дата')
                                     ->columnSpan(1),
-                            ])
+                            ]),
                     ])
                     ->query(function (Builder $query, array $data) {
                         return $query
-                            ->when($data['from'], fn ($q) =>
-                                $q->whereHas('accommodation', fn ($query) =>
-                                    $query->whereDate('admission_date', '>=', $data['from'])
+                            ->when($data['from'] ?? null, fn ($q, $from) =>
+                                $q->whereHas('accommodation', fn ($sub) =>
+                                    $sub->whereDate('admission_date', '>=', $from)
                                 )
                             )
-                            ->when($data['until'], fn ($q) =>
-                                $q->whereHas('accommodation', fn ($query) =>
-                                    $query->whereDate('admission_date', '<=', $data['until'])
+                            ->when($data['until'] ?? null, fn ($q, $until) =>
+                                $q->whereHas('accommodation', fn ($sub) =>
+                                    $sub->whereDate('admission_date', '<=', $until)
                                 )
                             );
                     }),
-                ],layout: FiltersLayout::AboveContent);
+            ], layout: FiltersLayout::AboveContent);
+
             
     }
     
