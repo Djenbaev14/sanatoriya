@@ -66,7 +66,7 @@ class KassaBalanceResource extends Resource
                     ->label('Сумма')
                     ->badge()
                     ->getStateUsing(function ($record) {
-                        return number_format($record->getTotalPaidAmount(),0,'.',' ');
+                        return $record->getTotalPaidAmount();
                     }),
 
                 TextColumn::make('created_at')
@@ -88,25 +88,24 @@ class KassaBalanceResource extends Resource
                     ->label('Экспортировать в Excel')
                     ->exports([
                         ExcelExport::make()->fromTable()
-                            ->withColumns([
-                                Column::make('medicalHistory.number')->heading('История номер'),
-                                Column::make('patient.full_name')->heading('Больной'),
-                                Column::make('paymentType.name')->heading('Тип платежа'),
-                                Column::make('total_paid_amount')->heading('Сумма')
-                                    ->getStateUsing(fn ($record) => $record->getTotalPaidAmount()),
-                                Column::make('created_at')->heading('Дата создания'),
-                            ])
-                            // orderby MedicalHistory number desc   
-                            ->modifyQueryUsing(function ($query, $livewire) {
-                                return $livewire->getFilteredTableQuery()
-                                    ->with('medicalHistory') // munosabatni oldindan yuklash
-                                    ->orderBy(
-                                        MedicalHistory::select('number')
-                                            ->whereColumn('medical_histories.id', 'payments.medical_history_id'),
-                                        'desc'
-                                    );
-                            }),
-
+                            // ->withColumns([
+                            //     Column::make('medicalHistory.number')->heading('История номер'),
+                            //     Column::make('patient.full_name')->heading('Больной'),
+                            //     Column::make('paymentType.name')->heading('Тип платежа'),
+                            //     Column::make('total_paid_amount')->heading('Сумма')
+                            //         ->getStateUsing(fn ($record) => $record->getTotalPaidAmount()),
+                            //     Column::make('created_at')->heading('Дата создания'),
+                            // ])
+                            // // orderby MedicalHistory number desc   
+                            // ->modifyQueryUsing(function ($query, $livewire) {
+                            //     return $livewire->getFilteredTableQuery()
+                            //         ->with('medicalHistory') // munosabatni oldindan yuklash
+                            //         ->orderBy(
+                            //             MedicalHistory::select('number')
+                            //                 ->whereColumn('medical_histories.id', 'payments.medical_history_id'),
+                            //             'desc'
+                            //         );
+                            // }),
                     ])
             ])
             ->filters([
