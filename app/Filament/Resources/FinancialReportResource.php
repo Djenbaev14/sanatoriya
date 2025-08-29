@@ -12,6 +12,7 @@ use Filament\Forms\Components\Grid;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
@@ -86,6 +87,33 @@ class FinancialReportResource extends Resource
             ->defaultPaginationPageOption(50)
             ->defaultSort('number','asc')
             ->headerActions([
+                Action::make('total_amount_summary')
+                    ->label(function ($livewire) {
+                        $filtered = $livewire->getFilteredTableQuery()->get();
+                        $total = $filtered->sum(fn ($item) => $item->getTotalCost());
+
+                        return 'Общая сумма: ' . number_format($total, 0, '.', ' ') . ' сум';
+                    })
+                    ->disabled()
+                    ->color('gray'),
+                Action::make('total_amount_paid_summary')
+                    ->label(function ($livewire) {
+                        $filtered = $livewire->getFilteredTableQuery()->get();
+                        $total = $filtered->sum(fn ($item) => $item->total_paid_sum);
+
+                        return 'Общая оплаченная сумма: ' . number_format($total, 0, '.', ' ') . ' сум';
+                    })
+                    ->disabled()
+                    ->color('success'),
+                Action::make('total_remaining_debt_summary')
+                    ->label(function ($livewire) {
+                        $filtered = $livewire->getFilteredTableQuery()->get();
+                        $total = $filtered->sum(fn ($item) => $item->remaining_debt);
+
+                        return 'Общий дебт: ' . number_format($total, 0, '.', ' ') . ' сум';
+                    })
+                    ->disabled()
+                    ->color('danger'),
                 ExportAction::make('export_excel')
                     ->label('Экспортировать в Excel')
                     ->exports([
