@@ -70,7 +70,7 @@ class MedicalPaymentResource extends Resource
                 $all = $query->get();
 
                 $ids = $all->filter(function ($history) {
-                    return $history->getRemainingDebt() > 0;
+                    return $history->remaining_debt > 0;
                 })->pluck('id');
 
                 return MedicalHistory::whereIn('id', $ids);
