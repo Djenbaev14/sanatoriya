@@ -92,7 +92,8 @@ class KassaBalanceResource extends Resource
                                 Column::make('medicalHistory.number')->heading('История номер'),
                                 Column::make('patient.full_name')->heading('Больной'),
                                 Column::make('paymentType.name')->heading('Тип платежа'),
-                                Column::make('total_paid_amount')->heading('Сумма'),
+                                Column::make('total_paid_amount')->heading('Сумма')
+                                    ->getStateUsing(fn ($record) => $record->getTotalPaidAmount()),
                                 Column::make('created_at')->heading('Дата создания'),
                             ])
                             // orderby MedicalHistory number desc   
