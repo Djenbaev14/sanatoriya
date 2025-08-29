@@ -61,10 +61,12 @@ class FinancialReportResource extends Resource
                     }),
                 TextColumn::make('total_paid_sum')
                     ->label('Оплачено')
+                    ->sortable()
                     ->color('success')
                     ->badge(),
                 TextColumn::make('remaining_debt')
                     ->label('Дебт')
+                    ->sortable()
                     ->color('danger')
                     ->badge(),
                 TextColumn::make('total_ward_payment')
