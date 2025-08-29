@@ -209,6 +209,11 @@ class MedicalHistory extends Model
             ->selectRaw('SUM(meal_day * meal_price) as total')
             ->value('total') ?? 0;
     }
+    
+    public function getTotalPaidAmount(): float
+    {
+        return $this->payments->sum(fn ($payment) => $payment->getTotalPaidAmount());
+    }
     public function getTotalProcedurePaymentAttribute(): float
     {
         return \App\Models\ProcedurePaymentDetail::whereHas('procedurePayment.payment', function ($query) {
