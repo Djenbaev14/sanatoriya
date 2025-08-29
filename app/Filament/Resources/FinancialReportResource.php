@@ -57,7 +57,7 @@ class FinancialReportResource extends Resource
                     ->label('Сумма')
                     ->badge()
                     ->getStateUsing(function ($record) {
-                        return number_format($record->getTotalCost(),0,'.',' ').' сум';
+                        return $record->getTotalCost();
                     }),
                 TextColumn::make('total_ward_payment')
                     ->label('Койка')
@@ -81,52 +81,52 @@ class FinancialReportResource extends Resource
                 ExportAction::make('export_excel')
                     ->label('Экспортировать в Excel')
                     ->exports([
-                         ExcelExport::make()
-                        ->modifyQueryUsing(function ($query, $livewire) {
-                            return $livewire->getFilteredTableQuery()->orderBy('number','asc'); // Filtrlangan queryni qaytaradi
-                        })
-                         ->withColumns([
-                            Column::make('№') // tartib raqami
-                                ->formatStateUsing(fn ($record, $loopIndex) => $loopIndex + 1), // 0-based bo'lsa +1 qilamiz
+                         ExcelExport::make()->fromTable()
+                        // ->modifyQueryUsing(function ($query, $livewire) {
+                        //     return $livewire->getFilteredTableQuery()->orderBy('number','asc'); // Filtrlangan queryni qaytaradi
+                        // })
+                        //  ->withColumns([
+                        //     Column::make('№') // tartib raqami
+                        //         ->formatStateUsing(fn ($record, $loopIndex) => $loopIndex + 1), // 0-based bo'lsa +1 qilamiz
 
-                            Column::make('number')
-                                ->heading('Касаллик тарики ракмаи'),
+                        //     Column::make('number')
+                        //         ->heading('Касаллик тарики ракмаи'),
                                 
-                            Column::make('patient.full_name')
-                                ->heading('Ф.И.Ш'),
-                            // Column::make('patient.district.name') // tartib raqami
-                            //     ->heading('Яшаш манзили'),
-                            // Column::make('patient.birth_date') // tartib raqami
-                            //     ->heading('Тугилган йили'),
-                            Column::make('accommodation.admission_date') // tartib raqami
-                                ->formatStateUsing(function ($state) {
-                                    return $state ? \Carbon\Carbon::parse($state)->format('d-m-Y') : null;
-                                })
-                                ->heading('Келган вакти'),
-                            Column::make('accommodation.discharge_date') // tartib raqami
-                                ->formatStateUsing(function ($state) {
-                                    return $state ? \Carbon\Carbon::parse($state)->format('d-m-Y') : null;
-                                })
-                                ->heading('Чикган вакти'),
-                            Column::make('total_cost') // tartib raqami
-                                ->heading('Шартнома суммаси'),
-                            // ✅ Yangi ustun — jami hisoblangan summa
-                            Column::make('total_paid_sum')
-                                ->heading('Жами тўланган сумма'),
-                            Column::make('remaining_debt')
-                                ->heading('Кариз суммаси'),
-                            Column::make('total_ward_payment') // tartib raqami
-                                ->heading('Койка учун туланган сумма'),
-                            Column::make('total_meal_payment') // tartib raqami
-                                ->heading('Питание'),
-                            Column::make('total_medical_services_payment') // tartib raqami
-                                ->heading('Мед услуг'),
-                            Column::make('total_ward_payment_partner') // tartib raqami
-                                ->heading('Койка (Уход)'),
-                            Column::make('total_meal_payment_partner') // tartib raqami
-                                ->heading('Питание (Уход)'),
+                        //     Column::make('patient.full_name')
+                        //         ->heading('Ф.И.Ш'),
+                        //     // Column::make('patient.district.name') // tartib raqami
+                        //     //     ->heading('Яшаш манзили'),
+                        //     // Column::make('patient.birth_date') // tartib raqami
+                        //     //     ->heading('Тугилган йили'),
+                        //     Column::make('accommodation.admission_date') // tartib raqami
+                        //         ->formatStateUsing(function ($state) {
+                        //             return $state ? \Carbon\Carbon::parse($state)->format('d-m-Y') : null;
+                        //         })
+                        //         ->heading('Келган вакти'),
+                        //     Column::make('accommodation.discharge_date') // tartib raqami
+                        //         ->formatStateUsing(function ($state) {
+                        //             return $state ? \Carbon\Carbon::parse($state)->format('d-m-Y') : null;
+                        //         })
+                        //         ->heading('Чикган вакти'),
+                        //     Column::make('total_cost') // tartib raqami
+                        //         ->heading('Шартнома суммаси'),
+                        //     // ✅ Yangi ustun — jami hisoblangan summa
+                        //     Column::make('total_paid_sum')
+                        //         ->heading('Жами тўланган сумма'),
+                        //     Column::make('remaining_debt')
+                        //         ->heading('Кариз суммаси'),
+                        //     Column::make('total_ward_payment') // tartib raqami
+                        //         ->heading('Койка учун туланган сумма'),
+                        //     Column::make('total_meal_payment') // tartib raqami
+                        //         ->heading('Питание'),
+                        //     Column::make('total_medical_services_payment') // tartib raqami
+                        //         ->heading('Мед услуг'),
+                        //     Column::make('total_ward_payment_partner') // tartib raqami
+                        //         ->heading('Койка (Уход)'),
+                        //     Column::make('total_meal_payment_partner') // tartib raqami
+                        //         ->heading('Питание (Уход)'),
 
-                        ])
+                        // ])
                     ])
             ])
             ->filters([
