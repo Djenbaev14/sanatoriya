@@ -95,7 +95,7 @@ class FinancialReportResource extends Resource
                         return 'Общая сумма: ' . number_format($total, 0, '.', ' ') . ' сум';
                     })
                     ->disabled()
-                    ->color('gray'),
+                    ->color('primary'),
                 Action::make('total_amount_paid_summary')
                     ->label(function ($livewire) {
                         $filtered = $livewire->getFilteredTableQuery()->get();
