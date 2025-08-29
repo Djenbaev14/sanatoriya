@@ -59,6 +59,14 @@ class FinancialReportResource extends Resource
                     ->getStateUsing(function ($record) {
                         return $record->getTotalCost();
                     }),
+                TextColumn::make('total_paid_sum')
+                    ->label('Оплачено')
+                    ->color('success')
+                    ->badge(),
+                TextColumn::make('remaining_debt')
+                    ->label('Дебт')
+                    ->color('danger')
+                    ->badge(),
                 TextColumn::make('total_ward_payment')
                     ->label('Койка')
                     ->badge(),
