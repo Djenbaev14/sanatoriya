@@ -66,7 +66,7 @@ class KassaBalanceResource extends Resource
                     ->label('Сумма')
                     ->badge()
                     ->getStateUsing(function ($record) {
-                        return number_format($record->getTotalPaidAmount(),0,'.',' ').' сум';
+                        return number_format($record->getTotalPaidAmount(),0,'.',' ');
                     }),
 
                 TextColumn::make('created_at')
