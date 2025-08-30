@@ -114,7 +114,7 @@ class FinancialReportResource extends Resource
 
                         // Har bir medical_history ichidagi paymentlardan umumiy summa
                         $total = $filtered->sum(fn ($item) =>
-                            $item->payments->sum(fn ($p) => $p->getTotalPaidAmount())
+                            $item->sum(fn ($p) => $p->getTotalPaidAmount())
                         );
                         return 'Платежи текущего месяца: ' . number_format($total, 0, '.', ' ') . ' so‘m';
                     })
@@ -137,7 +137,7 @@ class FinancialReportResource extends Resource
 
                         // Har bir medical_history ichidagi paymentlardan umumiy summa
                         $total1 = $filtered1->sum(fn ($item) =>
-                            $item->payments->sum(fn ($p) => $p->getTotalPaidAmount())
+                            $item->sum(fn ($p) => $p->getTotalPaidAmount())
                         );
                         
 
