@@ -6,6 +6,7 @@ use App\Filament\Resources\FinancialReportResource\Pages;
 use App\Filament\Resources\FinancialReportResource\RelationManagers;
 use App\Models\FinancialReport;
 use App\Models\MedicalHistory;
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
@@ -20,6 +21,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Log;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use pxlrbt\FilamentExcel\Columns\Column;
@@ -89,6 +91,7 @@ class FinancialReportResource extends Resource
             ->defaultSort('number','asc')
             ->headerActions([
                 Action::make('total_amount_summary')
+                    ->visible(fn () => request()->has('tableFilters.created_month_year.month') && request()->has('tableFilters.created_month_year.year'))
                     ->label(function ($livewire) {
                         $filtered = $livewire->getFilteredTableQuery()->get();
                         $total = $filtered->sum(fn ($item) => $item->getTotalCost());
@@ -97,24 +100,57 @@ class FinancialReportResource extends Resource
                     })
                     ->disabled()
                     ->color('primary'),
-                Action::make('total_amount_paid_summary')
+                Action::make('current_month_payments')
+                    ->visible(fn () => request()->has('tableFilters.created_month_year.month') && request()->has('tableFilters.created_month_year.year'))
                     ->label(function ($livewire) {
-                        $filtered = $livewire->getFilteredTableQuery()->get();
-                        $total = $filtered->sum(fn ($item) => $item->total_paid_sum);
+                        $month = request()->input('tableFilters.created_month_year.month');
+                        $year = request()->input('tableFilters.created_month_year.year');
 
-                        return 'Общая оплаченная сумма: ' . number_format($total, 0, '.', ' ') . ' сум';
+                        // Filtrlangan queryni olish
+                        $filtered = $livewire->getFilteredTableQuery()
+                            ->whereHas('payments', fn($q) =>
+                                $q->whereYear('created_at', $year)
+                                ->whereMonth('created_at', $month)
+                            )
+                            ->get();
+
+                        // Har bir medical_history ichidagi paymentlardan umumiy summa
+                        $total = $filtered->sum(fn ($item) =>
+                            $item->payments->sum(fn ($p) => $p->getTotalPaidAmount())
+                        );
+                        return 'Платежи текущего месяца: ' . number_format($total, 0, '.', ' ') . ' so‘m';
                     })
                     ->disabled()
                     ->color('success'),
-                Action::make('total_remaining_debt_summary')
+                Action::make('carryover_balance')
+                    ->visible(fn () => request()->has('tableFilters.created_month_year.month') && request()->has('tableFilters.created_month_year.year'))
                     ->label(function ($livewire) {
-                        $filtered = $livewire->getFilteredTableQuery()->get();
-                        $total = $filtered->sum(fn ($item) => $item->remaining_debt);
+                        $month = request()->input('tableFilters.created_month_year.month');
+                        $year = request()->input('tableFilters.created_month_year.year');
 
-                        return 'Общий дебт: ' . number_format($total, 0, '.', ' ') . ' сум';
+                        $filtered = $livewire->getFilteredTableQuery()->get();
+                        $total = $filtered->sum(fn ($item) => $item->getTotalCost());
+
+                        // Filtrlangan queryni olish
+                        $filtered1 = $livewire->getFilteredTableQuery()
+                            ->whereHas('payments', fn($q) =>
+                                $q->whereYear('created_at', $year)
+                                ->whereMonth('created_at', $month)
+                            )
+                            ->get();
+                            
+
+                        // Har bir medical_history ichidagi paymentlardan umumiy summa
+                        $total1 = $filtered1->sum(fn ($item) =>
+                            $item->payments->sum(fn ($p) => $p->getTotalPaidAmount())
+                        );
+                        
+
+                        return 'Переходящий остаток: ' . number_format($total-$total1, 0, '.', ' ') . ' сум';
                     })
                     ->disabled()
-                    ->color('danger'),
+                    ->color('warning'),
+
                 ExportAction::make('export_excel')
                     ->label('Экспортировать в Excel')
                     ->exports([
@@ -169,7 +205,9 @@ class FinancialReportResource extends Resource
             ->filters([
                 Filter::make('created_month_year')
                     ->form([
-                        Grid::make(6)
+                        Grid::make()
+                            ->columnSpan(6)
+                            ->columns(6)
                             ->schema([
                                 Select::make('month')
                                     ->label('Месяц')
@@ -189,7 +227,7 @@ class FinancialReportResource extends Resource
                                     ])
                                     ->native(false)
                                     ->searchable()
-                                    ->columnSpan(3),
+                                    ->columnSpan(6),
 
                                 Select::make('year')
                                     ->label('Год')
@@ -199,7 +237,7 @@ class FinancialReportResource extends Resource
                                     )
                                     ->native(false)
                                     ->searchable()
-                                    ->columnSpan(3),
+                                    ->columnSpan(6),
                             ]),
                     ])
                     ->query(function (Builder $query, array $data) {
