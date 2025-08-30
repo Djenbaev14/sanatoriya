@@ -144,7 +144,14 @@ class FinancialReportResource extends Resource
                         $total1 = $filtered1->sum(fn ($payment) => $payment->getTotalPaidAmount());
                         
 
-                        return 'Переходящий остаток: ' . number_format($total-$total1, 0, '.', ' ') . ' сум';
+                        // return 'Переходящий остаток: ' . number_format($total-$total1, 0, '.', ' ') . ' сум';
+                        // total > total1 togri bolsa ishlasin
+                        if($total >= $total1){
+                            return 'Переходящий остаток: ' . number_format($total-$total1, 0, '.', ' ') . ' сум';
+                        } else {
+                            return 'Переходящий остаток: 0 сум';
+                        }
+                        
                     })
                     ->disabled()
                     ->color('warning'),
