@@ -9,6 +9,7 @@ use App\Models\MedicalHistory;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -166,28 +167,54 @@ class FinancialReportResource extends Resource
                     ])
             ])
             ->filters([
-                Filter::make('created_date_range')
+                Filter::make('created_month_year')
                     ->form([
-                        Grid::make(2)
+                        Grid::make(6)
                             ->schema([
-                                DatePicker::make('from')
-                                    ->label('Первая дата')
-                                    ->columnSpan(1),
-                                DatePicker::make('until')
-                                    ->label('Последняя дата')
-                                    ->columnSpan(1),
+                                Select::make('month')
+                                    ->label('Месяц')
+                                    ->options([
+                                        '01' => 'Январ',
+                                        '02' => 'Феврал',
+                                        '03' => 'Март',
+                                        '04' => 'Апрел',
+                                        '05' => 'Май',
+                                        '06' => 'Июнь',
+                                        '07' => 'Июль',
+                                        '08' => 'Август',
+                                        '09' => 'Сентябр',
+                                        '10' => 'Октябр',
+                                        '11' => 'Ноябр',
+                                        '12' => 'Декабр',
+                                    ])
+                                    ->native(false)
+                                    ->searchable()
+                                    ->columnSpan(3),
+
+                                Select::make('year')
+                                    ->label('Год')
+                                    ->options(
+                                        collect(range(now()->year, 2025))
+                                            ->mapWithKeys(fn ($year) => [$year => $year])
+                                    )
+                                    ->native(false)
+                                    ->searchable()
+                                    ->columnSpan(3),
                             ]),
                     ])
                     ->query(function (Builder $query, array $data) {
                         return $query
-                            ->when($data['from'] ?? null, fn ($q, $from) =>
-                                $q->whereHas('accommodation', fn ($sub) =>
-                                    $sub->whereDate('admission_date', '>=', $from)
+                            ->when(
+                                ($data['month'] ?? null) && ($data['year'] ?? null),
+                                fn ($q) => $q->whereHas('accommodation', fn ($sub) =>
+                                    $sub->whereYear('admission_date', $data['year'])
+                                        ->whereMonth('admission_date', $data['month'])
                                 )
                             )
-                            ->when($data['until'] ?? null, fn ($q, $until) =>
-                                $q->whereHas('accommodation', fn ($sub) =>
-                                    $sub->whereDate('admission_date', '<=', $until)
+                            ->when(
+                                ($data['year'] ?? null) && !($data['month'] ?? null),
+                                fn ($q) => $q->whereHas('accommodation', fn ($sub) =>
+                                    $sub->whereYear('admission_date', $data['year'])
                                 )
                             );
                     }),
