@@ -110,8 +110,8 @@ class FinancialReportResource extends Resource
                         filled(data_get($livewire->tableFilters, 'created_month_year.year'))
                     )
                     ->label(function ($livewire) {
-                        $month = request()->input('tableFilters.created_month_year.month');
-                        $year = request()->input('tableFilters.created_month_year.year');
+                        $month = data_get($livewire->tableFilters, 'created_month_year.month');
+                        $year  = data_get($livewire->tableFilters, 'created_month_year.year');
 
                         $filtered = Payment::whereYear('created_at', $year)
                             ->whereMonth('created_at', $month)
@@ -128,8 +128,8 @@ class FinancialReportResource extends Resource
                         filled(data_get($livewire->tableFilters, 'created_month_year.year'))
                     )
                     ->label(function ($livewire) {
-                        $month = request()->input('tableFilters.created_month_year.month');
-                        $year = request()->input('tableFilters.created_month_year.year');
+                        $month = data_get($livewire->tableFilters, 'created_month_year.month');
+                        $year  = data_get($livewire->tableFilters, 'created_month_year.year');
 
                         $filtered = $livewire->getFilteredTableQuery()->get();
                         $total = $filtered->sum(fn ($item) => $item->getTotalCost());
