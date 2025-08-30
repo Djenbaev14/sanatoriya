@@ -92,7 +92,10 @@ class FinancialReportResource extends Resource
             ->defaultSort('number','asc')
             ->headerActions([
                 Action::make('total_amount_summary')
-                    ->visible(fn () => request()->has('tableFilters.created_month_year.month') && request()->has('tableFilters.created_month_year.year'))
+                    ->visible(fn ($livewire) =>
+                        filled(data_get($livewire->tableFilters, 'created_month_year.month')) &&
+                        filled(data_get($livewire->tableFilters, 'created_month_year.year'))
+                    )
                     ->label(function ($livewire) {
                         $filtered = $livewire->getFilteredTableQuery()->get();
                         $total = $filtered->sum(fn ($item) => $item->getTotalCost());
@@ -102,7 +105,10 @@ class FinancialReportResource extends Resource
                     ->disabled()
                     ->color('primary'),
                 Action::make('current_month_payments')
-                    ->visible(fn () => request()->has('tableFilters.created_month_year.month') && request()->has('tableFilters.created_month_year.year'))
+                    ->visible(fn ($livewire) =>
+                        filled(data_get($livewire->tableFilters, 'created_month_year.month')) &&
+                        filled(data_get($livewire->tableFilters, 'created_month_year.year'))
+                    )
                     ->label(function ($livewire) {
                         $month = request()->input('tableFilters.created_month_year.month');
                         $year = request()->input('tableFilters.created_month_year.year');
@@ -117,7 +123,10 @@ class FinancialReportResource extends Resource
                     ->disabled()
                     ->color('success'),
                 Action::make('carryover_balance')
-                    ->visible(fn () => request()->has('tableFilters.created_month_year.month') && request()->has('tableFilters.created_month_year.year'))
+                    ->visible(fn ($livewire) =>
+                        filled(data_get($livewire->tableFilters, 'created_month_year.month')) &&
+                        filled(data_get($livewire->tableFilters, 'created_month_year.year'))
+                    )
                     ->label(function ($livewire) {
                         $month = request()->input('tableFilters.created_month_year.month');
                         $year = request()->input('tableFilters.created_month_year.year');
