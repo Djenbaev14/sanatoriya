@@ -107,15 +107,11 @@ class FinancialReportResource extends Resource
                         $month = request()->input('tableFilters.created_month_year.month');
                         $year = request()->input('tableFilters.created_month_year.year');
 
-                        // Filtrlangan queryni olish
                         $filtered = Payment::whereYear('created_at', $year)
                             ->whereMonth('created_at', $month)
                             ->get();
 
-                        // Har bir medical_history ichidagi paymentlardan umumiy summa
-                        $total = $filtered->sum(fn ($item) =>
-                            $item->sum(fn ($p) => $p->getTotalPaidAmount())
-                        );
+                        $total = $filtered->sum(fn ($payment) => $payment->getTotalPaidAmount());
                         return 'Платежи текущего месяца: ' . number_format($total, 0, '.', ' ') . ' so‘m';
                     })
                     ->disabled()
@@ -136,9 +132,7 @@ class FinancialReportResource extends Resource
                             
 
                         // Har bir medical_history ichidagi paymentlardan umumiy summa
-                        $total1 = $filtered1->sum(fn ($item) =>
-                            $item->sum(fn ($p) => $p->getTotalPaidAmount())
-                        );
+                        $total1 = $filtered->sum(fn ($payment) => $payment->getTotalPaidAmount());
                         
 
                         return 'Переходящий остаток: ' . number_format($total-$total1, 0, '.', ' ') . ' сум';
