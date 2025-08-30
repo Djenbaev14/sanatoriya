@@ -6,6 +6,7 @@ use App\Filament\Resources\FinancialReportResource\Pages;
 use App\Filament\Resources\FinancialReportResource\RelationManagers;
 use App\Models\FinancialReport;
 use App\Models\MedicalHistory;
+use App\Models\Payment;
 use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
@@ -107,11 +108,8 @@ class FinancialReportResource extends Resource
                         $year = request()->input('tableFilters.created_month_year.year');
 
                         // Filtrlangan queryni olish
-                        $filtered = $livewire->getFilteredTableQuery()
-                            ->whereHas('payments', fn($q) =>
-                                $q->whereYear('created_at', $year)
-                                ->whereMonth('created_at', $month)
-                            )
+                        $filtered = Payment::whereYear('created_at', $year)
+                            ->whereMonth('created_at', $month)
                             ->get();
 
                         // Har bir medical_history ichidagi paymentlardan umumiy summa
@@ -132,11 +130,8 @@ class FinancialReportResource extends Resource
                         $total = $filtered->sum(fn ($item) => $item->getTotalCost());
 
                         // Filtrlangan queryni olish
-                        $filtered1 = $livewire->getFilteredTableQuery()
-                            ->whereHas('payments', fn($q) =>
-                                $q->whereYear('created_at', $year)
-                                ->whereMonth('created_at', $month)
-                            )
+                        $filtered1 = Payment::whereYear('created_at', $year)
+                            ->whereMonth('created_at', $month)
                             ->get();
                             
 
