@@ -132,7 +132,7 @@ class FinancialReportResource extends Resource
                             
 
                         // Har bir medical_history ichidagi paymentlardan umumiy summa
-                        $total1 = $filtered->sum(fn ($payment) => $payment->getTotalPaidAmount());
+                        $total1 = $filtered1->sum(fn ($payment) => $payment->getTotalPaidAmount());
                         
 
                         return 'Переходящий остаток: ' . number_format($total-$total1, 0, '.', ' ') . ' сум';
