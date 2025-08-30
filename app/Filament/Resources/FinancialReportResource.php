@@ -99,8 +99,8 @@ class FinancialReportResource extends Resource
                     ->label(function ($livewire) {
                         $filtered = $livewire->getFilteredTableQuery()->get();
                         $total = $filtered->sum(fn ($item) => $item->getTotalCost());
-
-                        return 'Общая сумма: ' . number_format($total, 0, '.', ' ') . ' сум';
+                        $count = $filtered->count(); // nechta odam
+                        return 'Общая сумма: ' . number_format($total, 0, '.', ' ') . ' сум | Пациентов: ' . $count;
                     })
                     ->disabled()
                     ->color('primary'),
