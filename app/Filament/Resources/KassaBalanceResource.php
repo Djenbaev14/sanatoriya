@@ -139,6 +139,8 @@ class KassaBalanceResource extends Resource
                     }),
                 ],layout: FiltersLayout::AboveContent)
             ->persistFiltersInSession()    // 👈 Foydalanuvchi filtrlasa, u saqlanadi
+            // default sort by medicalHistory number desc
+            ->defaultSort('medicalHistory.number','desc')
             ->defaultPaginationPageOption(50)
             ->actions([
                 Action::make('check')
