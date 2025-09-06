@@ -2,39 +2,35 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ProcedureResource\Pages;
-use App\Filament\Resources\ProcedureResource\RelationManagers;
-use App\Models\MkbClass;
+use App\Filament\Resources\OperationResource\Pages;
+use App\Filament\Resources\OperationResource\RelationManagers;
+use App\Models\Operation;
 use App\Models\Procedure;
-use App\Models\ProcedureRole;
 use Filament\Forms;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Radio;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
-use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\MaxWidth;
 use Filament\Tables;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\Log;
 
-class ProcedureResource extends Resource
+class OperationResource extends Resource
 {
     protected static ?string $model = Procedure::class;
-    
     protected static ?string $navigationGroup = 'Настройка';
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 3;
+
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    
     public static function form(Form $form): Form
     {
         return $form
@@ -53,16 +49,10 @@ class ProcedureResource extends Resource
                         ->label('Иностранная цена')
                         ->required()
                         ->maxLength(255)->columnSpan(12),
-                    Select::make('roles')
-                            ->relationship('roles', 'name')
-                            ->label('Ролы')
-                            ->preload()
-                            ->multiple()
-                            ->searchable()
-                            ->columnSpan(12),
                 ])->columns(12)->columnSpan(12)
             ]);
     }
+
     public static function table(Table $table): Table
     {
         return $table
@@ -71,27 +61,17 @@ class ProcedureResource extends Resource
                     ->slideOver()
                     ->modalWidth(MaxWidth::Medium)
                     ->action(function (array $data) {
-                            $procedure=Procedure::create([
+                            Procedure::create([
                                 'name' => $data['name'],
                                 'price_per_day' => $data['price_per_day'],
                                 'price_foreign'=> $data['price_foreign'],
-                                'is_operation'=> 0,
+                                'is_operation'=> 1,
                             ]);
-                            if (isset($data['roles'])) {
-                                ProcedureRole::insert(array_map(function($roleId) use ($procedure) {
-                                    return [
-                                        'procedure_id' => $procedure->id,
-                                        'role_id' => $roleId,
-                                        'updated_at' => now(),
-                                        'created_at' => now(),
-                                    ];
-                                }, $data['roles']));
-                            }
                         }),
             ])
             ->query(
                 Procedure::query()
-                    ->where('is_operation', 0)
+                    ->where('is_operation', 1)
             )
             ->columns([
                 Tables\Columns\TextColumn::make('name')
@@ -123,8 +103,6 @@ class ProcedureResource extends Resource
                         'class' => 'text-gray-500 dark:text-gray-300 text-xs'
                     ])
                     ->columnSpan(3),
-                TextColumn::make('roles.name')
-                    ->label('Роль'),
             ])
             ->defaultSort('id','desc')
             ->defaultPaginationPageOption(50)
@@ -140,27 +118,43 @@ class ProcedureResource extends Resource
                                 'name' => $data['name'],
                                 'price_per_day' => $data['price_per_day'],
                                 'price_foreign'=> $data['price_foreign'],
+                                'is_operation'=> $data['is_operation'],
                         ]);
-                            if (isset($data['roles'])) {
-                                log::info($data['roles']);
-                                ProcedureRole::create(array_map(function($roleId) use ($record) {
-                                    return [
-                                        'procedure_id' => $record->id,
-                                        'role_id' => $roleId,
-                                    ];
-                                }, $data['roles']));
-                            }
 
 
                         return $record;
                     }),
                     DeleteAction::make()->label('Удалить'),
+            ])
+            ->filters([
+                //
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
             ]);
     }
-
+    
     public static function canAccess(): bool
     {
         return auth()->user()?->can('настройки');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return 'Операция'; // Rus tilidagi nom
+    }
+    public static function getModelLabel(): string
+    {
+        return 'Операция'; // Rus tilidagi yakka holdagi nom
+    }
+    public static function getPluralModelLabel(): string
+    {
+        return 'Операция'; // Rus tilidagi ko'plik shakli
     }
     public static function getRelations(): array
     {
@@ -168,26 +162,13 @@ class ProcedureResource extends Resource
             //
         ];
     }
-    public static function getNavigationLabel(): string
-    {
-        return 'Процедуры'; // Rus tilidagi nom
-    }
-    public static function getModelLabel(): string
-    {
-        return 'Процедуры'; // Rus tilidagi yakka holdagi nom
-    }
-    public static function getPluralModelLabel(): string
-    {
-        return 'Процедуры'; // Rus tilidagi ko'plik shakli
-    }
-
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListProcedures::route('/'),
-            // 'create' => Pages\CreateProcedure::route('/create'),
-            // 'edit' => Pages\EditProcedure::route('/{record}/edit'),
+            'index' => Pages\ListOperations::route('/'),
+            'create' => Pages\CreateOperation::route('/create'),
+            'edit' => Pages\EditOperation::route('/{record}/edit'),
         ];
     }
 }

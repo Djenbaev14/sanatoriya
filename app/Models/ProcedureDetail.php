@@ -26,7 +26,13 @@ class ProcedureDetail extends Model
     public function procedure(){
         return $this->belongsTo(Procedure::class);
     }
+    public function performer(){
+        return $this->belongsTo(User::class);
+    }
     public function assignedProcedure(){
         return $this->belongsTo(AssignedProcedure::class);
+    }
+    public function procedureSessions(){
+        return $this->hasMany(ProcedureSession::class);
     }
 }

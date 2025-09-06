@@ -397,6 +397,8 @@ class ViewMedicalHistory extends ViewRecord
                                                         ->label('')
                                                         ->schema([
                                                             TextEntry::make('procedure.name')->label(''),
+                                                            TextEntry::make('performer.name')->label(''),
+                                                            TextEntry::make('sessions')->label(''),
                                                             TextEntry::make('sessions')->label(''),
                                                             TextEntry::make('price')->label('')
                                                             ->visible(fn () => !auth()->user()->hasRole('Доктор'))

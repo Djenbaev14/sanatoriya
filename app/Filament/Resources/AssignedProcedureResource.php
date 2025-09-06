@@ -242,8 +242,6 @@ class AssignedProcedureResource extends Resource
                                                                 ->filter()
                                                                 ->toArray();
 
-                                                            // Agar bu `Select` allaqachon tanlangan bo‘lsa, uni istisno qilamiz
-                                                            // Aks holda o‘zi ham option ro‘yxatdan yo‘qolib qoladi
                                                             if ($state) {
                                                                 $selectedIds = array_diff($selectedIds, [$state]);
                                                             }
@@ -267,14 +265,35 @@ class AssignedProcedureResource extends Resource
 
                                                                 $procedure = Procedure::find($state);
                                                                 $price = $isForeign == 1 ? $procedure->price_foreign : $procedure->price_per_day;
-
                                                                 $set('price', $price ?? 0);
                                                                 $set('total_price', $price * ($get('sessions') ?? 1));
                                                                 
                                                                 static::recalculateTotalSum($get, $set);
                                                         })
-                                                        ->columnSpan(4),
+                                                        ->columnSpan(3),
+                                                    Select::make('executor_id')
+                                                        ->label('Исполнитель')
+                                                        ->nullable()
+                                                        ->options(function (Get $get) {
+                                                            $procedureId = $get('procedure_id');
 
+                                                            if (!$procedureId) {
+                                                                return [];
+                                                            }
+
+                                                            // Proseduraga biriktirilgan rollarni topamiz
+                                                            $roleIds = \App\Models\Procedure::find($procedureId)?->roles()->pluck('role_id');
+
+                                                            if (!$roleIds || $roleIds->isEmpty()) {
+                                                                return [];
+                                                            }
+
+                                                            // Shu rollardagi foydalanuvchilarni topamiz
+                                                            return \App\Models\User::role($roleIds)->pluck('name', 'id'); // Spatie method
+                                                        })
+                                                        ->searchable()
+                                                        ->reactive()
+                                                        ->columnSpan(3),
                                                     TextInput::make('price')
                                                         ->label('Цена')
                                                         ->reactive()
@@ -289,7 +308,7 @@ class AssignedProcedureResource extends Resource
                                                             // umumiy summa qayta hisoblanadi
                                                             static::recalculateTotalSum($get, $set);
                                                         })
-                                                        ->columnSpan(3),
+                                                        ->columnSpan(2),
 
                                                     TextInput::make('sessions')
                                                         ->label('Кол сеансов')
@@ -309,7 +328,7 @@ class AssignedProcedureResource extends Resource
                                                         ->disabled()
                                                         ->visible(fn () => !auth()->user()->hasRole('Доктор'))
                                                         ->numeric()
-                                                        ->columnSpan(3)
+                                                        ->columnSpan(2)
                                                         ->afterStateUpdated(function (Get $get, Set $set) {
                                                             static::recalculateTotalSum($get, $set);
                                                         }),
@@ -333,7 +352,7 @@ class AssignedProcedureResource extends Resource
                                                     })
                                                     ->columnSpanFull(), 
                     ])->columnSpan(12)->columns(12),
-            ]);
+                                                ]);
     }
 //     public static function afterCreate(Form $form, AssignedProcedure $record): void
 //     {

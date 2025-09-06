@@ -17,12 +17,12 @@ class EditAssignedProcedure extends EditRecord
         ];
     }
     
-    protected function getRedirectUrl(): string
-    {
-        return AssignedProcedureResource::getUrl('view', [
-            'record' => $this->record->id,
-        ]);
-    }
+    // protected function getRedirectUrl(): string
+    // {
+    //     return AssignedProcedureResource::getUrl('view', [
+    //         'record' => $this->record->id,
+    //     ]);
+    // }
     protected function mutateFormDataBeforeSave(array $data): array
     {
         $data['status_payment_id'] = 1; 

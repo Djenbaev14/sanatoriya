@@ -99,8 +99,6 @@ class AccommodationResource extends Resource
                                 $set('meal_day', $days);
                             })
                             ->columnSpan(6),
-                        Hidden::make('ward_day'),
-                        Hidden::make('meal_day'),
                         Group::make()
                             ->schema([
                                     Select::make('tariff_id')
@@ -126,7 +124,12 @@ class AccommodationResource extends Resource
                                             $set('tariff_price', $price);
                                         })
                                         ->columnSpan(4), 
+                                    TextInput::make('ward_day')
+                                        ->label('Дней в палате')
+                                        ->reactive()
+                                        ->visible(fn (Get $get) => filled($get('admission_date')) && filled($get('discharge_date'))),
                                     TextInput::make('tariff_price')
+                                        ->hidden()
                                         ->dehydrated(true),
                                     Select::make('ward_id')
                                         ->label('Палата')
@@ -153,7 +156,7 @@ class AccommodationResource extends Resource
                                         ->reactive()
                                         ->required()
                                         ->visible(fn (Get $get) => filled($get('tariff_id')))
-                                        ->columnSpan(4),
+                                        ->columnSpan(3),
                                     Select::make('bed_id')
                                         ->label('На пустой койке')
                                         ->options(function (Get $get) {
@@ -181,7 +184,7 @@ class AccommodationResource extends Resource
                                         ->reactive()
                                         ->required()
                                         ->visible(fn (Get $get) => filled($get('ward_id')))
-                                        ->columnSpan(4),
+                                        ->columnSpan(3),
                             ])->columns(12)->columnSpan(12),
                                 Select::make('meal_type_id')
                                     ->label('Питание')
@@ -205,6 +208,10 @@ class AccommodationResource extends Resource
                                         $set('meal_price', $price);
                                     })
                                     ->columnSpan(4), 
+                                    TextInput::make('meal_day')
+                                        ->reactive()
+                                        ->label('Дней питания')
+                                        ->visible(fn (Get $get) => filled($get('admission_date')) && filled($get('discharge_date'))),
                                     Hidden::make('meal_price')
                                         ->dehydrated(true), 
                                     Group::make()
@@ -391,6 +398,7 @@ class AccommodationResource extends Resource
                                         ->content(function (Get $get) {
                                             $bedId = $get('bed_id');
                                             $tariff_price=$get('tariff_price');
+                                            $days=$get('ward_day');
                                             $admissionDate = $get('admission_date');
                                             $dischargeDate = $get('discharge_date');
 
@@ -403,27 +411,15 @@ class AccommodationResource extends Resource
                                                 return '0 сум (койка не найдена)';
                                             }
 
-                                            $dailyPrice = $bed->ward->tariff->daily_price;
+                                            // $dailyPrice = $bed->ward->tariff->daily_price;
 
-                                            $admission = \Carbon\Carbon::parse($admissionDate);
-                                            $discharge = \Carbon\Carbon::parse($dischargeDate);
+                                            // $admission = \Carbon\Carbon::parse($admissionDate);
+                                            // $discharge = \Carbon\Carbon::parse($dischargeDate);
 
-                                            // $days = $admission->diffInDays($discharge);
-
-                                            // // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
-                                            // if ($admission->format('H:i') > '12:00' && $days > 0) {
-                                            //     $days -= 1;
-                                            // }
-                                            // if($discharge->format('H:i') > '12:00' && $days > 0) {
-                                            //     $days += 1;
-                                            // }
-
-                                            // Kamida 1 kun hisoblash
-                                            // $days = max($days, 1);
                                             
-                                            $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
-                                            $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
-                                            $days= max($start->diffInDays($end), 0);
+                                            // $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
+                                            // $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
+                                            // $days= max($start->diffInDays($end), 0);
 
                                             $total = $tariff_price * $days;
 
@@ -437,6 +433,7 @@ class AccommodationResource extends Resource
                                         ->content(function (Get $get) {
                                             $mealTypeId = $get('meal_type_id');
                                             $meal_price=$get('meal_price');
+                                            $days=$get('meal_day');
                                             $admissionDate = $get('admission_date');
                                             $dischargeDate = $get('discharge_date');
 
@@ -448,28 +445,6 @@ class AccommodationResource extends Resource
                                             if (!$mealType) {
                                                 return '0 сум (питание не найдено)';
                                             }
-
-                                            $dailyPrice = $mealType->daily_price;
-                                            
-
-                                            $admission = \Carbon\Carbon::parse($admissionDate);
-                                            $discharge = \Carbon\Carbon::parse($dischargeDate);
-
-                                            // $days = $admission->diffInDays($discharge);
-
-                                            // // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
-                                            // if ($admission->format('H:i') > '12:00' && $days > 0) {
-                                            //     $days -= 1;
-                                            // }
-                                            // if ($discharge->format('H:i') > '12:00' && $days > 0) {
-                                            //     $days += 1;
-                                            // }
-                                            // Kamida 1 kun hisoblash
-                                            // $days = max($days, 1);
-                                            $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
-                                            $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
-                                            $days= max($start->diffInDays($end), 0);
-
                                             $total = $meal_price * $days;
                                             return number_format($total, 0, '.', ' ') . ' сум (' . $days . ' дней × ' . number_format($meal_price, 0, '.', ' ') . ')';
                                         })
@@ -494,20 +469,6 @@ class AccommodationResource extends Resource
 
                                             $admission = \Carbon\Carbon::parse($admissionDate);
                                             $discharge = \Carbon\Carbon::parse($dischargeDate);
-
-                                            // $days = $admission->diffInDays($discharge);
-
-                                            // // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
-                                            // if ($admission->format('H:i') > '12:00' && $days > 0) {
-                                            //     $days -= 1;
-                                            // }
-                                            // if($discharge->format('H:i') > '12:00' && $days > 0) {
-                                            //     $days += 1;
-                                            // }
-
-                                            // Kamida 1 kun hisoblash
-                                            // $days = max($days, 1);
-
                                             $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
                                             $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
                                             $days= max($start->diffInDays($end), 0);
@@ -571,29 +532,17 @@ class AccommodationResource extends Resource
                                             $admissionDate = $get('admission_date');
                                             $dischargeDate = $get('discharge_date');
                                             $patientId = $get('patient_id');
+                                            $days=$get('ward_day');
                                             $isForeign = \App\Models\Patient::find($patientId)?->is_foreign ?? false;
                                             if ($bedId && $admissionDate && $dischargeDate) {
                                                 $bed = \App\Models\Bed::with('ward.tariff')->find($bedId);
                                                 if ($bed) {
-                                                    $admission = \Carbon\Carbon::parse($admissionDate);
-                                                    $discharge = \Carbon\Carbon::parse($dischargeDate);
-
-                                                    // $days = $admission->diffInDays($discharge) ;
-
-                                                    // // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
-                                                    // if ($admission->format('H:i') > '12:00' && $days > 0) {
-                                                    //     $days -= 1;
-                                                    // }
-                                                    // if($discharge->format('H:i') > '12:00' && $days > 0) {
-                                                    //     $days += 1;
-                                                    // }
-                                                    // // Kamida 1 kun hisoblash
-                                                    // $days = max($days, 1);
-                                                    
-                                                    $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
-                                                    $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
-                                                    $days= max($start->diffInDays($end), 0);
-                                                    $bedPrice=$isForeign ? $bed->ward->tariff->foreign_daily_price : $bed->ward->tariff->daily_price;
+                                                    // $admission = \Carbon\Carbon::parse($admissionDate);
+                                                    // $discharge = \Carbon\Carbon::parse($dischargeDate);
+                                                    // $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
+                                                    // $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
+                                                    // $days= max($start->diffInDays($end), 0);
+                                                    // $bedPrice=$isForeign ? $bed->ward->tariff->foreign_daily_price : $bed->ward->tariff->daily_price;
                                                     $bedTotal = $tariff_price * $days;
                                                 }
                                             }
@@ -606,25 +555,16 @@ class AccommodationResource extends Resource
                                                 $mealType = \App\Models\MealType::find($mealTypeId);
                                                 if ($mealType) {
                                                     
-                                                    $admission = \Carbon\Carbon::parse($admissionDate);
-                                                    $discharge = \Carbon\Carbon::parse($dischargeDate);
+                                                    // $admission = \Carbon\Carbon::parse($admissionDate);
+                                                    // $discharge = \Carbon\Carbon::parse($dischargeDate);
 
-                                                    $days = $admission->diffInDays($discharge);
+                                                    // $days = $admission->diffInDays($discharge);
 
-                                                    // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
-                                                    // if ($admission->format('H:i') > '12:00' && $days > 0) {
-                                                    //     $days -= 1;
-                                                    // }
-                                                    // if($discharge->format('H:i') > '12:00' && $days > 0) {
-                                                    //     $days += 1;
-                                                    // }
-                                                    // // Kamida 1 kun hisoblash
-                                                    // $days = max($days, 1);
-                                                    
-                                            $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
-                                            $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
-                                            $days= max($start->diffInDays($end), 0);
+                                                    // $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
+                                                    // $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
+                                                    // $days= max($start->diffInDays($end), 0);
 
+                                                    $days=$get('meal_day');
                                                     $mealPrice=$isForeign ? $mealType->foreign_daily_price : $mealType->daily_price;
                                                     $meal_price = $get('meal_price');
                                                     $mealTotal = $meal_price * $days;
@@ -643,18 +583,6 @@ class AccommodationResource extends Resource
                                                     $admission = \Carbon\Carbon::parse($partnerAdmissionDate);
                                                     $discharge = \Carbon\Carbon::parse($partnerDischargeDate);
 
-                                                    // $days = $admission->diffInDays($discharge);
-
-                                                    // // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
-                                                    // if ($admission->format('H:i') > '12:00' && $days > 0) {
-                                                    //     $days -= 1;
-                                                    // }
-                                                    // if($discharge->format('H:i') > '12:00' && $days > 0) {
-                                                    //     $days += 1;
-                                                    // }
-                                                    // // Kamida 1 kun hisoblash
-                                                    // $days = max($days, 1);
-                                                    
                                             $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
                                             $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
                                             $days= max($start->diffInDays($end), 0);
@@ -673,19 +601,6 @@ class AccommodationResource extends Resource
                                                     $admission = \Carbon\Carbon::parse($partnerAdmissionDate);
                                                     $discharge = \Carbon\Carbon::parse($partnerDischargeDate);
 
-                                                    // $days = $admission->diffInDays($discharge);
-
-                                                    // // Agar soat 12:00 dan keyin kelgan bo‘lsa — 1 kun kamaytiramiz
-                                                    // if ($admission->format('H:i') > '12:00' && $days > 0) {
-                                                    //     $days -= 1;
-                                                    // }
-                                                    
-                                                    // if($discharge->format('H:i') > '12:00' && $days > 0) {
-                                                    //     $days += 1;
-                                                    // }
-                                                    // // Kamida 1 kun hisoblash
-                                                    // $days = max($days, 1);
-                                                    
                                             $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
                                             $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
                                             $days= max($start->diffInDays($end), 0);

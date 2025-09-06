@@ -31,7 +31,7 @@ class WardResource extends Resource
 {
     protected static ?string $model = Ward::class;
     protected static ?string $navigationGroup = 'Настройка';
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 4;
     public static function form(Form $form): Form
     {
         return $form

@@ -46,16 +46,16 @@ class ViewAssignedProcedure extends ViewRecord
                 ->visible(fn () => $this->record->status_payment_id == 1)
                 ->url(fn () => route('filament.admin.resources.assigned-procedures.edit', $this->record)),
 
-            Action::make('send_to_kassa')
-                ->label('Отправить кассе')
-                ->icon('heroicon-o-banknotes')
-                ->color('success')
-                ->requiresConfirmation()
-                ->modalHeading('Отправить в кассу')
-                ->modalDescription('Отправить данные в кассу для оплаты?')
-                ->modalSubmitActionLabel('Да, отправить')
-                ->visible(fn () => $this->record->status_payment_id == 1)
-                ->action(fn () => $this->sendToKassa()),
+            // Action::make('send_to_kassa')
+            //     ->label('Отправить кассе')
+            //     ->icon('heroicon-o-banknotes')
+            //     ->color('success')
+            //     ->requiresConfirmation()
+            //     ->modalHeading('Отправить в кассу')
+            //     ->modalDescription('Отправить данные в кассу для оплаты?')
+            //     ->modalSubmitActionLabel('Да, отправить')
+            //     ->visible(fn () => $this->record->status_payment_id == 1)
+            //     ->action(fn () => $this->sendToKassa()),
             Action::make('back')
                 ->label('Назад')
                 ->icon('heroicon-o-arrow-uturn-left')

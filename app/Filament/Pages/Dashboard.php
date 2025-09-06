@@ -2,6 +2,11 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Widgets\FreeBedsOverview;
+use App\Filament\Widgets\PaymentStats;
+use App\Filament\Widgets\SanatoriumStats;
+use App\Filament\Widgets\TopLabTests;
+use App\Filament\Widgets\TopProcedures;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -15,6 +20,13 @@ class Dashboard extends BaseDashboard
 
     public function filtersForm(Form $form): Form
     {
+        $user = auth()->user();
+
+        // Agar foydalanuvchida "view dashboard" permission bo‘lmasa → hech qanday filtr ko‘rinmaydi
+        if (! $user->can('view dashboard')) {
+            return $form->schema([]);
+        }
+        
         return $form
             ->schema([
                 Section::make()
@@ -29,5 +41,20 @@ class Dashboard extends BaseDashboard
                     ])
                     ->columns(2),
             ]);
+    }
+    public function getWidgets(): array
+    {
+        $user = auth()->user();
+
+        if (! $user->can('view dashboard')) {
+            // ❌ Permission yo‘q bo‘lsa, hech narsa ko‘rsatmaymiz
+            return [];
+        }
+        return [
+            PaymentStats::class,
+            TopProcedures::class,
+            TopLabTests::class, // Yangi mijozlar trend grafikasi
+            FreeBedsOverview::class,
+        ];
     }
 }
