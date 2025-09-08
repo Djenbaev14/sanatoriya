@@ -33,14 +33,28 @@ class Dashboard extends BaseDashboard
                     ->schema([
                         DatePicker::make('startDate')
                             ->label('Дата начала')
+                            ->afterStateHydrated(fn ($component, $state) => 
+                                $component->state($state ?: now()->startOfMonth()->toDateString())
+                            )
                             ->maxDate(fn (Get $get) => $get('endDate') ?: now()),
                         DatePicker::make('endDate')
                             ->label('Дата окончания')
+                            ->afterStateHydrated(fn ($component, $state) => 
+                                $component->state($state ?: now()->toDateString())
+                            )
                             ->minDate(fn (Get $get) => $get('startDate') ?: now())
                             ->maxDate(now()),
                     ])
                     ->columns(2),
             ]);
+    }
+    
+    protected function getDefaultFilters(): array
+    {
+        return [
+            'startDate' => now()->startOfMonth()->toDateString(),
+            'endDate'   => now()->toDateString(),
+        ];
     }
     public function getWidgets(): array
     {
