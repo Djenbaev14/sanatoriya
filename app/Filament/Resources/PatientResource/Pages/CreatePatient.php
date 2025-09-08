@@ -16,10 +16,10 @@ class CreatePatient extends CreateRecord
     }
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        Log::info( $data['photo']);
-        if (isset($data['photo']) && str_starts_with($data['photo'], 'data:image')) {
+        // Log::info( $data['photo']);
+        // if (isset($data['photo']) && str_starts_with($data['photo'], 'data:image')) {
             $data['photo'] = $this->saveBase64Image($data['photo']);
-        }
+        // }
 
         return $data;
     }
