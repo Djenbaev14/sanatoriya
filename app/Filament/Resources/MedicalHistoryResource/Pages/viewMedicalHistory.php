@@ -4,6 +4,7 @@ namespace App\Filament\Resources\MedicalHistoryResource\Pages;
 
 use App\Filament\Resources\MedicalHistoryResource;
 use Filament\Actions;
+use Filament\Forms\Components\FileUpload;
 use Filament\Infolists\Components\Actions\Action;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Infolists\Infolist;
@@ -37,11 +38,19 @@ class ViewMedicalHistory extends ViewRecord
                                         Section::make('Данные пациента')
                                             ->icon('heroicon-o-identification')
                                             ->schema([
-                                                ImageEntry::make('patient.photo')
-                                                    ->label('')
-                                                    ->height(150)
-                                                    ->width(150)
-                                                    ->placeholder('Нет фото'),
+                                                
+        FileUpload::make('patient.photo')
+            ->label('Фото')
+            ->image()
+            ->directory('patient_photos') // storage/app/public/patient_photos
+            ->visibility('public')
+            ->imageEditor() // ✂️ crop, rotate va h.k.
+            ->imageResizeMode('cover')
+            ->imagePreviewHeight('120') 
+            ->loadingIndicatorPosition('left')
+            ->panelLayout('integrated') // 👁 preview yonida tugma
+            ->downloadable()
+            ->openable(),
                                                 TextEntry::make('patient.full_name')
                                                     ->label('ФИО')
                                                     ->weight(FontWeight::Bold),
