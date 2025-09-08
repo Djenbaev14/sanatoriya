@@ -37,6 +37,12 @@ class ViewMedicalHistory extends ViewRecord
                                         Section::make('Данные пациента')
                                             ->icon('heroicon-o-identification')
                                             ->schema([
+                                                ImageEntry::make('patient.photo')
+                                                    ->label('Фото')
+                                                    ->circular() // yoki ->rounded() qilsa ham bo‘ladi
+                                                    ->height(120)
+                                                    ->width(120)
+                                                    ->placeholder('Нет фото'),
                                                 TextEntry::make('patient.full_name')
                                                     ->label('ФИО')
                                                     ->weight(FontWeight::Bold),
