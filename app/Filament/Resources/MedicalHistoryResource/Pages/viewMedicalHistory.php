@@ -39,7 +39,6 @@ class ViewMedicalHistory extends ViewRecord
                                         Section::make('Данные пациента')
                                             ->icon('heroicon-o-identification')
                                             ->schema([
-                                                
                                                 Grid::make()
                                                     ->schema([
                                                         \Filament\Infolists\Components\Fieldset::make('Фото')
@@ -50,7 +49,7 @@ class ViewMedicalHistory extends ViewRecord
                                                                     ->width(200),
                                                                 \Filament\Infolists\Components\Actions::make([
                                                                     Action::make('add_or_edit_photo')
-                                                                        ->label(fn ($record) => $record->patient->photo ? 'Изменить' : 'Добавить изображение')
+                                                                        ->label(fn ($record) => $record->patient->photo ? 'Сделать фото' : 'Сделать фото')
                                                                         ->icon(fn ($record) => $record->patient->photo ? 'heroicon-o-pencil-square' : 'heroicon-o-plus-circle')
                                                                         ->form([
                                                                             WebcamCapture::make('photo')
