@@ -45,7 +45,9 @@ class ViewMedicalHistory extends ViewRecord
                                                         \Filament\Infolists\Components\Fieldset::make('Фото')
                                                             ->schema([
                                                                 ImageEntry::make('patient.photo')
-                                                                    ->label(''),
+                                                                    ->label('')
+                                                                    ->height(150)
+                                                                    ->width(150),
                                                                 \Filament\Infolists\Components\Actions::make([
                                                                     Action::make('add_or_edit_photo')
                                                                         ->label(fn ($record) => $record->patient->photo ? 'Изменить' : 'Добавить изображение')
