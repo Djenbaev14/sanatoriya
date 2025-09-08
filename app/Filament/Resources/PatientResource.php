@@ -167,6 +167,11 @@ class PatientResource extends Resource
                     ->visible(fn () => auth()->user()->can( 'создать больной'))
                     ->modalWidth(MaxWidth::TwoExtraLarge)
                     ->action(function (array $data) {
+                        
+                        $image = str_replace('data:image/png;base64,', '', $data['photo']);
+                        $image = str_replace(' ', '+', $image);
+                        $fileName = 'patients/' . uniqid() . '.png';
+                        \Storage::disk('public')->put($fileName, base64_decode($image));
                             $patient = Patient::create([
                                 'full_name' => $data['full_name'],
                                 'birth_date' => $data['birth_date'],
@@ -181,6 +186,7 @@ class PatientResource extends Resource
                                 'is_accomplice' => $data['is_accomplice'],
                                 'main_patient_id' => array_key_exists('main_patient_id', $data) ? $data['main_patient_id'] : null,
                                 'is_foreign' => $data['is_foreign'],
+                                'photo' => $fileName,
                             ]);
 
                             Notification::make()
