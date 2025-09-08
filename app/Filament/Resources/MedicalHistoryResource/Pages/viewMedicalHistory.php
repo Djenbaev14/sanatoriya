@@ -38,7 +38,7 @@ class ViewMedicalHistory extends ViewRecord
                                             ->icon('heroicon-o-identification')
                                             ->schema([
                                                 ImageEntry::make('patient.photo')
-                                                    ->label('Фото')
+                                                    ->label('')
                                                     ->height(150)
                                                     ->width(150)
                                                     ->placeholder('Нет фото'),
