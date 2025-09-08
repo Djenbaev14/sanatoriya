@@ -33,7 +33,7 @@
         <video x-ref="video" autoplay playsinline height="300" class="rounded border w-full"></video>
 
         {{-- Canvas (rasmni olish uchun) --}}
-        <canvas x-ref="canvas" width="100%" height="300" class="hidden w-full"></canvas>
+        <canvas x-ref="canvas" class="hidden w-full"></canvas>
 
         {{-- Tugmalar --}}
         <div class="flex items-center gap-2">
@@ -44,7 +44,7 @@
 
         {{-- Olingan rasm preview --}}
         <template x-if="photo">
-            <img :src="photo" class="mt-2 rounded border" width="300" />
+            <img :src="photo" class="mt-2 rounded border w-full" height="300" />
         </template>
     </div>
 </x-dynamic-component>
