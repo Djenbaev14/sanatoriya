@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PatientResource\Pages;
 use App\Filament\Resources\PatientResource\RelationManagers;
+use App\Forms\Components\WebcamCapture;
 use App\Models\Country;
 use App\Models\District;
 use App\Models\Patient;
@@ -19,6 +20,7 @@ use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ViewField;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
@@ -44,6 +46,8 @@ class PatientResource extends Resource
             ->schema([
                 Group::make()
                     ->schema([
+                        WebcamCapture::make('webcam')
+                            ->view('forms.components.webcam-capture'),
                         TextInput::make('full_name')
                             ->label('ФИО')
                             ->required()
