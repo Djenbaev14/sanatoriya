@@ -39,9 +39,8 @@ class ViewMedicalHistory extends ViewRecord
                                             ->schema([
                                                 ImageEntry::make('patient.photo')
                                                     ->label('Фото')
-                                                    ->circular() // yoki ->rounded() qilsa ham bo‘ladi
-                                                    ->height(120)
-                                                    ->width(120)
+                                                    ->height(150)
+                                                    ->width(150)
                                                     ->placeholder('Нет фото'),
                                                 TextEntry::make('patient.full_name')
                                                     ->label('ФИО')
