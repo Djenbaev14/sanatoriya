@@ -45,8 +45,8 @@ class ViewMedicalHistory extends ViewRecord
                                                             ->schema([
                                                                 ImageEntry::make('patient.photo')
                                                                     ->label(''),
-                                                                \Filament\Forms\Components\Actions::make([
-                                                                    \Filament\Forms\Components\Actions\Action::make('add_or_edit_photo')
+                                                                \Filament\Infolists\Components\Actions::make([
+                                                                    Action::make('add_or_edit_photo')
                                                                         ->label(fn ($record) => $record->patient->photo ? 'О\'zgartirish' : 'Rasm qo‘shish')
                                                                         ->icon(fn ($record) => $record->patient->photo ? 'heroicon-o-pencil-square' : 'heroicon-o-plus-circle')
                                                                         ->form([
