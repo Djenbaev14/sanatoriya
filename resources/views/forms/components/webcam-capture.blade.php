@@ -44,7 +44,7 @@
 
         {{-- Olingan rasm preview --}}
         <template x-if="photo">
-            <img :src="photo" class="mt-2 rounded border w-full" height="240" />
+            <img :src="photo" class="mt-2 rounded border" width="300" />
         </template>
     </div>
 </x-dynamic-component>
