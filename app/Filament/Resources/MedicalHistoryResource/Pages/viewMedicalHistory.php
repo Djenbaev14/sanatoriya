@@ -39,18 +39,31 @@ class ViewMedicalHistory extends ViewRecord
                                             ->icon('heroicon-o-identification')
                                             ->schema([
                                                 
-        FileUpload::make('patient.photo')
-            ->label('Фото')
-            ->image()
-            ->directory('patient_photos') // storage/app/public/patient_photos
-            ->visibility('public')
-            ->imageEditor() // ✂️ crop, rotate va h.k.
-            ->imageResizeMode('cover')
-            ->imagePreviewHeight('120') 
-            ->loadingIndicatorPosition('left')
-            ->panelLayout('integrated') // 👁 preview yonida tugma
-            ->downloadable()
-            ->openable(),
+                                                Grid::make()
+                                                    ->schema([
+                                                        \Filament\Infolists\Components\Fieldset::make('Фото')
+                                                            ->schema([
+                                                                ImageEntry::make('patient.photo')
+                                                                    ->label(''),
+                                                                \Filament\Forms\Components\Actions::make([
+                                                                    \Filament\Forms\Components\Actions\Action::make('add_or_edit_photo')
+                                                                        ->label(fn ($record) => $record->patient->photo ? 'О\'zgartirish' : 'Rasm qo‘shish')
+                                                                        ->icon(fn ($record) => $record->patient->photo ? 'heroicon-o-pencil-square' : 'heroicon-o-plus-circle')
+                                                                        ->form([
+                                                                            FileUpload::make('photo')
+                                                                                ->label('Фото')
+                                                                                ->image()
+                                                                                ->directory('patient_photos')
+                                                                                ->visibility('public'),
+                                                                        ])
+                                                                        ->action(function ($data, $record) {
+                                                                            $record->patient->update([
+                                                                                'photo' => $data['photo'],
+                                                                            ]);
+                                                                        }),
+                                                                ])->label(''),
+                                                            ]),
+                                                    ]),
                                                 TextEntry::make('patient.full_name')
                                                     ->label('ФИО')
                                                     ->weight(FontWeight::Bold),
