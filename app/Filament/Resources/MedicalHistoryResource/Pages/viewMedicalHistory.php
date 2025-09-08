@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\MedicalHistoryResource\Pages;
 
 use App\Filament\Resources\MedicalHistoryResource;
+use App\Forms\Components\WebcamCapture;
 use Filament\Actions;
 use Filament\Forms\Components\FileUpload;
 use Filament\Infolists\Components\Actions\Action;
@@ -50,11 +51,9 @@ class ViewMedicalHistory extends ViewRecord
                                                                         ->label(fn ($record) => $record->patient->photo ? 'О\'zgartirish' : 'Rasm qo‘shish')
                                                                         ->icon(fn ($record) => $record->patient->photo ? 'heroicon-o-pencil-square' : 'heroicon-o-plus-circle')
                                                                         ->form([
-                                                                            FileUpload::make('photo')
-                                                                                ->label('Фото')
-                                                                                ->image()
-                                                                                ->directory('patient_photos')
-                                                                                ->visibility('public'),
+                                                                            WebcamCapture::make('photo')
+                                                                                ->view('forms.components.webcam-capture')
+                                                                                ->columnSpan(12),
                                                                         ])
                                                                         ->action(function ($data, $record) {
                                                                             $record->patient->update([
