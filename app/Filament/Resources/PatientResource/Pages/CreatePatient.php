@@ -5,6 +5,7 @@ namespace App\Filament\Resources\PatientResource\Pages;
 use App\Filament\Resources\PatientResource;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\Log;
 
 class CreatePatient extends CreateRecord
 {
@@ -15,10 +16,7 @@ class CreatePatient extends CreateRecord
     }
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        // Masalan, auth user qo‘shish
-        $data['user_id'] = auth()->id();
-
-        // JSON field formatlash
+        Log::info( $data['photo']);
         if (isset($data['photo']) && str_starts_with($data['photo'], 'data:image')) {
             $data['photo'] = $this->saveBase64Image($data['photo']);
         }
