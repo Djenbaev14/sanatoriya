@@ -159,6 +159,24 @@ class PatientResource extends Resource
                     ])->columns(12)->columnSpan(12)
         ]);
     }
+    protected static function mutateFormDataBeforeCreate(array $data): array
+    {
+        if (isset($data['photo']) && str_starts_with($data['photo'], 'data:image')) {
+            $image = str_replace('data:image/png;base64,', '', $data['photo']);
+            $image = str_replace(' ', '+', $image);
+            $fileName = 'patients/' . uniqid() . '.png';
+
+            \Storage::disk('public')->put($fileName, base64_decode($image));
+            $data['photo'] = $fileName;
+        }
+
+        return $data;
+    }
+
+    protected static function mutateFormDataBeforeSave(array $data): array
+    {
+        return static::mutateFormDataBeforeCreate($data);
+    }
     public static function table(Table $table): Table
     {
         return $table
