@@ -129,8 +129,8 @@ class AccommodationResource extends Resource
                                         ->reactive()
                                         ->visible(fn (Get $get) => filled($get('admission_date')) && filled($get('discharge_date'))),
                                     TextInput::make('tariff_price')
-                                        ->hidden()
-                                        ->dehydrated(true),
+                                        ->extraAttributes(['type' => 'hidden'])
+                                        ->dehydrated(condition: true),
                                     Select::make('ward_id')
                                         ->label('Палата')
                                         ->options(function (Get $get) {
