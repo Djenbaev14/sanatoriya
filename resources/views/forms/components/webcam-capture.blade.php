@@ -33,7 +33,7 @@
         <video x-ref="video" autoplay playsinline height="300" class="rounded border w-full"></video>
 
         {{-- Canvas (rasmni olish uchun) --}}
-        <canvas x-ref="canvas" class="hidden w-full" height="300"></canvas>
+        <canvas x-ref="canvas" class="hidden w-full" height="240"></canvas>
 
         {{-- Tugmalar --}}
         <div class="flex items-center gap-2">
