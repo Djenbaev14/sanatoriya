@@ -46,7 +46,7 @@ class PatientResource extends Resource
             ->schema([
                 Group::make()
                     ->schema([
-                        WebcamCapture::make('webcam')
+                        WebcamCapture::make('photo')
                             ->view('forms.components.webcam-capture')
                             ->columnSpan(12),
                         TextInput::make('full_name')
