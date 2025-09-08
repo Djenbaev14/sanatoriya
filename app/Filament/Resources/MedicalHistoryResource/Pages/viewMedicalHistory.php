@@ -48,7 +48,7 @@ class ViewMedicalHistory extends ViewRecord
                                                                     ->label(''),
                                                                 \Filament\Infolists\Components\Actions::make([
                                                                     Action::make('add_or_edit_photo')
-                                                                        ->label(fn ($record) => $record->patient->photo ? 'О\'zgartirish' : 'Rasm qo‘shish')
+                                                                        ->label(fn ($record) => $record->patient->photo ? 'Изменить' : 'Добавить изображение')
                                                                         ->icon(fn ($record) => $record->patient->photo ? 'heroicon-o-pencil-square' : 'heroicon-o-plus-circle')
                                                                         ->form([
                                                                             WebcamCapture::make('photo')
@@ -56,11 +56,25 @@ class ViewMedicalHistory extends ViewRecord
                                                                                 ->columnSpan(12),
                                                                         ])
                                                                         ->action(function ($data, $record) {
+                                                                            // eski rasmni o‘chirish
+                                                                            if ($record->patient->photo && \Storage::disk('public')->exists($record->patient->photo)) {
+                                                                                \Storage::disk('public')->delete($record->patient->photo);
+                                                                            }
+
+                                                                            // yangi rasmni saqlash
+                                                                            $image = str_replace('data:image/png;base64,', '', $data['photo']);
+                                                                            $image = str_replace(' ', '+', $image);
+                                                                            $fileName = 'patients/' . uniqid() . '.png';
+
+                                                                            \Storage::disk('public')->put($fileName, base64_decode($image));
+
+                                                                            // bazani yangilash
                                                                             $record->patient->update([
-                                                                                'photo' => $data['photo'],
+                                                                                'photo' => $fileName,
                                                                             ]);
                                                                         }),
-                                                                ])->label(''),
+                                                                ])
+                                                                ->label(''),
                                                             ]),
                                                     ]),
                                                 TextEntry::make('patient.full_name')
