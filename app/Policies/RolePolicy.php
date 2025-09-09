@@ -24,9 +24,9 @@ class RolePolicy
      
      * @return bool
      */
-    public function view(Role $role): bool
+    public function view(User $user): bool
     {
-        return $role->can('view_role');
+        return $user->can('view_role');
     }
 
     /**
@@ -35,9 +35,9 @@ class RolePolicy
      
      * @return bool
      */
-    public function create(Role $role): bool
+    public function create(User $user): bool
     {
-        return $role->can('create_role');
+        return $user->can('create_role');
     }
 
     /**
@@ -46,9 +46,9 @@ class RolePolicy
      
      * @return bool
      */
-    public function update(Role $role): bool
+    public function update(User $user,Role $role): bool
     {
-        return $role->can('update_role');
+        return $user->can('update_role');
     }
 
     /**
@@ -57,9 +57,9 @@ class RolePolicy
      
      * @return bool
      */
-    public function delete(Role $role): bool
+    public function delete(User $user): bool
     {
-        return $role->can('delete_role');
+        return $user->can('delete_role');
     }
 
 }
