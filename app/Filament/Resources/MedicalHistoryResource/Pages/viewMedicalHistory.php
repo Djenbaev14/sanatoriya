@@ -459,7 +459,7 @@ class ViewMedicalHistory extends ViewRecord
                                                                     }
                                                                 }
 
-                                                                return $stars;
+                                                                return $totalSessions.' '.$stars;
                                                             }),
                                                             TextEntry::make('price')->label('')
                                                             ->visible(fn () => !auth()->user()->hasRole('Доктор'))
