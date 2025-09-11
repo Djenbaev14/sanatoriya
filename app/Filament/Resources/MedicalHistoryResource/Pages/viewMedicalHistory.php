@@ -439,7 +439,28 @@ class ViewMedicalHistory extends ViewRecord
                                                         ->schema([
                                                             TextEntry::make('procedure.name')->label(''),
                                                             TextEntry::make('executor.name')->label(''),
-                                                            TextEntry::make('sessions')->label(''),
+                                                            TextEntry::make('sessions')->label('')
+                                                            ->html() // HTML qaytarishga ruxsat
+                                                            ->formatStateUsing(function ($state, $record) {
+                                                                // $state = umumiy session soni (masalan, 5)
+                                                                $totalSessions = (int) $state;
+
+                                                                // nechta tugaganini hisoblaymiz
+                                                                $completed = \App\Models\ProcedureSession::where('procedure_detail_id', $record->id)
+                                                                    ->where('is_completed', true)
+                                                                    ->count();
+
+                                                                $stars = '';
+                                                                for ($i = 1; $i <= $totalSessions; $i++) {
+                                                                    if ($i <= $completed) {
+                                                                        $stars .= "<span style='color: green'>★</span>"; // yashil tugagan
+                                                                    } else {
+                                                                        $stars .= "<span style='color: gray'>★</span>"; // kulrang bajarilmagan
+                                                                    }
+                                                                }
+
+                                                                return $stars;
+                                                            }),
                                                             TextEntry::make('price')->label('')
                                                             ->visible(fn () => !auth()->user()->hasRole('Доктор'))
                                                             ->formatStateUsing(fn($state) => number_format($state, 0) . ' сум'),
