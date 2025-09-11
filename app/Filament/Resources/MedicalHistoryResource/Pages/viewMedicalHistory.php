@@ -453,9 +453,9 @@ class ViewMedicalHistory extends ViewRecord
                                                                 $stars = '';
                                                                 for ($i = 1; $i <= $totalSessions; $i++) {
                                                                     if ($i <= $completed) {
-                                                                        $stars .= "<span style='color: green'>★</span>"; // yashil tugagan
+                                                                        $stars .= "<span>✅</span>"; // yashil tugagan
                                                                     } else {
-                                                                        $stars .= "<span style='color: red'>★</span>"; // kulrang bajarilmagan
+                                                                        $stars .= "<span>❌</span>"; // kulrang bajarilmagan
                                                                     }
                                                                 }
 
