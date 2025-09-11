@@ -73,7 +73,10 @@ class CompletedPhysiotherapyResource extends Resource
             ->bulkActions([
             ]);
     }
-    
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('view_any_procedure_session') ?? false;
+    }
     
     public static function getNavigationBadge(): ?string
     {

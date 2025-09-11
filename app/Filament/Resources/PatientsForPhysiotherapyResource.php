@@ -43,7 +43,7 @@ class PatientsForPhysiotherapyResource extends Resource
             ->where('is_completed', false)
             ->whereHas('procedureDetail', function ($query) {
                 $query->where('executor_id', auth()->id());
-            }); // faqat status 1 bo'lganlar
+            });
     }
     public static function table(Table $table): Table
     {
@@ -158,6 +158,10 @@ class PatientsForPhysiotherapyResource extends Resource
     public static function getNavigationBadgeColor(): ?string
     {
         return 'danger';
+    }
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('view_any_procedure_session') ?? false;
     }
 
     public static function getRelations(): array
