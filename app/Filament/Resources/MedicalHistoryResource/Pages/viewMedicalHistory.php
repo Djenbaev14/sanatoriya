@@ -455,7 +455,7 @@ class ViewMedicalHistory extends ViewRecord
                                                                     if ($i <= $completed) {
                                                                         $stars .= "<span style='color: green'>★</span>"; // yashil tugagan
                                                                     } else {
-                                                                        $stars .= "<span style='color: gray'>★</span>"; // kulrang bajarilmagan
+                                                                        $stars .= "<span style='color: red'>★</span>"; // kulrang bajarilmagan
                                                                     }
                                                                 }
 
