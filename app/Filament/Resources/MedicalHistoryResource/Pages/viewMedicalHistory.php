@@ -444,7 +444,10 @@ class ViewMedicalHistory extends ViewRecord
                                                             ->formatStateUsing(function ($state, $record) {
                                                                 // $state = umumiy session soni (masalan, 5)
                                                                 $totalSessions = (int) $state;
-
+                                                                // exectur_id null emasligini tekshiramiz
+                                                                if(is_null($record->executor_id)){
+                                                                    return $totalSessions.' <span style="color: red;">(Исполнитель не назначен)</span>';
+                                                                }
                                                                 // nechta tugaganini hisoblaymiz
                                                                 $completed = \App\Models\ProcedureSession::where('procedure_detail_id', $record->id)
                                                                     ->where('is_completed', true)
