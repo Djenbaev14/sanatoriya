@@ -120,6 +120,31 @@ class PatientsForPhysiotherapyResource extends Resource
                             ->send();
                     }),
             ])
+            ->bulkActions([
+                Tables\Actions\BulkAction::make('complete_all')
+                    ->label('✅ Барчасини тасдиқлаш')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->action(function ($records) {
+                        foreach ($records as $record) {
+                            if ($record->session_date != now()->toDateString()) {
+                                continue;
+                            }
+
+                            $record->update([
+                                'is_completed' => true,
+                                'completed_at' => now(),
+                            ]);
+                        }
+
+                        \Filament\Notifications\Notification::make()
+                            ->title('Успешно!')
+                            ->body('Барча белгиланган сеанслар тасдиқланди.')
+                            ->success()
+                            ->send();
+                    }),
+            ])
             ->filters([
                 Filter::make('date')
                     ->form([
