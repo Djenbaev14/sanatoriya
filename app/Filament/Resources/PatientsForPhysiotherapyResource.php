@@ -168,9 +168,7 @@ class PatientsForPhysiotherapyResource extends Resource
                     })
                     ->searchable()
                     ->multiple(),
-            ],layout: FiltersLayout::AboveContent)
-            ->bulkActions([
-            ]);
+            ],layout: FiltersLayout::AboveContent);
     }
     public static function getNavigationBadge(): ?string
     {
