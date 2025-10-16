@@ -41,9 +41,7 @@ class PatientsForPhysiotherapyResource extends Resource
     {
         return static::getModel()::query()
             ->where('is_completed', false)
-            ->whereHas('procedureDetail', function ($query) {
-                $query->where('executor_id', auth()->id());
-            });
+            ->where('executor_id', auth()->id());
     }
     public static function table(Table $table): Table
     {
@@ -83,11 +81,20 @@ class PatientsForPhysiotherapyResource extends Resource
             //         ->disabled(),
             // ])
             ->columns([
-                // patient full_name, procedure name, session_date, is_completed
                 Tables\Columns\TextColumn::make('assignedProcedure.patient.full_name')->label('Пациент')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('procedure.name')->label('Процедура')->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('session_date')->label('Дата сеанса')->date()->sortable(),
+                Tables\Columns\TextColumn::make('time_display')
+                    ->label('Время')
+                    ->getStateUsing(function ($record) {
+                        if ($record->time) {
+                            return "{$record->time->start_time} - {$record->time->end_time}";
+                        }
+                        return '-';
+                    })
+                    ->sortable(),
+                // Tables\Columns\TextColumn::make('session_date')->label('Дата сеанса')->date()->sortable(),
             ])
+            ->defaultSort('time_id','asc')
             ->actions([
                 Action::make('complete')
                     ->label('Получить лечение')
@@ -162,7 +169,7 @@ class PatientsForPhysiotherapyResource extends Resource
                 SelectFilter::make('procedure_id')
                     ->label('Процедура')
                     ->options(function () {
-                        return \App\Models\Procedure::whereHas('details', function ($q) {
+                        return \App\Models\Procedure::whereHas('sessions', function ($q) {
                             $q->where('executor_id', auth()->id());
                         })->pluck('name', 'id');
                     })
@@ -174,18 +181,18 @@ class PatientsForPhysiotherapyResource extends Resource
     {
         return static::getModel()::query()
             ->where('is_completed', false)
-            ->whereHas('procedureDetail', function ($query) {
-                $query->where('executor_id', auth()->id());
-            })->count();
+            // session_date bugungi yoki avvalgi kunlarda
+            ->whereDate('session_date', '=', now()->toDateString())
+            ->where('executor_id', auth()->id())->count();
     }
     public static function getNavigationBadgeColor(): ?string
     {
         return 'danger';
     }
-    public static function canAccess(): bool
-    {
-        return auth()->user()?->can('view_any_procedure_session') ?? false;
-    }
+    // public static function canAccess(): bool
+    // {
+    //     return auth()->user()?->can('view_any_procedure_session') ?? false;
+    // }
 
     public static function getRelations(): array
     {

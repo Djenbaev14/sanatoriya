@@ -53,9 +53,28 @@ class ProcedureResource extends Resource
                         ->label('Иностранная цена')
                         ->required()
                         ->maxLength(255)->columnSpan(12),
-                    Select::make('roles')
-                            ->relationship('roles', 'name')
-                            ->label('Ролы')
+                    Select::make('time_category_id')
+                            ->options(
+                                \App\Models\TimeCategory::all()->pluck('name', 'id')
+                            )
+                            ->label('Категория времени')
+                            ->preload()
+                            ->searchable()
+                            ->columnSpan(12),
+                    Select::make('users')
+                            ->options(
+                                \App\Models\User::whereHas('roles', function ($q) {
+                                    $q->whereIn('name', ['физиотерапия мийирбикеси', 'физиотерапия медбрат']);
+                                })->pluck('name', 'id')
+                            )
+                            ->afterStateHydrated(function ($component, $record) {
+                                if ($record) {
+                                    $component->state(
+                                        \App\Models\ProcedureRole::where('procedure_id', $record->id)->pluck('user_id')->toArray()
+                                    );
+                                }
+                            })
+                            ->label('Пользователи')
                             ->preload()
                             ->multiple()
                             ->searchable()
@@ -76,22 +95,25 @@ class ProcedureResource extends Resource
                                 'price_per_day' => $data['price_per_day'],
                                 'price_foreign'=> $data['price_foreign'],
                                 'is_operation'=> 0,
+                                'time_category_id'=> $data['time_category_id'],
+                                'is_treatment'=> 0,
                             ]);
-                            if (isset($data['roles'])) {
-                                ProcedureRole::insert(array_map(function($roleId) use ($procedure) {
-                                    return [
-                                        'procedure_id' => $procedure->id,
-                                        'role_id' => $roleId,
-                                        'updated_at' => now(),
-                                        'created_at' => now(),
-                                    ];
-                                }, $data['roles']));
+                            if (!empty($data['users'])) {
+                                $procedureRoles = collect($data['users'])->map(fn($userId) => [
+                                    'procedure_id' => $procedure->id,
+                                    'user_id' => $userId,
+                                    'created_at' => now(),
+                                    'updated_at' => now(),
+                                ])->toArray();
+
+                                ProcedureRole::insert($procedureRoles);
                             }
                         }),
             ])
             ->query(
                 Procedure::query()
                     ->where('is_operation', 0)
+                    ->where('is_treatment', 0)
             )
             ->columns([
                 Tables\Columns\TextColumn::make('name')
@@ -123,7 +145,7 @@ class ProcedureResource extends Resource
                         'class' => 'text-gray-500 dark:text-gray-300 text-xs'
                     ])
                     ->columnSpan(3),
-                TextColumn::make('roles.name')
+                TextColumn::make('users.name')
                     ->label('Роль'),
             ])
             ->defaultSort('id','desc')
@@ -140,16 +162,22 @@ class ProcedureResource extends Resource
                                 'name' => $data['name'],
                                 'price_per_day' => $data['price_per_day'],
                                 'price_foreign'=> $data['price_foreign'],
+                                'time_category_id'=> $data['time_category_id'],
                         ]);
-                            if (isset($data['roles'])) {
-                                log::info($data['roles']);
-                                ProcedureRole::create(array_map(function($roleId) use ($record) {
-                                    return [
-                                        'procedure_id' => $record->id,
-                                        'role_id' => $roleId,
-                                    ];
-                                }, $data['roles']));
-                            }
+                        if (!empty($data['users'])) {
+                            // Avval eski foydalanuvchilarni tozalaymiz
+                            ProcedureRole::where('procedure_id', $record->id)->delete();
+
+                            // Yangi foydalanuvchilarni kiritamiz
+                            $procedureRoles = collect($data['users'])->map(fn($userId) => [
+                                'procedure_id' => $record->id,
+                                'user_id' => $userId,
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ])->toArray();
+
+                            ProcedureRole::insert($procedureRoles);
+                        }
 
 
                         return $record;
@@ -170,15 +198,15 @@ class ProcedureResource extends Resource
     }
     public static function getNavigationLabel(): string
     {
-        return 'Процедуры'; // Rus tilidagi nom
+        return 'Физиотерапевтическое лечение'; // Rus tilidagi nom
     }
     public static function getModelLabel(): string
     {
-        return 'Процедуры'; // Rus tilidagi yakka holdagi nom
+        return 'физиотерапевтическое лечение'; // Rus tilidagi yakka holdagi nom
     }
     public static function getPluralModelLabel(): string
     {
-        return 'Процедуры'; // Rus tilidagi ko'plik shakli
+        return 'физиотерапевтическое лечение'; // Rus tilidagi ko'plik shakli
     }
 
 

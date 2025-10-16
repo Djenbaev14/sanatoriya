@@ -23,15 +23,23 @@ class Procedure extends Model
             'mkb_class_id'
         );
     }
+    public function sessions()
+    {
+        return $this->hasMany(\App\Models\ProcedureSession::class, 'procedure_id');
+    }
     // role bilan aloqasi
-    public function roles()
+    public function users()
     {
         return $this->belongsToMany(
-            Role::class,
+            User::class,
             'procedure_roles',
             'procedure_id',
-            'role_id'
+            'user_id'
         );
+    }
+    public function timeCategory()
+    {    
+        return $this->belongsTo(TimeCategory::class);
     }
     public function procedureMkbs(){
         return $this->hasMany(ProcedureMkb::class);

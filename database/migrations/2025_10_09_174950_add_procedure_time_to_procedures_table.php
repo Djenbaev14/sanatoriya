@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('procedure_details', function (Blueprint $table) {
-            $table->unsignedBigInteger('executor_id')->nullable()->after('procedure_id');
-            $table->foreign('executor_id')->references('id')->on('users');
+        Schema::table('procedures', function (Blueprint $table) {
+            $table->unsignedBigInteger('time_category_id')->nullable();
+            $table->foreign('time_category_id')->references('id')->on('time_categories')->onDelete('cascade');
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('procedure_details', function (Blueprint $table) {
+        Schema::table('procedures', function (Blueprint $table) {
             //
         });
     }

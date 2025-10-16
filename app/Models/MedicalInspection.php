@@ -49,21 +49,4 @@ class MedicalInspection extends Model
     {
         return $this->payments()->sum('amount');
     }
-    // protected static function booted()
-    // {
-    //     static::updated(function ($inspection) {
-    //         // inspectionDetails bilan bog‘langanlar sonini tekshiramiz
-    //         Log::info($inspection);
-
-    //         $hasDetails = $inspection->inspectionDetails()->exists();
-    //         $expectedStatus = $hasDetails ? 1 : 3;  
-
-    //         // Agar status noto‘g‘ri bo‘lsa, yangilaymiz
-    //         if ($inspection->status_payment_id !== $expectedStatus) {
-    //             $inspection->status_payment_id = $expectedStatus;
-    //             $inspection->saveQuietly(); // recursive chaqiruvni oldini oladi
-    //         }
-    //     });
-    // }
-
 }

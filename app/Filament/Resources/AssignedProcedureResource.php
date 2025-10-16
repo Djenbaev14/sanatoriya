@@ -236,7 +236,6 @@ class AssignedProcedureResource extends Resource
                                                     Select::make('procedure_id')
                                                         ->label('Тип процедура')
                                                         ->options(function (Get $get, $state, $context) {
-                                                            // Foydalanuvchi tanlagan barcha inspection_id larni to'plab olamiz
                                                             $selectedIds = collect($get('../../procedureDetails'))
                                                                 ->pluck('procedure_id')
                                                                 ->filter()
@@ -246,8 +245,7 @@ class AssignedProcedureResource extends Resource
                                                                 $selectedIds = array_diff($selectedIds, [$state]);
                                                             }
 
-                                                            // Tanlanmagan inspection larni qaytaramiz
-                                                            return Procedure::query()
+                                                            return \App\Models\Procedure::query()
                                                                 ->whereNotIn('id', $selectedIds)
                                                                 ->pluck('name', 'id');
                                                         })
@@ -255,22 +253,22 @@ class AssignedProcedureResource extends Resource
                                                         ->required()
                                                         ->reactive()
                                                         ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
-                                                            $patientId = $get('../../patient_id'); // yoki `request()->get('patient_id')`
-                                                                if (!$patientId || !$state) {
-                                                                    $set('price', 0);
-                                                                    return;
-                                                                }
+                                                            $patientId = $get('../../patient_id');
+                                                            if (!$patientId || !$state) {
+                                                                $set('price', 0);
+                                                                return;
+                                                            }
 
-                                                                $isForeign = Patient::find($patientId)?->is_foreign;
+                                                            $isForeign = \App\Models\Patient::find($patientId)?->is_foreign;
+                                                            $procedure = \App\Models\Procedure::find($state);
 
-                                                                $procedure = Procedure::find($state);
-                                                                $price = $isForeign == 1 ? $procedure->price_foreign : $procedure->price_per_day;
-                                                                $set('price', $price ?? 0);
-                                                                $set('total_price', $price * ($get('sessions') ?? 1));
-                                                                
-                                                                static::recalculateTotalSum($get, $set);
+                                                            $price = $isForeign == 1 ? $procedure->price_foreign : $procedure->price_per_day;
+                                                            $set('price', $price ?? 0);
+                                                            $set('total_price', $price * ($get('sessions') ?? 1));
+
+                                                            static::recalculateTotalSum($get, $set);
                                                         })
-                                                        ->columnSpan(3),
+                                                        ->columnSpan(5),
                                                     Select::make('executor_id')
                                                         ->label('Исполнитель')
                                                         ->nullable()
@@ -281,19 +279,146 @@ class AssignedProcedureResource extends Resource
                                                                 return [];
                                                             }
 
-                                                            // Proseduraga biriktirilgan rollarni topamiz
-                                                            $roleIds = \App\Models\Procedure::find($procedureId)?->roles()->pluck('role_id');
+                                                            // Proseduraga biriktirilgan foydalanuvchilarni to‘g‘ridan-to‘g‘ri olamiz
+                                                            $users = \App\Models\Procedure::find($procedureId)?->users;
 
-                                                            if (!$roleIds || $roleIds->isEmpty()) {
+                                                            if (!$users || $users->isEmpty()) {
                                                                 return [];
                                                             }
 
-                                                            // Shu rollardagi foydalanuvchilarni topamiz
-                                                            return \App\Models\User::role($roleIds)->pluck('name', 'id'); // Spatie method
+                                                            return $users->pluck('name', 'id');
                                                         })
                                                         ->searchable()
                                                         ->reactive()
-                                                        ->columnSpan(3),
+                                                        ->visible(function (Get $get) {
+                                                            $procedureId = $get('procedure_id');
+
+                                                            if (!$procedureId) {
+                                                                return false;
+                                                            }
+
+                                                            $procedure = \App\Models\Procedure::find($procedureId);
+
+                                                            // faqat is_operation=0 va is_treatment=0 bo‘lsa ko‘rsatamiz
+                                                            return $procedure && $procedure->is_operation == 0 && $procedure->is_treatment == 0;
+                                                        })
+                                                        ->columnSpan(4),
+                                                        Select::make('time_id')
+    ->label('Время')
+    ->options(function (Get $get, $record) {
+        $procedureId = $get('procedure_id');
+        $executorId = $get('executor_id');
+
+        if (!$procedureId || !$executorId) {
+            return [];
+        }
+        // 1️⃣ Prosedurani tekshiramiz
+        $procedure = \App\Models\Procedure::find($procedureId);
+        if (!$procedure || $procedure->is_operation != 0 || $procedure->is_treatment != 0) {
+            return [];
+        }
+        
+        // 2️⃣ medical_history_id ni ota formadan olamiz (../../)
+        $medicalHistoryId = $get('../../medical_history_id');
+
+        if (!$medicalHistoryId) {
+            return [];
+        }
+
+        // 2️⃣ Accommodation dan admission_date ni olamiz
+        $admissionDate = null;
+        $accommodation = \App\Models\Accommodation::where('medical_history_id', $medicalHistoryId)
+            ->first();
+        if ($accommodation && $accommodation->admission_date && $accommodation->discharge_date) {
+            $admissionDate = \Carbon\Carbon::parse($accommodation->admission_date)->toDateString();
+            $dischargeDate = \Carbon\Carbon::parse($accommodation->discharge_date)->toDateString();
+        }
+        if (!$admissionDate && !$dischargeDate) {
+            return [];
+        }
+
+        // 3️⃣ Band vaqtlarni olamiz
+        $busyTimeIds = \App\Models\ProcedureSession::query()
+            ->where('is_completed', 0)
+            ->where('executor_id', $executorId)
+            ->where('procedure_id', $procedureId)
+            ->whereBetween('session_date', [
+                \Carbon\Carbon::parse($admissionDate)->toDateString(),
+                \Carbon\Carbon::parse($dischargeDate)->toDateString(),
+            ])
+            ->pluck('time_id')
+            ->unique() // 🔹 qaytarilayotgan qiymatlarni takrorlanmas holga keltiradi
+            ->values() // 🔹 indekslarni tozalaydi
+            ->toArray();
+
+
+
+        $times = \App\Models\Time::query()
+            ->where('time_category_id', $procedure->time_category_id)
+            ->when(!empty($busyTimeIds), fn($q) => $q->whereNotIn('id', $busyTimeIds))
+            ->get()
+            ->mapWithKeys(fn($time) => [
+                $time->id => "{$time->start_time} - {$time->end_time}",
+            ]);
+            
+
+        return $times;
+    })
+    ->visible(function (Get $get) {
+        $procedureId = $get('procedure_id');
+        if (!$procedureId) return false;
+
+        $procedure = \App\Models\Procedure::find($procedureId);
+        return $procedure && $procedure->is_operation == 0 && $procedure->is_treatment == 0;
+    })
+    ->searchable()
+    ->preload()
+    ->reactive()
+    ->required()
+    ->columnSpan(4),
+
+
+                                                    // Select::make('time_id')
+                                                    //     ->label('Время')
+                                                    //     ->options(function (Get $get) {
+                                                    //         $procedureId = $get('procedure_id');
+
+                                                    //         if (!$procedureId) {
+                                                    //             return [];
+                                                    //         }
+
+                                                    //         $procedure = \App\Models\Procedure::find($procedureId);
+
+                                                    //         if (!$procedure || !$procedure->time_category_id) {
+                                                    //             return [];
+                                                    //         }
+
+                                                    //         // Shu time_category_id bo‘yicha times jadvalidan olib chiqamiz
+                                                    //         return \App\Models\Time::where('time_category_id', $procedure->time_category_id)
+                                                    //             ->get()
+                                                    //             ->mapWithKeys(function ($time) {
+                                                    //                 return [
+                                                    //                     $time->id => "{$time->start_time} - {$time->end_time}"
+                                                    //                 ];
+                                                    //             });
+                                                    //     })
+                                                    //     ->visible(function (Get $get) {
+                                                    //         $procedureId = $get('procedure_id');
+
+                                                    //         if (!$procedureId) {
+                                                    //             return false;
+                                                    //         }
+
+                                                    //         $procedure = \App\Models\Procedure::find($procedureId);
+
+                                                    //         // faqat is_operation=0 va is_treatment=0 bo‘lsa ko‘rsatamiz
+                                                    //         return $procedure && $procedure->is_operation == 0 && $procedure->is_treatment == 0;
+                                                    //     })
+                                                    //     ->searchable()
+                                                    //     ->preload()
+                                                    //     ->reactive()
+                                                    //     ->required()
+                                                    //     ->columnSpan(4),
                                                     TextInput::make('price')
                                                         ->label('Цена')
                                                         ->reactive()
@@ -308,7 +433,7 @@ class AssignedProcedureResource extends Resource
                                                             // umumiy summa qayta hisoblanadi
                                                             static::recalculateTotalSum($get, $set);
                                                         })
-                                                        ->columnSpan(2),
+                                                        ->columnSpan(4),
 
                                                     TextInput::make('sessions')
                                                         ->label('Кол сеансов')
@@ -321,27 +446,39 @@ class AssignedProcedureResource extends Resource
                                                             
                                                             static::recalculateTotalSum($get, $set);
                                                         })
-                                                        ->columnSpan(2),
+                                                        ->columnSpan(3),
 
                                                     TextInput::make('total_price')
                                                         ->label('Общая стоимость')
                                                         ->disabled()
                                                         ->visible(fn () => !auth()->user()->hasRole('Доктор'))
                                                         ->numeric()
-                                                        ->columnSpan(2)
+                                                        ->columnSpan(4)
                                                         ->afterStateUpdated(function (Get $get, Set $set) {
                                                             static::recalculateTotalSum($get, $set);
                                                         }),
                                                 ])
                                                 ->afterStateHydrated(function (Get $get, Set $set, $state) {
+                                                    $recordId = $get('id');
+
                                                     foreach ($state as $index => $item) {
+                                                        $session = \App\Models\ProcedureSession::where('assigned_procedure_id', $recordId)
+                                                            ->where('procedure_id', $item['procedure_id'])
+                                                            ->first();
+
+                                                        if ($session) {
+                                                            $set("procedureDetails.{$index}.executor_id", $session->executor_id);
+                                                            $set("procedureDetails.{$index}.time_id", $session->time_id);
+                                                        }
+                                                        
                                                         $price = $item['price'] ?? 0;
                                                         $sessions = $item['sessions'] ?? 1;
                                                         $total = $price * $sessions;
                                                         $set("procedureDetails.{$index}.total_price", $total);
                                                     }
                                                 })
-                                                ->columns(12)->columnSpan(12),
+
+                                                ->columns(24)->columnSpan(24),
                                                 Placeholder::make('total_sum')
                                                     ->label('Общая стоимость (всего)')
                                                     ->visible(fn () => !auth()->user()->hasRole('Доктор'))
@@ -351,7 +488,7 @@ class AssignedProcedureResource extends Resource
                                                         return number_format($total, 2, '.', ' ') . ' сум';
                                                     })
                                                     ->columnSpanFull(), 
-                    ])->columnSpan(12)->columns(12),
+                    ])->columnSpan(24)->columns(24),
                                                 ]);
     }
 //     public static function afterCreate(Form $form, AssignedProcedure $record): void

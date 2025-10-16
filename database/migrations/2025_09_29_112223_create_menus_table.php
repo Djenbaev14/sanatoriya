@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('procedures', function (Blueprint $table) {
-            $table->unsignedBigInteger('role_id')->nullable();
-            $table->foreign('role_id')->references('id')->on('roles');
+        Schema::create('menus', function (Blueprint $table) {
+            $table->id();
+            // $table->date('date');
+            // $table->enum('meal_time', ['breakfast', 'lunch', 'dinner']); // Nonushta, Tushlik, Kechki ovqat
+            $table->timestamps();
         });
     }
 
@@ -22,8 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('procedures', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('menus');
     }
 };

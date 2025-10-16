@@ -11,12 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('procedure_roles', function (Blueprint $table) {
+        Schema::create('food_categories', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('procedure_id')->nullable();
-            $table->foreign('procedure_id')->references('id')->on('procedures');
-            $table->unsignedBigInteger('role_id')->nullable();
-            $table->foreign('role_id')->references('id')->on('roles');
+            $table->string('name');
             $table->timestamps();
         });
     }
@@ -26,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('procedure_roles');
+        Schema::dropIfExists('food_categories');
     }
 };

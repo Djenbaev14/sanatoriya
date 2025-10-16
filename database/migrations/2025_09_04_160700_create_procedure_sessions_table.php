@@ -22,6 +22,9 @@ return new class extends Migration
             $table->unsignedBigInteger('procedure_id');
             $table->foreign('procedure_id')->references('id')->on('procedures')->onDelete('cascade');
             
+            $table->unsignedBigInteger('executor_id')->nullable();
+            $table->foreign('executor_id')->references('id')->on('users');
+
             $table->date('session_date'); // sanani ISO formatda saqlaymiz: YYYY-MM-DD
             $table->boolean('is_completed')->default(false); // seans bajarildimi yoki yo‘q
             // bajarilgan sana

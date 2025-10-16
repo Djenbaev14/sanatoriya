@@ -125,12 +125,12 @@ class AccommodationResource extends Resource
                                         })
                                         ->columnSpan(4), 
                                     TextInput::make('ward_day')
+                                        ->columnSpan(2)
                                         ->label('Дней в палате')
                                         ->reactive()
                                         ->visible(fn (Get $get) => filled($get('admission_date')) && filled($get('discharge_date'))),
-                                    TextInput::make('tariff_price')
-                                        ->extraAttributes(['type' => 'hidden'])
-                                        ->dehydrated(condition: true),
+                                    Hidden::make('tariff_price')
+                                        ->dehydrated(true),
                                     Select::make('ward_id')
                                         ->label('Палата')
                                         ->options(function (Get $get) {
@@ -210,6 +210,7 @@ class AccommodationResource extends Resource
                                     ->columnSpan(4), 
                                     TextInput::make('meal_day')
                                         ->reactive()
+                                        ->columnSpan(2)
                                         ->label('Дней питания')
                                         ->visible(fn (Get $get) => filled($get('admission_date')) && filled($get('discharge_date'))),
                                     Hidden::make('meal_price')

@@ -54,6 +54,9 @@ class AdminPanelProvider extends PanelProvider
                     ->label('Настройка')
                     ->icon('fas-gear'),
                 NavigationGroup::make()
+                    ->label('Склад')
+                    ->icon('fas-warehouse'),
+                NavigationGroup::make()
                     ->label('Роли и разрешения'),
             ])
             ->plugins([

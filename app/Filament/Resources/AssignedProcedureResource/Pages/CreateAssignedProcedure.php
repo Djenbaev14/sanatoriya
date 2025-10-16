@@ -23,17 +23,38 @@ class CreateAssignedProcedure extends CreateRecord
 
     protected function afterCreate(): void
     {
-        $now = Carbon::now();
+        $now = now();
+        $formData = $this->data;
 
-        foreach ($this->record->procedureDetails as $detail) {
-            if (!$detail->executor_id) {
+        // assigned_procedure dan medical_history_id orqali accommodationni topamiz
+        $accommodation = \App\Models\Accommodation::where('medical_history_id', $this->record->medical_history_id)->first();
+        if (! $accommodation) {
+            return;
+        }
+
+        $startDate = \Carbon\Carbon::parse($accommodation->admission_date);
+
+        foreach ($formData['procedureDetails'] ?? [] as $detailData) {
+            $executorId = $detailData['executor_id'] ?? null;
+            $timeId = $detailData['time_id'] ?? null;
+            $procedureId = $detailData['procedure_id'] ?? null;
+
+            if (! $procedureId) {
+                continue;
+            }
+
+            // faqat is_treatment = 0 va is_operation = 0 bo‘lgan procedurelar uchun
+            $procedure = \App\Models\Procedure::find($procedureId);
+            if (! $procedure || $procedure->is_treatment != 0 || $procedure->is_operation != 0) {
+                continue;
+            }
+
+            $detail = $this->record->procedureDetails()
+                ->where('procedure_id', $procedureId)
+                ->first();
+
+            if ($detail) {
                 $existingCount = $detail->procedureSessions()->count();
-
-                // Boshlanish sanasini aniqlash
-                $startDate = $now->copy();
-                if ($now->hour >= 13) {
-                    $startDate->addDay(); // ertangi kundan boshlanadi
-                }
 
                 if ($existingCount < $detail->sessions) {
                     for ($i = $existingCount; $i < $detail->sessions; $i++) {
@@ -41,18 +62,18 @@ class CreateAssignedProcedure extends CreateRecord
 
                         $detail->procedureSessions()->create([
                             'assigned_procedure_id' => $this->record->id,
-                            'procedure_id'          => $detail->procedure_id,
+                            'procedure_id'          => $procedureId,
                             'session_date'          => $sessionDate->toDateString(),
+                            'time_id'               => $timeId,
+                            'executor_id'           => $executorId,
                         ]);
                     }
-                } elseif ($existingCount > $detail->sessions) {
-                    $detail->procedureSessions()
-                        ->latest()
-                        ->take($existingCount - $detail->sessions)
-                        ->delete();
                 }
             }
         }
     }
+
+
+
 
 }
