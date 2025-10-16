@@ -189,10 +189,10 @@ class PatientsForPhysiotherapyResource extends Resource
     {
         return 'danger';
     }
-    // public static function canAccess(): bool
-    // {
-    //     return auth()->user()?->can('view_any_procedure_session') ?? false;
-    // }
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('view_any_procedure_session') ?? false;
+    }
 
     public static function getRelations(): array
     {
