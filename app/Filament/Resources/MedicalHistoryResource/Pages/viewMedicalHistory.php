@@ -481,8 +481,8 @@ class ViewMedicalHistory extends ViewRecord
                                                             $completed = \App\Models\ProcedureSession::query()
                                                                 ->whereHas('procedureDetail', fn($q) => 
                                                                     $q->where('id', $record->id)
-                                                                    ->where('executor_id', $record->executor_id)
                                                                 )
+                                                                ->where('executor_id', $record->executor_id)
                                                                 ->where('is_completed', true)
                                                                 ->count();
 
