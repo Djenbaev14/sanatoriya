@@ -473,9 +473,9 @@ class ViewMedicalHistory extends ViewRecord
                                                             $totalSessions = (int) $state;
 
                                                             // endi executor_id to'g'ridan-to'g'ri $record ichida
-                                                            if (is_null($record->executor_id)) {
-                                                                return $totalSessions . ' <span style="color: red;">(Исполнитель не назначен)</span>';
-                                                            }
+                                                            // if (is_null($record->executor_id)) {
+                                                            //     return $totalSessions . ' <span style="color: red;">(Исполнитель не назначен)</span>';
+                                                            // }
 
                                                             // endi sessionlar bo'yicha bajarilganini hisoblash
                                                             $completed = \App\Models\ProcedureSession::query()
