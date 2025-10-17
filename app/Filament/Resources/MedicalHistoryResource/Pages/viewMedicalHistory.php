@@ -440,7 +440,7 @@ class ViewMedicalHistory extends ViewRecord
                                                     TextEntry::make('procedure.name')->label(''),
                                                     // Executor nomini session orqali ko‘rsatish
                                                     TextEntry::make('executor_name')
-                                                        ->label('Исполнитель')
+                                                        ->label('')
                                                         ->formatStateUsing(function ($state, $record) {
                                                             // Shu procedure_detail uchun sessionlarni olamiz
                                                             $sessions = \App\Models\ProcedureSession::where('procedure_detail_id', $record->id)

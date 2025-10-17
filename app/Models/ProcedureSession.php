@@ -20,6 +20,9 @@ class ProcedureSession extends Model
     public function time(){
         return $this->belongsTo(Time::class);
     }
+    public function executor(){
+        return $this->belongsTo(User::class);
+    }
     public function assignedProcedure(){
         return $this->belongsTo(AssignedProcedure::class);
     }
