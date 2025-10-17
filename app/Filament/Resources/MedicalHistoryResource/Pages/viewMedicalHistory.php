@@ -434,42 +434,49 @@ class ViewMedicalHistory extends ViewRecord
                                                                 ->url(fn ($record) => "/admin/assigned-procedures/{$record->assignedProcedure->id}/edit?patient_id={$record->patient->id}&medical_history_id={$record->id}" )
                                                         ])
                                                     ]),
-                                                RepeatableEntry::make('assignedProcedure.procedureDetails')
-                                                        ->label('')
-                                                        ->schema([
-                                                            TextEntry::make('procedure.name')->label(''),
-                                                            TextEntry::make('executor.name')->label(''),
-                                                            TextEntry::make('sessions')->label('')
-                                                            ->html() // HTML qaytarishga ruxsat
-                                                            ->formatStateUsing(function ($state, $record) {
-                                                                // $state = umumiy session soni (masalan, 5)
-                                                                $totalSessions = (int) $state;
-                                                                // exectur_id null emasligini tekshiramiz
-                                                                if(is_null($record->executor_id)){
-                                                                    return $totalSessions.' <span style="color: red;">(Исполнитель не назначен)</span>';
-                                                                }
-                                                                // nechta tugaganini hisoblaymiz
-                                                                $completed = \App\Models\ProcedureSession::where('procedure_detail_id', $record->id)
-                                                                    ->where('is_completed', true)
-                                                                    ->count();
+                                               RepeatableEntry::make('assignedProcedure.procedureDetails')
+                                                ->label('')
+                                                ->schema([
+                                                    TextEntry::make('procedure.name')->label(''),
+                                                    TextEntry::make('executor.name')->label(''),
+                                                    TextEntry::make('sessions')->label('')
+                                                        ->html()
+                                                        ->formatStateUsing(function ($state, $record) {
+                                                            $totalSessions = (int) $state;
 
-                                                                $stars = '';
-                                                                for ($i = 1; $i <= $totalSessions; $i++) {
-                                                                    if ($i <= $completed) {
-                                                                        $stars .= "<span>✅</span>"; // yashil tugagan
-                                                                    } else {
-                                                                        $stars .= "<span>❌</span>"; // kulrang bajarilmagan
-                                                                    }
-                                                                }
+                                                            // endi executor_id to'g'ridan-to'g'ri $record ichida
+                                                            if (is_null($record->executor_id)) {
+                                                                return $totalSessions . ' <span style="color: red;">(Исполнитель не назначен)</span>';
+                                                            }
 
-                                                                return $totalSessions.' '.$stars;
-                                                            }),
-                                                            TextEntry::make('price')->label('')
-                                                            ->visible(fn () => !auth()->user()->hasRole('Доктор'))
-                                                            ->formatStateUsing(fn($state) => number_format($state, 0) . ' сум'),
-                                                        ])
-                                                        ->columns(4)
-                                                        ->default([]),
+                                                            // endi sessionlar bo'yicha bajarilganini hisoblash
+                                                            $completed = \App\Models\ProcedureSession::query()
+                                                                ->whereHas('procedureDetail', fn($q) => 
+                                                                    $q->where('id', $record->id)
+                                                                    ->where('executor_id', $record->executor_id)
+                                                                )
+                                                                ->where('is_completed', true)
+                                                                ->count();
+
+                                                            // ✅ belgilar
+                                                            $stars = '';
+                                                            for ($i = 1; $i <= $totalSessions; $i++) {
+                                                                if ($i <= $completed) {
+                                                                    $stars .= "<span>✅</span>";
+                                                                } else {
+                                                                    $stars .= "<span>❌</span>";
+                                                                }
+                                                            }
+
+                                                            return $totalSessions . ' ' . $stars;
+                                                        }),
+                                                    TextEntry::make('price')->label('')
+                                                        ->visible(fn() => !auth()->user()->hasRole('Доктор'))
+                                                        ->formatStateUsing(fn($state) => number_format($state, 0) . ' сум'),
+                                                ])
+                                                ->columns(4)
+                                                ->default([]),
+
                                                         
                                                                                                 
                                                 Grid::make(1)
