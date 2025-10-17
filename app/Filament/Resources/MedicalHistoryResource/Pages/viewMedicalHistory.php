@@ -440,42 +440,33 @@ class ViewMedicalHistory extends ViewRecord
                                                     TextEntry::make('procedure.name')->label(''),
                                                     // Executor nomini session orqali ko‘rsatish
                                                     TextEntry::make('executor_name')
-                                                        ->label('')
+                                                        ->label('Исполнитель')
                                                         ->formatStateUsing(function ($state, $record) {
-                                                            // Shu procedure_detail uchun sessionlarni olamiz
-                                                            $sessions = \App\Models\ProcedureSession::where('procedure_detail_id', $record->id)
-                                                                ->with('executor') // executor bilan birga olib kelamiz
-                                                                ->get();
+                                                            // Shu procedure_detail uchun bitta sessionni olamiz
+                                                            $session = \App\Models\ProcedureSession::where('procedure_detail_id', $record->id)
+                                                                ->with('executor')
+                                                                ->first();
 
-                                                            if ($sessions->isEmpty()) {
-                                                                return '—';
+                                                            // Agar session topilmasa
+                                                            if (!$session) {
+                                                                return '<span style="color:red;">Сеанс не найден</span>';
                                                             }
 
-                                                            // Executor’lar ichidan unikal ismlarini olish
-                                                            $executors = $sessions
-                                                                ->whereNotNull('executor_id')
-                                                                ->pluck('executor.name')
-                                                                ->unique()
-                                                                ->values()
-                                                                ->toArray();
-
-                                                            if (empty($executors)) {
+                                                            // Agar executor belgilanmagan bo‘lsa
+                                                            if (!$session->executor) {
                                                                 return '<span style="color:red;">Исполнитель не назначен</span>';
                                                             }
 
-                                                            // Bir nechta bo‘lsa vergul bilan ajratib ko‘rsatamiz
-                                                            return implode(', ', $executors);
+                                                            // Aks holda doctorning ismini qaytaramiz
+                                                            return e($session->executor->name);
                                                         })
-                                                        ->html(), // HTML formatlash uchun
+                                                        ->html(),
+
                                                     TextEntry::make('sessions')->label('')
                                                         ->html()
                                                         ->formatStateUsing(function ($state, $record) {
                                                             $totalSessions = (int) $state;
 
-                                                            // endi executor_id to'g'ridan-to'g'ri $record ichida
-                                                            // if (is_null($record->executor_id)) {
-                                                            //     return $totalSessions . ' <span style="color: red;">(Исполнитель не назначен)</span>';
-                                                            // }
 
                                                             // endi sessionlar bo'yicha bajarilganini hisoblash
                                                             $completed = \App\Models\ProcedureSession::query()
