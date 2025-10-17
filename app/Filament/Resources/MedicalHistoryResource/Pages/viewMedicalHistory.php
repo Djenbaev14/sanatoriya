@@ -452,15 +452,11 @@ class ViewMedicalHistory extends ViewRecord
                                                                 return '<span style="color:red;">Сеанс не найден</span>';
                                                             }
 
-                                                            // Agar executor belgilanmagan bo‘lsa
                                                             if (!$session->executor) {
                                                                 return '<span style="color:red;">Исполнитель не назначен</span>';
                                                             }
-
-                                                            // Aks holda doctorning ismini qaytaramiz
-                                                            return e($session->executor->name);
-                                                        })
-                                                        ->html(),
+                                                            return $session->executor->name;
+                                                        }),
 
                                                     TextEntry::make('sessions')->label('')
                                                         ->html()
