@@ -438,7 +438,35 @@ class ViewMedicalHistory extends ViewRecord
                                                 ->label('')
                                                 ->schema([
                                                     TextEntry::make('procedure.name')->label(''),
-                                                    TextEntry::make('executor.name')->label(''),
+                                                    // Executor nomini session orqali ko‘rsatish
+                                                    TextEntry::make('executor_name')
+                                                        ->label('Исполнитель')
+                                                        ->formatStateUsing(function ($state, $record) {
+                                                            // Shu procedure_detail uchun sessionlarni olamiz
+                                                            $sessions = \App\Models\ProcedureSession::where('procedure_detail_id', $record->id)
+                                                                ->with('executor') // executor bilan birga olib kelamiz
+                                                                ->get();
+
+                                                            if ($sessions->isEmpty()) {
+                                                                return '—';
+                                                            }
+
+                                                            // Executor’lar ichidan unikal ismlarini olish
+                                                            $executors = $sessions
+                                                                ->whereNotNull('executor_id')
+                                                                ->pluck('executor.name')
+                                                                ->unique()
+                                                                ->values()
+                                                                ->toArray();
+
+                                                            if (empty($executors)) {
+                                                                return '<span style="color:red;">Исполнитель не назначен</span>';
+                                                            }
+
+                                                            // Bir nechta bo‘lsa vergul bilan ajratib ko‘rsatamiz
+                                                            return implode(', ', $executors);
+                                                        })
+                                                        ->html(), // HTML formatlash uchun
                                                     TextEntry::make('sessions')->label('')
                                                         ->html()
                                                         ->formatStateUsing(function ($state, $record) {
