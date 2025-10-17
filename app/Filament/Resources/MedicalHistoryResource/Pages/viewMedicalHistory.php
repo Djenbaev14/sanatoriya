@@ -482,7 +482,6 @@ class ViewMedicalHistory extends ViewRecord
                                                                 ->whereHas('procedureDetail', fn($q) => 
                                                                     $q->where('id', $record->id)
                                                                 )
-                                                                ->where('executor_id', $record->executor_id)
                                                                 ->where('is_completed', true)
                                                                 ->count();
 
