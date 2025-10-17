@@ -306,71 +306,24 @@ class AssignedProcedureResource extends Resource
                                                         Select::make('time_id')
     ->label('Время')
     ->options(function (Get $get, $record) {
-        $procedureId = $get('procedure_id');
-        $executorId = $get('executor_id');
+        $procedureId = $get('procedure_id') ?? $record?->procedure_id;
+        $executorId = $get('executor_id') ?? $record?->executor_id;
 
         if (!$procedureId || !$executorId) {
             return [];
         }
-        // 1️⃣ Prosedurani tekshiramiz
+
         $procedure = \App\Models\Procedure::find($procedureId);
-        if (!$procedure || $procedure->is_operation != 0 || $procedure->is_treatment != 0) {
-            return [];
-        }
-        
-        // 2️⃣ medical_history_id ni ota formadan olamiz (../../)
-        $medicalHistoryId = $get('../../medical_history_id');
+        if (!$procedure) return [];
 
-        if (!$medicalHistoryId) {
-            return [];
-        }
-
-        // 2️⃣ Accommodation dan admission_date ni olamiz
-        $admissionDate = null;
-        $accommodation = \App\Models\Accommodation::where('medical_history_id', $medicalHistoryId)
-            ->first();
-        if ($accommodation && $accommodation->admission_date && $accommodation->discharge_date) {
-            $admissionDate = \Carbon\Carbon::parse($accommodation->admission_date)->toDateString();
-            $dischargeDate = \Carbon\Carbon::parse($accommodation->discharge_date)->toDateString();
-        }
-        if (!$admissionDate && !$dischargeDate) {
-            return [];
-        }
-
-        // 3️⃣ Band vaqtlarni olamiz
-        $busyTimeIds = \App\Models\ProcedureSession::query()
-            ->where('is_completed', 0)
-            ->where('executor_id', $executorId)
-            ->where('procedure_id', $procedureId)
-            ->whereBetween('session_date', [
-                \Carbon\Carbon::parse($admissionDate)->toDateString(),
-                \Carbon\Carbon::parse($dischargeDate)->toDateString(),
-            ])
-            ->pluck('time_id')
-            ->unique() // 🔹 qaytarilayotgan qiymatlarni takrorlanmas holga keltiradi
-            ->values() // 🔹 indekslarni tozalaydi
-            ->toArray();
-
-
-
-        $times = \App\Models\Time::query()
+        return \App\Models\Time::query()
             ->where('time_category_id', $procedure->time_category_id)
-            ->when(!empty($busyTimeIds), fn($q) => $q->whereNotIn('id', $busyTimeIds))
             ->get()
             ->mapWithKeys(fn($time) => [
                 $time->id => "{$time->start_time} - {$time->end_time}",
             ]);
-            
-
-        return $times;
     })
-    ->visible(function (Get $get) {
-        $procedureId = $get('procedure_id');
-        if (!$procedureId) return false;
-
-        $procedure = \App\Models\Procedure::find($procedureId);
-        return $procedure && $procedure->is_operation == 0 && $procedure->is_treatment == 0;
-    })
+    ->default(fn($record) => $record?->time_id)
     ->searchable()
     ->preload()
     ->reactive()
