@@ -304,31 +304,43 @@ class AssignedProcedureResource extends Resource
                                                         })
                                                         ->columnSpan(4),
                                                         Select::make('time_id')
-    ->label('Время')
-    ->options(function (Get $get, $record) {
-        $procedureId = $get('procedure_id') ?? $record?->procedure_id;
-        $executorId = $get('executor_id') ?? $record?->executor_id;
+                                                            ->label('Время')
+                                                            ->options(function (Get $get, $record) {
+                                                                $procedureId = $get('procedure_id') ?? $record?->procedure_id;
+                                                                $executorId = $get('executor_id') ?? $record?->executor_id;
 
-        if (!$procedureId || !$executorId) {
-            return [];
-        }
+                                                                if (!$procedureId || !$executorId) {
+                                                                    return [];
+                                                                }
 
-        $procedure = \App\Models\Procedure::find($procedureId);
-        if (!$procedure) return [];
+                                                                $procedure = \App\Models\Procedure::find($procedureId);
+                                                                if (!$procedure) return [];
 
-        return \App\Models\Time::query()
-            ->where('time_category_id', $procedure->time_category_id)
-            ->get()
-            ->mapWithKeys(fn($time) => [
-                $time->id => "{$time->start_time} - {$time->end_time}",
-            ]);
-    })
-    ->default(fn($record) => $record?->time_id)
-    ->searchable()
-    ->preload()
-    ->reactive()
-    ->required()
-    ->columnSpan(4),
+                                                                return \App\Models\Time::query()
+                                                                    ->where('time_category_id', $procedure->time_category_id)
+                                                                    ->get()
+                                                                    ->mapWithKeys(fn($time) => [
+                                                                        $time->id => "{$time->start_time} - {$time->end_time}",
+                                                                    ]);
+                                                            })
+                                                            ->visible(function (Get $get) {
+                                                                $procedureId = $get('procedure_id');
+
+                                                                if (!$procedureId) {
+                                                                    return false;
+                                                                }
+
+                                                                $procedure = \App\Models\Procedure::find($procedureId);
+
+                                                                // faqat is_operation=0 va is_treatment=0 bo‘lsa ko‘rsatamiz
+                                                                return $procedure && $procedure->is_operation == 0 && $procedure->is_treatment == 0;
+                                                            })
+                                                            ->default(fn($record) => $record?->time_id)
+                                                            ->searchable()
+                                                            ->preload()
+                                                            ->reactive()
+                                                            ->required()
+                                                            ->columnSpan(4),
 
 
                                                     // Select::make('time_id')
