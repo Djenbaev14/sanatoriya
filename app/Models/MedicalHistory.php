@@ -81,8 +81,8 @@ class MedicalHistory extends Model
     }
     public function getTotalAccommodation(){
 
-        return $this->accommodation?->calculatePartnerBedCost() ?? 0 +
-               $this->accommodation?->calculatePartnerBedCost()  ?? 0;
+        return $this->partnerAccommodation?->calculateBedCost() ?? 0 +
+               $this->partnerAccommodation?->calculateMealCost()  ?? 0;
     }
     
     public function getTotalCostAttribute()
