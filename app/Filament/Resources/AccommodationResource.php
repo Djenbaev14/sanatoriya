@@ -296,8 +296,16 @@ class AccommodationResource extends Resource
                                 $set('accomplice_meal_day', $days);
                             })
                             ->columnSpan(6),
-                        Hidden::make('accomplice_ward_day'),
-                        Hidden::make('accomplice_meal_day'),
+                        TextInput::make('accomplice_ward_day')
+                            ->columnSpan(2)
+                            ->label('Дней в палате')
+                            ->reactive()
+                            ->visible(fn (Get $get) => filled($get('accomplice_admission_date')) && filled($get('accomplice_discharge_date'))),
+                        TextInput::make('accomplice_meal_day')
+                            ->reactive()
+                            ->columnSpan(2)
+                            ->label('Дней питания')
+                            ->visible(fn (Get $get) => filled($get('accomplice_admission_date')) && filled($get('accomplice_discharge_date'))),
                         Group::make()
                             ->schema([
                                 Select::make('accomplice_tariff_id') 

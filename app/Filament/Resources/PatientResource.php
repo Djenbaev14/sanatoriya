@@ -116,26 +116,6 @@ class PatientResource extends Resource
                             ->reactive() 
                             ->required()
                             ->columnSpan(6), 
-                        // is_accomplice uchun 
-                        Radio::make('is_accomplice')
-                            ->label('Партнёр?')
-                            ->required()
-                            ->options([
-                                0 => 'Нет',
-                                1 => 'Да',
-                            ])
-                            ->inline()
-                            ->live()
-                            ->columnSpan(6),
-                        Select::make('main_patient_id')
-                            ->label('Основной пациент')
-                            ->options(
-                                \App\Models\Patient::where('is_accomplice', false)->pluck('full_name', 'id')
-                            )
-                            ->searchable()
-                            ->required(fn (Get $get) => $get('is_accomplice') == 1)
-                            ->visible(fn (Get $get) => $get('is_accomplice') == 1)
-                            ->columnSpan(6),
                         Textarea::make('address')
                                 ->label('Адрес')
                                 ->columnSpan(12),
@@ -184,8 +164,8 @@ class PatientResource extends Resource
                                 'address' => $data['address'],
                                 'profession' => $data['profession'],
                                 'created_at' => $data['created_at'],
-                                'is_accomplice' => $data['is_accomplice'],
-                                'main_patient_id' => array_key_exists('main_patient_id', $data) ? $data['main_patient_id'] : null,
+                                'is_accomplice' => 0,
+                                'main_patient_id' => null,
                                 'is_foreign' => $data['is_foreign'],
                                 'photo' => $fileName,
                             ]);
