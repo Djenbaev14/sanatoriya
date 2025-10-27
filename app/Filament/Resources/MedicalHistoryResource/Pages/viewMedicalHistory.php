@@ -542,6 +542,11 @@ class ViewMedicalHistory extends ViewRecord
                             ->default(fn ($record) => number_format($record->getTotalCost(), 0, '.', ' ') . ' сум')
                             ->badge()
                             ->color('gray'),
+                        TextEntry::make('total_accommodation_cost')
+                            ->label('Общая сумма размещения')
+                            ->default(fn ($record) => number_format($record->getTotalAccommodation(), 0, '.', ' ') . ' сум')
+                            ->badge()
+                            ->color('gray'),
 
                         TextEntry::make('paid_amount')
                             ->label('Оплачено')

@@ -79,6 +79,11 @@ class MedicalHistory extends Model
 
         return $procedureCost + $accommodationCost + $labTestCost;
     }
+    public function getTotalAccommodation(){
+
+        return $this->accommodation?->calculatePartnerBedCost() ?? 0 +
+               $this->accommodation?->calculatePartnerBedCost()  ?? 0;
+    }
     
     public function getTotalCostAttribute()
     {
