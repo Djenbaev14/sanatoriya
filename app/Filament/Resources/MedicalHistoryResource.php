@@ -406,7 +406,7 @@ class MedicalHistoryResource extends Resource
                     })
             ],layout:FiltersLayout::AboveContent)
             ->defaultPaginationPageOption(50)
-            ->defaultSort('number', 'desc')
+            ->defaultSort('created_at', 'desc')
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),

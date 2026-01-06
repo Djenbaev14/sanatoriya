@@ -69,7 +69,6 @@ class AccommodationResource extends Resource
                                 $patientId = $get('patient_id');
 
                                 return \App\Models\MedicalHistory::where('patient_id', $patientId)
-                                    // ->doesntHave('medicalInspection') // agar faqat bog‘lanmaganlar kerak bo‘lsa
                                     ->get()
                                     ->mapWithKeys(function ($history) {
                                         $formattedId = str_pad('№'.$history->number, 10);
@@ -82,7 +81,6 @@ class AccommodationResource extends Resource
                         DateTimePicker::make('admission_date')
                             ->label('Дата поступления')
                             ->reactive()
-                            // medical history vaqtni defaultiga o‘rnatamiz
                             ->default(fn (Get $get) => $get('medical_history_id') ? \App\Models\MedicalHistory::find($get('medical_history_id'))?->created_at : Carbon::now())
                             ->afterStateUpdated(function (Set $set, $state, Get $get) {
                                 $days = self::calculateDays($state, $get('discharge_date'));
@@ -275,11 +273,9 @@ class AccommodationResource extends Resource
                         )
                         ->required()
                         ->columnSpan(12),
-                        
                         DateTimePicker::make('accomplice_admission_date')
                             ->label('Дата поступления')
                             ->reactive()
-                            ->default(Carbon::now())
                             ->default(fn (Get $get) => $get('medical_history_id') ? \App\Models\MedicalHistory::find($get('medical_history_id'))?->created_at : Carbon::now())
                             ->afterStateUpdated(function (Set $set, $state, Get $get) {
                                 $days = self::calculateDays($state, $get('accomplice_discharge_date'));

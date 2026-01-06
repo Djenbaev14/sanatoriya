@@ -104,7 +104,6 @@ class Accommodation extends Model
     
     public function getTotalCost()
     {
-        
         return $this->calculateBedCost()+$this->calculateMealCost() +
             $this->calculatePartnerBedCost()+$this->calculatePartnerMealCost();
     }
