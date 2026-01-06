@@ -218,7 +218,10 @@ class MedicalHistoryResource extends Resource
                             ->dehydrated(true),
                         TextInput::make('number')
                             ->label('Номер')
-                            ->default(fn () =>MedicalHistory::max('number') + 1)
+                            ->default(function () {
+                                return MedicalHistory::whereYear('created_at', Carbon::now()->year)
+                                    ->max('number') + 1;
+                            })
                             ->required()
                             ->columnSpan(4),
                         TextInput::make('height')
