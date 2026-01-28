@@ -26,23 +26,43 @@ class ListCompletedPhysiotherapies extends ListRecords
 
         $actions = [];
 
+        $today = today()->toDateString();
+        $yesterday = \Carbon\Carbon::yesterday()->toDateString();
+
         foreach ($grouped as $procedureId => $items) {
-            $procedureName = $items->first()->procedure->name ?? '—';
 
-            $bugun = $items->where('completed_at', today()->toDateString())->count();
-            $kecha = $items->where('completed_at', \Carbon\Carbon::yesterday()->toDateString())->count();
-            $otibKetgan = $items->where('completed_at', '<', today()->toDateString())->count();
+            $procedureName = optional($items->first()->procedure)->name ?? '—';
 
-            $label = "{$procedureName}: 
-                Сегодня - {$bugun}, 
-                Вчера - {$kecha}, 
-                Просроченный - {$otibKetgan}";
+            $stats = $items->reduce(function ($carry, $item) use ($today, $yesterday) {
+
+                $date = optional($item->completed_at)->toDateString();
+
+                if ($date === $today) {
+                    $carry['today']++;
+                } elseif ($date === $yesterday) {
+                    $carry['yesterday']++;
+                } elseif ($date && $date < $today) {
+                    $carry['expired']++;
+                }
+
+                return $carry;
+            }, [
+                'today' => 0,
+                'yesterday' => 0,
+                'expired' => 0,
+            ]);
+
+            $label = "{$procedureName}:
+        Сегодня - {$stats['today']},
+        Вчера - {$stats['yesterday']},
+        Просроченный - {$stats['expired']}";
 
             $actions[] = \Filament\Actions\Action::make("procedure-{$procedureId}")
                 ->label($label)
                 ->color('gray')
                 ->disabled();
         }
+
 
         return $actions;
     }

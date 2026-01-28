@@ -23,6 +23,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\DB;
 
 class PaymentProcedureResource extends Resource
 {
@@ -139,27 +140,33 @@ class PaymentProcedureResource extends Resource
                                 ];
                     })
                     ->action(function (array $data, $record) {
-                        try {
+
+                        DB::transaction(function () use ($data, $record) {
+
                             $payment = ProcedurePayment::create([
                                 'patient_id' => $record->patient_id,
                                 'medical_history_id' => $record->medical_history_id,
                                 'assigned_procedure_id' => $record->id,
                             ]);
 
-                            foreach ($data['payment_items'] as $item) {
-                                if($item['selected']){
-                                    ProcedurePaymentDetail::create([
-                                        'procedure_payment_id' => $payment->id,
-                                        'assigned_procedure_id' => $record->id,
-                                        'procedure_id' => $item['procedure_id'],
-                                        'price' => $item['price'],
-                                        'sessions' => $item['sessions'],
-                                    ]);
-                                }
+                            $rows = collect($data['payment_items'] ?? [])
+                                ->filter(fn ($item) => !empty($item['selected']))
+                                ->map(fn ($item) => [
+                                    'procedure_payment_id' => $payment->id,
+                                    'assigned_procedure_id' => $record->id,
+                                    'procedure_id' => $item['procedure_id'],
+                                    'price' => $item['price'],
+                                    'sessions' => $item['sessions'] ?? 1,
+                                    'created_at' => now(),
+                                    'updated_at' => now(),
+                                ])
+                                ->values()
+                                ->all();
+
+                            if (!empty($rows)) {
+                                ProcedurePaymentDetail::insert($rows); // ✅ 1 ta query
                             }
-                        } catch (\Throwable $th) {
-                            throw $th;
-                        }
+                        });
                     })
                     ->slideOver()
             ])

@@ -76,16 +76,15 @@ class WardResource extends Resource
                     ->modalDescription('Barcha mavjud yotoqxona tariflari ro\'yxati')
                     ->modalWidth(MaxWidth::Medium)
                     ->form(function () {
-                        $tariffs = Tariff::all();
-                        $components = [];
-                        
-                        foreach ($tariffs as $tariff) {
-                            $components[] = Placeholder::make('tariff_' . $tariff->id)
-                                ->label($tariff->name)
-                                ->content(number_format($tariff->daily_price, 2) . ' сум/ кун');
-                        }
-                        
-                        return $components;
+                        return Tariff::query()
+                            ->select('id', 'name', 'daily_price')
+                            ->get()
+                            ->map(fn ($tariff) =>
+                                Placeholder::make('tariff_' . $tariff->id)
+                                    ->label($tariff->name)
+                                    ->content(number_format($tariff->daily_price, 2) . ' сум / кун')
+                            )
+                            ->toArray();
                     })
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Назад')

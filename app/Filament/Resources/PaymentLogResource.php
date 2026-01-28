@@ -4,9 +4,11 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PaymentLogResource\Pages;
 use App\Filament\Resources\PaymentLogResource\RelationManagers;
+use App\Models\LabTestPaymentDetail;
 use App\Models\MedicalHistory;
 use App\Models\PaymentLog;
 use App\Models\PaymentType;
+use App\Models\ProcedurePaymentDetail;
 use Filament\Forms;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Grid;
@@ -109,59 +111,69 @@ class PaymentLogResource extends Resource
                     ->label('Оплата')
                     ->icon('heroicon-o-currency-dollar')
                     ->action(function (array $data, MedicalHistory $record) {
-                        try {
-                            // 1. Create base payment
+
+                        return DB::transaction(function () use ($data, $record) {
+
+                            // 1. Base payment
                             $payment = $record->payments()->create([
                                 'patient_id' => $record->patient_id,
                                 'payment_type_id' => $data['payment_type_id'],
                                 'created_at' => $data['created_at'],
                             ]);
 
-                            // 2. Create lab_test_payments & lab_test_payment_details
-                            $labTestPayment = null;
+                            /* ================= LAB TESTS ================= */
+
                             $selectedLabTests = collect($data['lab_tests_payment_items'] ?? [])
-                                ->filter(fn($item) => $item['selected'] ?? false);
+                                ->filter(fn ($i) => !empty($i['selected']));
 
                             if ($selectedLabTests->isNotEmpty()) {
+
                                 $labTestPayment = $payment->labTestPayments()->create([
                                     'medical_history_id' => $record->id,
                                     'lab_test_history_id' => $record->labTestHistory->id,
                                     'created_at' => $data['created_at'],
                                 ]);
 
-                                foreach ($selectedLabTests as $test) {
-                                    $labTestPayment->labTestPaymentDetails()->create([
-                                        'lab_test_history_id' => $record->labTestHistory->id,
-                                        'lab_test_id' => $test['lab_test_id'],
-                                        'sessions' => $test['sessions'] ?? 1,
-                                        'price' => $test['price'],
-                                        'created_at' => $data['created_at'],
-                                    ]);
-                                }
+                                $rows = $selectedLabTests->map(fn ($test) => [
+                                    'lab_test_payment_id' => $labTestPayment->id,
+                                    'lab_test_history_id' => $record->labTestHistory->id,
+                                    'lab_test_id' => $test['lab_test_id'],
+                                    'sessions' => $test['sessions'] ?? 1,
+                                    'price' => $test['price'],
+                                    'created_at' => $data['created_at'],
+                                    'updated_at' => $data['created_at'],
+                                ])->values()->all();
+
+                                LabTestPaymentDetail::insert($rows); // ✅ 1 query
                             }
 
-                            // 3. Create procedure_payments & procedure_payment_details
-                            $procedurePayment = null;
+                            /* ================= PROCEDURES ================= */
+
                             $selectedProcedures = collect($data['procedures_payment_items'] ?? [])
-                                ->filter(fn($item) => $item['selected'] ?? false);
+                                ->filter(fn ($i) => !empty($i['selected']));
 
                             if ($selectedProcedures->isNotEmpty()) {
+
                                 $procedurePayment = $payment->procedurePayments()->create([
                                     'medical_history_id' => $record->id,
                                     'assigned_procedure_id' => $record->assignedProcedure->id,
                                     'created_at' => $data['created_at'],
                                 ]);
 
-                                foreach ($selectedProcedures as $procedure) {
-                                    $procedurePayment->procedurePaymentDetails()->create([
-                                        'assigned_procedure_id' => $record->assignedProcedure->id,
-                                        'procedure_id' => $procedure['procedure_id'],
-                                        'sessions' => $procedure['sessions'] ?? 1,
-                                        'price' => $procedure['price'],
-                                        'created_at' => $data['created_at'],
-                                    ]);
-                                }
+                                $rows = $selectedProcedures->map(fn ($p) => [
+                                    'procedure_payment_id' => $procedurePayment->id,
+                                    'assigned_procedure_id' => $record->assignedProcedure->id,
+                                    'procedure_id' => $p['procedure_id'],
+                                    'sessions' => $p['sessions'] ?? 1,
+                                    'price' => $p['price'],
+                                    'created_at' => $data['created_at'],
+                                    'updated_at' => $data['created_at'],
+                                ])->values()->all();
+
+                                ProcedurePaymentDetail::insert($rows); // ✅
                             }
+
+                            /* ================= ACCOMMODATION ================= */
 
                             $ward = collect($data['ward_payment'] ?? [])->firstWhere('selected', true);
                             $meal = collect($data['meal_payment'] ?? [])->firstWhere('selected', true);
@@ -178,26 +190,22 @@ class PaymentLogResource extends Resource
                                 ]);
                             }
 
-                            
-                            $ward_uxod = collect($data['ward_payment_uxod'] ?? [])->firstWhere('selected', true);
-                            $meal_uxod = collect($data['meal_payment_uxod'] ?? [])->firstWhere('selected', true);
+                            $wardUxod = collect($data['ward_payment_uxod'] ?? [])->firstWhere('selected', true);
+                            $mealUxod = collect($data['meal_payment_uxod'] ?? [])->firstWhere('selected', true);
 
-                            if ($ward_uxod || $meal_uxod) {
+                            if ($wardUxod || $mealUxod) {
                                 $payment->accommodationPayments()->create([
                                     'accommodation_id' => $record->accommodation->partner->id,
-                                    'tariff_price' => $ward_uxod['tariff_price'] ?? 0,
-                                    'ward_day' => $ward_uxod['ward_day'] ?? 0,
-                                    'meal_price' => $meal_uxod['meal_price'] ?? 0,
-                                    'meal_day' => $meal_uxod['meal_day'] ?? 0,
+                                    'tariff_price' => $wardUxod['tariff_price'] ?? 0,
+                                    'ward_day' => $wardUxod['ward_day'] ?? 0,
+                                    'meal_price' => $mealUxod['meal_price'] ?? 0,
+                                    'meal_day' => $mealUxod['meal_day'] ?? 0,
                                     'created_at' => $data['created_at'],
                                 ]);
                             }
 
                             return redirect()->route('payment-log.view', ['record' => $payment->id]);
-
-                        } catch (\Throwable $e) {
-                            throw new \Exception("Ошибка при оплате: " . $e->getMessage());
-                        }
+                        });
                     })
                     ->form(function (MedicalHistory $record) {
                                 return [

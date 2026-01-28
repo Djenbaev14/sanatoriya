@@ -34,43 +34,67 @@ class CreateAssignedProcedure extends CreateRecord
 
         $startDate = \Carbon\Carbon::parse($accommodation->admission_date);
 
-        foreach ($formData['procedureDetails'] ?? [] as $detailData) {
-            $executorId = $detailData['executor_id'] ?? null;
-            $timeId = $detailData['time_id'] ?? null;
-            $procedureId = $detailData['procedure_id'] ?? null;
+        $detailsData = collect($formData['procedureDetails'] ?? [])
+            ->filter(fn ($d) => !empty($d['procedure_id']));
 
-            if (! $procedureId) {
+        if ($detailsData->isEmpty()) {
+            return;
+        }
+
+        /* 1️⃣ Kerakli procedure ID lar */
+        $procedureIds = $detailsData->pluck('procedure_id')->unique();
+
+        /* 2️⃣ Faqat kerakli procedurelarni oldindan yuklash */
+        $procedures = \App\Models\Procedure::whereIn('id', $procedureIds)
+            ->where('is_treatment', 0)
+            ->where('is_operation', 0)
+            ->get()
+            ->keyBy('id');
+
+        /* 3️⃣ ProcedureDetail + sessions_count */
+        $procedureDetails = $this->record->procedureDetails()
+            ->withCount('procedureSessions')
+            ->whereIn('procedure_id', $procedures->keys())
+            ->get()
+            ->keyBy('procedure_id');
+
+        $rows = [];
+
+        foreach ($detailsData as $detailData) {
+
+            $procedureId = $detailData['procedure_id'];
+            $procedure = $procedures->get($procedureId);
+
+            if (! $procedure) {
                 continue;
             }
 
-            // faqat is_treatment = 0 va is_operation = 0 bo‘lgan procedurelar uchun
-            $procedure = \App\Models\Procedure::find($procedureId);
-            if (! $procedure || $procedure->is_treatment != 0 || $procedure->is_operation != 0) {
+            $detail = $procedureDetails->get($procedureId);
+            if (! $detail) {
                 continue;
             }
 
-            $detail = $this->record->procedureDetails()
-                ->where('procedure_id', $procedureId)
-                ->first();
+            $existingCount = $detail->procedure_sessions_count;
+            $needCount = max(0, $detail->sessions - $existingCount);
 
-            if ($detail) {
-                $existingCount = $detail->procedureSessions()->count();
-
-                if ($existingCount < $detail->sessions) {
-                    for ($i = $existingCount; $i < $detail->sessions; $i++) {
-                        $sessionDate = $startDate->copy()->addDays($i);
-
-                        $detail->procedureSessions()->create([
-                            'assigned_procedure_id' => $this->record->id,
-                            'procedure_id'          => $procedureId,
-                            'session_date'          => $sessionDate->toDateString(),
-                            'time_id'               => $timeId,
-                            'executor_id'           => $executorId,
-                        ]);
-                    }
-                }
+            for ($i = 0; $i < $needCount; $i++) {
+                $rows[] = [
+                    'assigned_procedure_id' => $this->record->id,
+                    'procedure_id'          => $procedureId,
+                    'session_date'          => $startDate->copy()->addDays($existingCount + $i)->toDateString(),
+                    'time_id'               => $detailData['time_id'] ?? null,
+                    'executor_id'           => $detailData['executor_id'] ?? null,
+                    'created_at'            => now(),
+                    'updated_at'            => now(),
+                ];
             }
         }
+
+        /* 4️⃣ 1 ta query bilan yozish */
+        if (! empty($rows)) {
+            \App\Models\ProcedureSession::insert($rows);
+        }
+
     }
 
 

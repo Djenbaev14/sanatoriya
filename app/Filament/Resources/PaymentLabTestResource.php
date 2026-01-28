@@ -140,27 +140,34 @@ class PaymentLabTestResource extends Resource
                                 ];
                     })
                     ->action(function (array $data, $record) {
-                        try {
+                        DB::transaction(function () use ($data, $record) {
+
                             $payment = LabTestPayment::create([
-                            'patient_id' => $record->patient_id,
-                            'medical_history_id' => $record->medical_history_id,
-                            'lab_test_history_id' => $record->id,
+                                'patient_id' => $record->patient_id,
+                                'medical_history_id' => $record->medical_history_id,
+                                'lab_test_history_id' => $record->id,
                             ]);
 
+                            $rows = [];
+
                             foreach ($data['payment_items'] as $item) {
-                                if($item['selected']){
-                                    LabTestPaymentDetail::create([
-                                    'lab_test_payment_id' => $payment->id,
-                                    'lab_test_history_id' => $record->id,
-                                    'lab_test_id' => $item['lab_test_id'],
-                                    'price' => $item['price'],
-                                    'sessions' => 1,
-                                ]);
+                                if (!empty($item['selected'])) {
+                                    $rows[] = [
+                                        'lab_test_payment_id' => $payment->id,
+                                        'lab_test_history_id' => $record->id,
+                                        'lab_test_id' => $item['lab_test_id'],
+                                        'price' => $item['price'],
+                                        'sessions' => 1,
+                                        'created_at' => now(),
+                                        'updated_at' => now(),
+                                    ];
                                 }
                             }
-                        } catch (\Throwable $th) {
-                            throw $th;
-                        }
+
+                            if (!empty($rows)) {
+                                LabTestPaymentDetail::insert($rows); // ✅ 1 ta query
+                            }
+                        });
                     })
                     ->slideOver()
             ])

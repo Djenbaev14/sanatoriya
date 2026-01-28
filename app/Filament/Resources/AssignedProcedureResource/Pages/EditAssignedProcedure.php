@@ -29,57 +29,73 @@ class EditAssignedProcedure extends EditRecord
         $formData = $this->data; // formdan kelgan inputlar
         $record = $this->record;
 
-        foreach ($formData['procedureDetails'] ?? [] as $detailData) {
-            $executorId = $detailData['executor_id'] ?? null;
-            $timeId = $detailData['time_id'] ?? null;
-            $sessions = (int) ($detailData['sessions'] ?? 0);
+        $detailsData = collect($formData['procedureDetails'] ?? [])
+            ->filter(fn ($d) => !empty($d['procedure_id']) && isset($d['sessions']));
 
-            // mavjud detailni topamiz
-            $detail = $record->procedureDetails()
-                ->where('procedure_id', $detailData['procedure_id'])
-                ->first();
+        if ($detailsData->isEmpty()) {
+            return;
+        }
 
+        /* 1️⃣ ProcedureDetail’larni oldindan olib qo‘yamiz */
+        $procedureDetails = $record->procedureDetails()
+            ->whereIn('procedure_id', $detailsData->pluck('procedure_id'))
+            ->withCount('procedureSessions')
+            ->get()
+            ->keyBy('procedure_id');
+
+        $startDate = $now->copy();
+        if ($now->hour >= 13) {
+            $startDate->addDay();
+        }
+
+        foreach ($detailsData as $detailData) {
+
+            $detail = $procedureDetails->get($detailData['procedure_id']);
             if (! $detail) {
                 continue;
             }
 
-            // mavjud seanslar sonini olamiz
-            $existingSessions = $detail->procedureSessions()->orderBy('session_date')->get();
-            $existingCount = $existingSessions->count();
+            $executorId = $detailData['executor_id'] ?? null;
+            $timeId     = $detailData['time_id'] ?? null;
+            $sessions   = (int) $detailData['sessions'];
 
-            $startDate = $now->copy();
-            if ($now->hour >= 13) {
-                $startDate->addDay();
-            }
+            $existingCount = $detail->procedure_sessions_count;
+            $diff = $sessions - $existingCount;
 
-            // 🔹 AGAR yangi son kattaroq bo‘lsa — qo‘shimcha seanslar yaratamiz
-            if ($sessions > $existingCount) {
-                for ($i = $existingCount; $i < $sessions; $i++) {
-                    $sessionDate = $startDate->copy()->addDays($i);
-                    $detail->procedureSessions()->create([
+            /* 🔹 QO‘SHISH KERAK */
+            if ($diff > 0) {
+                $rows = [];
+
+                for ($i = 0; $i < $diff; $i++) {
+                    $rows[] = [
                         'assigned_procedure_id' => $record->id,
                         'procedure_id'          => $detail->procedure_id,
-                        'session_date'          => $sessionDate->toDateString(),
-                        'time_id'               => $timeId,
+                        'session_date'          => $startDate->copy()->addDays($existingCount + $i)->toDateString(),
                         'executor_id'           => $executorId,
-                    ]);
+                        'time_id'               => $timeId,
+                        'created_at'            => now(),
+                        'updated_at'            => now(),
+                    ];
                 }
+
+                \App\Models\ProcedureSession::insert($rows); // ✅ 1 query
             }
 
-            // 🔹 AGAR yangi son kichik bo‘lsa — ortiqcha seanslarni o‘chirib tashlaymiz
-            elseif ($sessions < $existingCount) {
+            /* 🔹 O‘CHIRISH KERAK */
+            elseif ($diff < 0) {
                 $detail->procedureSessions()
                     ->orderByDesc('session_date')
-                    ->take($existingCount - $sessions)
-                    ->delete();
+                    ->limit(abs($diff))
+                    ->delete(); // ✅ 1 query
             }
 
-            // 🔹 Qolgan seanslarni yangilaymiz (agar executor yoki time o‘zgargan bo‘lsa)
+            /* 🔹 QOLGANLARNI YANGILASH */
             $detail->procedureSessions()->update([
                 'executor_id' => $executorId,
                 'time_id'     => $timeId,
             ]);
         }
+
     }
 
     protected function mutateFormDataBeforeSave(array $data): array

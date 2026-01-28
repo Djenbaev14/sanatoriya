@@ -22,6 +22,7 @@ use App\Models\ComingProduct;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Actions\Action;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ProductResource extends Resource
@@ -152,22 +153,33 @@ class ProductResource extends Resource
                             ->createItemButtonLabel('➕ Добавить товар'),
                     ])
                     ->action(function (array $data) {
-                        // 1️⃣ Avval supplier_delivery yozamiz
-                        $delivery = \App\Models\SupplierDelivery::create([
-                            'supplier_id' => $data['supplier_id'],
-                            'delivery_date' => $data['delivery_date'],
-                        ]);
+                        DB::transaction(function () use ($data) {
 
-                        // 2️⃣ Har bir Repeater item uchun ComingProduct yozamiz
-                        foreach ($data['products'] as $item) {
-                            \App\Models\ComingProduct::create([
-                                'supplier_delivery_id' => $delivery->id,
-                                'product_id' => $item['product_id'],
-                                'quantity' => $item['quantity'],
-                                'price' => $item['price'],
+                            // 1️⃣ Supplier delivery
+                            $delivery = \App\Models\SupplierDelivery::create([
+                                'supplier_id' => $data['supplier_id'],
+                                'delivery_date' => $data['delivery_date'],
                             ]);
-                        }
+
+                            // 2️⃣ ComingProduct — bulk insert
+                            $rows = collect($data['products'] ?? [])
+                                ->map(fn ($item) => [
+                                    'supplier_delivery_id' => $delivery->id,
+                                    'product_id' => $item['product_id'],
+                                    'quantity' => $item['quantity'],
+                                    'price' => $item['price'],
+                                    'created_at' => now(),
+                                    'updated_at' => now(),
+                                ])
+                                ->values()
+                                ->all();
+
+                            if (!empty($rows)) {
+                                \App\Models\ComingProduct::insert($rows); // ✅ 1 ta query
+                            }
+                        });
                     })
+
             ])
             ->columns([
                 Tables\Columns\TextColumn::make('name')->sortable()->searchable(),
