@@ -35,7 +35,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login(Login::class)
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Blue,
             ])
             ->sidebarCollapsibleOnDesktop()
             ->plugin(FilamentSpatieRolesPermissionsPlugin::make())
