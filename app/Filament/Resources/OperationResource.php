@@ -167,8 +167,6 @@ class OperationResource extends Resource
     {
         return [
             'index' => Pages\ListOperations::route('/'),
-            'create' => Pages\CreateOperation::route('/create'),
-            'edit' => Pages\EditOperation::route('/{record}/edit'),
         ];
     }
 }
