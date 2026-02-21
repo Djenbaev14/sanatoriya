@@ -19,7 +19,7 @@ class MySectionResource extends Resource
 {
     protected static ?string $model = Ward::class;
 
-    protected static ?string $navigationIcon = 'fas-bed';
+    protected static ?string $navigationIcon = 'heroicon-o-office-building';
 
     public static function form(Form $form): Form
     {

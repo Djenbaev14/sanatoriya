@@ -62,7 +62,7 @@ use Illuminate\Support\HtmlString;
 class MedicalHistoryResource extends Resource
 {
     protected static ?string $model = MedicalHistory::class;
-    protected static ?string $navigationIcon = 'fas-file-medical';
+    protected static ?string $navigationIcon = 'heroicon-o-document-text';
     public static function form(Form $form): Form{
         return $form
             ->schema([

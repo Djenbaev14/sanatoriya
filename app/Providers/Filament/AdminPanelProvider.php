@@ -6,7 +6,6 @@ use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsPlugi
 use App\Filament\Auth\Login;
 use App\Filament\Pages\Dashboard;
 use App\Filament\Widgets\SanatoriumStats;
-use EightyNine\Reports\ReportsPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -23,7 +22,6 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Rmsramos\Activitylog\ActivitylogPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -51,16 +49,12 @@ class AdminPanelProvider extends PanelProvider
                     ->icon('heroicon-o-banknotes'),
                 NavigationGroup::make()
                     ->label('Настройка')
-                    ->icon('fas-gear'),
+                    ->icon('heroicon-o-cog'),
                 NavigationGroup::make()
                     ->label('Склад')
-                    ->icon('fas-warehouse'),
+                    ->icon('heroicon-o-archive'),
                 NavigationGroup::make()
                     ->label('Роли и разрешения'),
-            ])
-            ->plugins([
-                ActivitylogPlugin::make()
-                ->navigationCountBadge(true),
             ])
             ->spa()
             ->brandName('Sanatoriya')
