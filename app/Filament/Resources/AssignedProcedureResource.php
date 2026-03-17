@@ -269,78 +269,78 @@ class AssignedProcedureResource extends Resource
                                                             static::recalculateTotalSum($get, $set);
                                                         })
                                                         ->columnSpan(5),
-                                                    Select::make('executor_id')
-                                                        ->label('Исполнитель')
-                                                        ->nullable()
-                                                        ->options(function (Get $get) {
-                                                            $procedureId = $get('procedure_id');
+                                                    // Select::make('executor_id')
+                                                    //     ->label('Исполнитель')
+                                                    //     ->nullable()
+                                                    //     ->options(function (Get $get) {
+                                                    //         $procedureId = $get('procedure_id');
 
-                                                            if (!$procedureId) {
-                                                                return [];
-                                                            }
+                                                    //         if (!$procedureId) {
+                                                    //             return [];
+                                                    //         }
 
-                                                            // Proseduraga biriktirilgan foydalanuvchilarni to‘g‘ridan-to‘g‘ri olamiz
-                                                            $users = \App\Models\Procedure::find($procedureId)?->users;
+                                                    //         // Proseduraga biriktirilgan foydalanuvchilarni to‘g‘ridan-to‘g‘ri olamiz
+                                                    //         $users = \App\Models\Procedure::find($procedureId)?->users;
 
-                                                            if (!$users || $users->isEmpty()) {
-                                                                return [];
-                                                            }
+                                                    //         if (!$users || $users->isEmpty()) {
+                                                    //             return [];
+                                                    //         }
 
-                                                            return $users->pluck('name', 'id');
-                                                        })
-                                                        ->searchable()
-                                                        ->reactive()
-                                                        ->visible(function (Get $get) {
-                                                            $procedureId = $get('procedure_id');
+                                                    //         return $users->pluck('name', 'id');
+                                                    //     })
+                                                    //     ->searchable()
+                                                    //     ->reactive()
+                                                    //     ->visible(function (Get $get) {
+                                                    //         $procedureId = $get('procedure_id');
 
-                                                            if (!$procedureId) {
-                                                                return false;
-                                                            }
+                                                    //         if (!$procedureId) {
+                                                    //             return false;
+                                                    //         }
 
-                                                            $procedure = \App\Models\Procedure::find($procedureId);
+                                                    //         $procedure = \App\Models\Procedure::find($procedureId);
 
-                                                            // faqat is_operation=0 va is_treatment=0 bo‘lsa ko‘rsatamiz
-                                                            return $procedure && $procedure->is_operation == 0 && $procedure->is_treatment == 0;
-                                                        })
-                                                        ->columnSpan(4),
-                                                        Select::make('time_id')
-                                                            ->label('Время')
-                                                            ->options(function (Get $get, $record) {
-                                                                $procedureId = $get('procedure_id') ?? $record?->procedure_id;
-                                                                $executorId = $get('executor_id') ?? $record?->executor_id;
+                                                    //         // faqat is_operation=0 va is_treatment=0 bo‘lsa ko‘rsatamiz
+                                                    //         return $procedure && $procedure->is_operation == 0 && $procedure->is_treatment == 0;
+                                                    //     })
+                                                    //     ->columnSpan(4),
+                                                        // Select::make('time_id')
+                                                        //     ->label('Время')
+                                                        //     ->options(function (Get $get, $record) {
+                                                        //         $procedureId = $get('procedure_id') ?? $record?->procedure_id;
+                                                        //         $executorId = $get('executor_id') ?? $record?->executor_id;
 
-                                                                if (!$procedureId || !$executorId) {
-                                                                    return [];
-                                                                }
+                                                        //         if (!$procedureId || !$executorId) {
+                                                        //             return [];
+                                                        //         }
 
-                                                                $procedure = \App\Models\Procedure::find($procedureId);
-                                                                if (!$procedure) return [];
+                                                        //         $procedure = \App\Models\Procedure::find($procedureId);
+                                                        //         if (!$procedure) return [];
 
-                                                                return \App\Models\Time::query()
-                                                                    ->where('time_category_id', $procedure->time_category_id)
-                                                                    ->get()
-                                                                    ->mapWithKeys(fn($time) => [
-                                                                        $time->id => "{$time->start_time} - {$time->end_time}",
-                                                                    ]);
-                                                            })
-                                                            ->visible(function (Get $get) {
-                                                                $procedureId = $get('procedure_id');
+                                                        //         return \App\Models\Time::query()
+                                                        //             ->where('time_category_id', $procedure->time_category_id)
+                                                        //             ->get()
+                                                        //             ->mapWithKeys(fn($time) => [
+                                                        //                 $time->id => "{$time->start_time} - {$time->end_time}",
+                                                        //             ]);
+                                                        //     })
+                                                        //     ->visible(function (Get $get) {
+                                                        //         $procedureId = $get('procedure_id');
 
-                                                                if (!$procedureId) {
-                                                                    return false;
-                                                                }
+                                                        //         if (!$procedureId) {
+                                                        //             return false;
+                                                        //         }
 
-                                                                $procedure = \App\Models\Procedure::find($procedureId);
+                                                        //         $procedure = \App\Models\Procedure::find($procedureId);
 
-                                                                // faqat is_operation=0 va is_treatment=0 bo‘lsa ko‘rsatamiz
-                                                                return $procedure && $procedure->is_operation == 0 && $procedure->is_treatment == 0;
-                                                            })
-                                                            ->default(fn($record) => $record?->time_id)
-                                                            ->searchable()
-                                                            ->preload()
-                                                            ->reactive()
-                                                            ->required()
-                                                            ->columnSpan(4),
+                                                        //         // faqat is_operation=0 va is_treatment=0 bo‘lsa ko‘rsatamiz
+                                                        //         return $procedure && $procedure->is_operation == 0 && $procedure->is_treatment == 0;
+                                                        //     })
+                                                        //     ->default(fn($record) => $record?->time_id)
+                                                        //     ->searchable()
+                                                        //     ->preload()
+                                                        //     ->reactive()
+                                                        //     ->required()
+                                                        //     ->columnSpan(4),
 
 
                                                     // Select::make('time_id')
@@ -431,10 +431,10 @@ class AssignedProcedureResource extends Resource
                                                             ->where('procedure_id', $item['procedure_id'])
                                                             ->first();
 
-                                                        if ($session) {
-                                                            $set("procedureDetails.{$index}.executor_id", $session->executor_id);
-                                                            $set("procedureDetails.{$index}.time_id", $session->time_id);
-                                                        }
+                                                        // if ($session) {
+                                                        //     $set("procedureDetails.{$index}.executor_id", $session->executor_id);
+                                                        //     $set("procedureDetails.{$index}.time_id", $session->time_id);
+                                                        // }
                                                         
                                                         $price = $item['price'] ?? 0;
                                                         $sessions = $item['sessions'] ?? 1;

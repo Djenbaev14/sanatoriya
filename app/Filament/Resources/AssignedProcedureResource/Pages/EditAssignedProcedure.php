@@ -55,8 +55,8 @@ class EditAssignedProcedure extends EditRecord
                 continue;
             }
 
-            $executorId = $detailData['executor_id'] ?? null;
-            $timeId     = $detailData['time_id'] ?? null;
+            // $executorId = $detailData['executor_id'] ?? null;
+            // $timeId     = $detailData['time_id'] ?? null;
             $sessions   = (int) $detailData['sessions'];
 
             $existingCount = $detail->procedure_sessions_count;
@@ -71,8 +71,8 @@ class EditAssignedProcedure extends EditRecord
                         'assigned_procedure_id' => $record->id,
                         'procedure_id'          => $detail->procedure_id,
                         'session_date'          => $startDate->copy()->addDays($existingCount + $i)->toDateString(),
-                        'executor_id'           => $executorId,
-                        'time_id'               => $timeId,
+                        // 'executor_id'           => $executorId,
+                        // 'time_id'               => $timeId,
                         'created_at'            => now(),
                         'updated_at'            => now(),
                     ];
@@ -89,11 +89,6 @@ class EditAssignedProcedure extends EditRecord
                     ->delete(); // ✅ 1 query
             }
 
-            /* 🔹 QOLGANLARNI YANGILASH */
-            $detail->procedureSessions()->update([
-                'executor_id' => $executorId,
-                'time_id'     => $timeId,
-            ]);
         }
 
     }

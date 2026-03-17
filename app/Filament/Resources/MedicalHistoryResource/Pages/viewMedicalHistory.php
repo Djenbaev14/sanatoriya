@@ -438,56 +438,36 @@ class ViewMedicalHistory extends ViewRecord
                                                 ->schema([
                                                     TextEntry::make('procedure.name')->label(''),
                                                     // Executor nomini session orqali ko‘rsatish
-                                                    TextEntry::make('executor_name')
-                                                        ->label('Исполнитель')
-                                                        ->formatStateUsing(function ($state, $record) {
-                                                            // Shu procedure_detail uchun bitta sessionni olamiz
-                                                            $session = \App\Models\ProcedureSession::where('procedure_detail_id', $record->id)
-                                                                ->with('executor')
-                                                                ->first();
+                                                    // TextEntry::make('executor_name')
+                                                    //     ->label('Исполнитель')
+                                                    //     ->formatStateUsing(function ($state, $record) {
+                                                    //         // Shu procedure_detail uchun bitta sessionni olamiz
+                                                    //         $session = \App\Models\ProcedureSession::where('procedure_detail_id', $record->id)
+                                                    //             ->with('executor')
+                                                    //             ->first();
 
-                                                            // Agar session topilmasa
-                                                            if (!$session) {
-                                                                return '<span style="color:red;">Сеанс не найден</span>';
-                                                            }
+                                                    //         // Agar session topilmasa
+                                                    //         if (!$session) {
+                                                    //             return '<span style="color:red;">Сеанс не найден</span>';
+                                                    //         }
 
-                                                            if (!$session->executor) {
-                                                                return '<span style="color:red;">Исполнитель не назначен</span>';
-                                                            }
-                                                            return $session->executor->name;
-                                                        }),
+                                                    //         if (!$session->executor) {
+                                                    //             return '<span style="color:red;">Исполнитель не назначен</span>';
+                                                    //         }
+                                                    //         return $session->executor->name;
+                                                    //     }),
 
                                                     TextEntry::make('sessions')->label('')
                                                         ->html()
                                                         ->formatStateUsing(function ($state, $record) {
                                                             $totalSessions = (int) $state;
-
-
-                                                            // endi sessionlar bo'yicha bajarilganini hisoblash
-                                                            $completed = \App\Models\ProcedureSession::query()
-                                                                ->whereHas('procedureDetail', fn($q) => 
-                                                                    $q->where('id', $record->id)
-                                                                )
-                                                                ->where('is_completed', true)
-                                                                ->count();
-
-                                                            // ✅ belgilar
-                                                            $stars = '';
-                                                            for ($i = 1; $i <= $totalSessions; $i++) {
-                                                                if ($i <= $completed) {
-                                                                    $stars .= "<span>✅</span>";
-                                                                } else {
-                                                                    $stars .= "<span>❌</span>";
-                                                                }
-                                                            }
-
-                                                            return $totalSessions . ' ' . $stars;
+                                                            return $totalSessions ? "<span style='color:green;font-weight:bold;'>{$totalSessions} сеанс</span>" : "<span style='color:red;font-weight:bold;'>Нет сеансов</span>";
                                                         }),
                                                     TextEntry::make('price')->label('')
                                                         ->visible(fn() => !auth()->user()->hasRole('Доктор'))
                                                         ->formatStateUsing(fn($state) => number_format($state, 0) . ' сум'),
                                                 ])
-                                                ->columns(4)
+                                                ->columns(2)
                                                 ->default([]),
 
                                                         
