@@ -268,7 +268,7 @@ class AssignedProcedureResource extends Resource
 
                                                             static::recalculateTotalSum($get, $set);
                                                         })
-                                                        ->columnSpan(5),
+                                                        ->columnSpan(8),
                                                     // Select::make('executor_id')
                                                     //     ->label('Исполнитель')
                                                     //     ->nullable()
@@ -398,7 +398,7 @@ class AssignedProcedureResource extends Resource
                                                             // umumiy summa qayta hisoblanadi
                                                             static::recalculateTotalSum($get, $set);
                                                         })
-                                                        ->columnSpan(4),
+                                                        ->columnSpan(6),
 
                                                     TextInput::make('sessions')
                                                         ->label('Кол сеансов')
@@ -411,14 +411,14 @@ class AssignedProcedureResource extends Resource
                                                             
                                                             static::recalculateTotalSum($get, $set);
                                                         })
-                                                        ->columnSpan(3),
+                                                        ->columnSpan(4),
 
                                                     TextInput::make('total_price')
                                                         ->label('Общая стоимость')
                                                         ->disabled()
                                                         ->visible(fn () => !auth()->user()->hasRole('Доктор'))
                                                         ->numeric()
-                                                        ->columnSpan(4)
+                                                        ->columnSpan(6)
                                                         ->afterStateUpdated(function (Get $get, Set $set) {
                                                             static::recalculateTotalSum($get, $set);
                                                         }),
