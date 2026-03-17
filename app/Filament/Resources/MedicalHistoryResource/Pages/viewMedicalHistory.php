@@ -5,7 +5,6 @@ namespace App\Filament\Resources\MedicalHistoryResource\Pages;
 use App\Filament\Resources\MedicalHistoryResource;
 use App\Forms\Components\WebcamCapture;
 use Filament\Actions;
-use Filament\Forms\Components\FileUpload;
 use Filament\Infolists\Components\Actions\Action;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Infolists\Infolist;
