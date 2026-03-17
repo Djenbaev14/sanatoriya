@@ -25,7 +25,9 @@ class PatientsForPhysiotherapyResource extends Resource
 {
     protected static ?string $model = ProcedureSession::class;
     protected static ?string $navigationGroup = 'Физиотерапия';
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 1;    
+    protected static bool $shouldRegisterNavigation = false;
+
 
 
     public static function form(Form $form): Form

@@ -25,7 +25,9 @@ class CompletedPhysiotherapyResource extends Resource
     
     protected static ?string $navigationGroup = 'Физиотерапия';
     protected static ?int $navigationSort = 2;
-
+    // not show in navigation
+    protected static bool $shouldRegisterNavigation = false;
+    
 
     public static function getEloquentQuery(): Builder
     {
