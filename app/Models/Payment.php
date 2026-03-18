@@ -50,45 +50,6 @@ class Payment extends Model
 
         return $this->description ?? 'Неизвестно';
     }
-    protected static function booted()
-    {
-        static::created(function ($payment) {
-            // Faqat cashboxdan o‘tadigan payment_type lar (masalan: 1 - Наличные, 2 - Терминал)
-            if (in_array($payment->payment_type_id, [2, 3])) {
-                BankTransfer::create([
-                    'amount'=>$payment->getTotalPaidAmount(),
-                    'commission_percent'=>PaymentType::find($payment->payment_type_id)->commission_percent,
-                    'payment_type_id'=>$payment->payment_type_id,
-                    'transferred_at'=>$payment->created_at
-                ]);
-            }else{
-                $session = \App\Models\CashboxSession::query()
-                    ->whereDate('date', today())
-                    ->where('payment_type_id', $payment->payment_type_id)
-                    ->whereNull('closed_by')
-                    ->latest()
-                    ->first();
-                if ($session) {
-                    $session->increment('closing_amount', $payment->amount);
-                }
-            }
-        });
-        static::deleting(function ($payment) {
-            if ($payment->payment_type_id==1) {
-                $session = \App\Models\CashboxSession::query()
-                    ->whereDate('date', today())
-                    ->where('payment_type_id', $payment->payment_type_id)
-                    ->whereNull('closed_by')
-                    ->latest()
-                    ->first();
-
-                if ($session) {
-                    $session->decrement('closing_amount', $payment->amount);
-                }
-            }
-        });
-
-    }
     public function labTestPayments()
     {
         return $this->hasMany(\App\Models\LabTestPayment::class);

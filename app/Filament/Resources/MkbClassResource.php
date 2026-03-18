@@ -60,6 +60,7 @@ class MkbClassResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query) => $query->withExists(['procedures', 'labTests']))
             ->columns([
                 TextColumn::make('name')
                 ->limit(50),

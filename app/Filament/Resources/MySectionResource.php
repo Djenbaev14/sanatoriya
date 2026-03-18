@@ -21,13 +21,6 @@ class MySectionResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    public static function form(Form $form): Form
-    {
-        return $form
-            ->schema([
-                //
-            ]);
-    }
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()

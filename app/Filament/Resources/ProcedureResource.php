@@ -112,6 +112,7 @@ class ProcedureResource extends Resource
             ])
             ->query(
                 Procedure::query()
+                    ->with('users')
                     ->where('is_operation', 0)
                     ->where('is_treatment', 0)
             )

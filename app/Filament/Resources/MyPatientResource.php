@@ -26,23 +26,19 @@ class MyPatientResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
     public static function getNavigationBadge(): ?string
     {
-        
         return static::getModel()::whereHas('medicalInspection', function (Builder $query): void {
             $query->where('assigned_doctor_id', auth()->id());
         })
-        ->whereDoesntHave('departmentInspection') // departmentInspection mavjud emasligini tekshiradi
+        ->whereDoesntHave('departmentInspection') 
         ->count();
     }
 
     public static function table(Table $table): Table
     {
         return $table
-            ->query(
-                MedicalHistory::query()
-                    ->whereHas('medicalInspection', function (Builder $query) {
+            ->modifyQueryUsing(fn (Builder $query) => $query->with('patient')->withExists(['accommodation', 'medicalInspection', 'labTestHistory', 'assignedProcedure'])->whereHas('medicalInspection', function (Builder $query) {
                         $query->where('assigned_doctor_id', auth()->user()->id);
-                    })
-            )
+                    }))
             ->columns([
                 TextColumn::make('number')->label('Номер')->searchable()->sortable(),
                 TextColumn::make('patient.full_name')->label('ФИО')->searchable()->sortable(),

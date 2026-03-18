@@ -26,8 +26,6 @@ class LabTestResource extends Resource
     
     protected static ?string $navigationGroup = 'Настройка';
     protected static ?int $navigationSort = 1;
-
-
     public static function form(Form $form): Form
     {
         return $form
@@ -160,8 +158,6 @@ class LabTestResource extends Resource
     {
         return [
             'index' => Pages\ListLabTests::route('/'),
-            // 'create' => Pages\CreateLabTest::route('/create'),
-            // 'edit' => Pages\EditLabTest::route('/{record}/edit'),
         ];
     }
 }

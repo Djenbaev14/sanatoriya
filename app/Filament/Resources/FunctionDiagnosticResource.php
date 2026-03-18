@@ -102,8 +102,6 @@ class FunctionDiagnosticResource extends Resource
                         'class' => 'text-gray-500 dark:text-gray-300 text-xs'
                     ])
                     ->columnSpan(3),
-                TextColumn::make('roles.name')
-                    ->label('Роль'),
             ])
             ->defaultSort('id','desc')
             ->defaultPaginationPageOption(50)

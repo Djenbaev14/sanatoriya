@@ -45,10 +45,6 @@ class KassaBalanceResource extends Resource
             ]);
     }
     
-    // public static function shouldRegisterNavigation(): bool
-    // {
-    //     return false;
-    // }
 
     public static function table(Table $table): Table
     {
@@ -87,24 +83,6 @@ class KassaBalanceResource extends Resource
                     ->label('Экспортировать в Excel')
                     ->exports([
                         ExcelExport::make()->fromTable()
-                            // ->withColumns([
-                            //     Column::make('medicalHistory.number')->heading('История номер'),
-                            //     Column::make('patient.full_name')->heading('Больной'),
-                            //     Column::make('paymentType.name')->heading('Тип платежа'),
-                            //     Column::make('total_paid_amount')->heading('Сумма')
-                            //         ->getStateUsing(fn ($record) => $record->getTotalPaidAmount()),
-                            //     Column::make('created_at')->heading('Дата создания'),
-                            // ])
-                            // // orderby MedicalHistory number desc   
-                            // ->modifyQueryUsing(function ($query, $livewire) {
-                            //     return $livewire->getFilteredTableQuery()
-                            //         ->with('medicalHistory') // munosabatni oldindan yuklash
-                            //         ->orderBy(
-                            //             MedicalHistory::select('number')
-                            //                 ->whereColumn('medical_histories.id', 'payments.medical_history_id'),
-                            //             'desc'
-                            //         );
-                            // }),
                     ])
             ])
             ->filters([
@@ -116,17 +94,17 @@ class KassaBalanceResource extends Resource
                         $query->when($data['value'] ?? null, fn ($q, $value) =>
                             $q->where('payment_type_id', $value)
                         )
-                    ),
+                    )->columnSpan(1),
                 Filter::make('created_date_range')
                     ->form([
-                        Grid::make(2)
+                        Grid::make(4)
                             ->schema([
                                 DatePicker::make('from')
                                     ->label('Первая дата')
-                                    ->columnSpan(1),
+                                    ->columnSpan(2),
                                 DatePicker::make('until')
                                     ->label('Последняя дата')
-                                    ->columnSpan(1),
+                                    ->columnSpan(2),
                             ])
                     ])
                     ->query(function (Builder $query, array $data) {
@@ -145,28 +123,6 @@ class KassaBalanceResource extends Resource
                     ->url(fn ($record) => route('payment-log.view', ['record' => $record->id]))
                     ->openUrlInNewTab()
             ])
-            
-            // ->bulkActions([
-            //     BulkAction::make('mark_as_submitted')
-            // ->label('Отметить как сданные в банк')
-            // ->icon('heroicon-m-banknotes')
-            // ->color('success')
-            // ->action(function ($records) {
-            //     foreach ($records as $record) {
-            //             $record->update([
-            //                 'is_submitted_to_bank' => true,
-            //             ]);
-            //     }
-            // })
-            // // ->modalHeading('Подтверждение сдачи в банк')
-            // ->modalHeading(function ($records) {
-            //     $sum = $records->sum('amount');
-            //     return number_format($sum, 0, '.', ' ') . ' сум будут переданы в банк';
-            // })
-            // ->requiresConfirmation()
-            // ->deselectRecordsAfterCompletion()
-            // ->modalSubmitActionLabel('Сдать в банк'),
-            //         ])
             ->defaultSort('created_at', 'desc');
         }
     

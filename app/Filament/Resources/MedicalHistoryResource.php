@@ -300,25 +300,10 @@ class MedicalHistoryResource extends Resource
         ]);
     }
 
-//     public static function getEloquentQuery(): Builder
-// {
-//     return parent::getEloquentQuery()
-//         ->with('accommodation')
-//         ->where(function ($query) {
-//             $query
-//                 // accommodation umuman bo‘lmasa
-//                 ->doesntHave('accommodation')
-                
-//                 // accommodation bo‘lsa, discharge_date null yoki >= bugun bo‘lsa
-//                 ->orWhereHas('accommodation', function ($q) {
-//                     $q->whereNull('discharge_date')
-//                       ->orWhere('discharge_date', '>=', Carbon::today());
-//                 });
-//         });
-// }
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query) => $query->with('patient')->withExists(['accommodation', 'medicalInspection', 'labTestHistory', 'assignedProcedure']))
             ->columns([
                 TextColumn::make('accommodation.admission_date')->label('Дата поступления')
                 ->dateTime('d.m.Y H:i')->sortable(),
@@ -358,14 +343,6 @@ class MedicalHistoryResource extends Resource
                     ->falseIcon('heroicon-o-x-circle')
                     ->trueColor('success')
                     ->falseColor('danger'),
-                // IconColumn::make('departmentInspection')
-                //     ->label('Отделение')
-                //     ->boolean()
-                //     ->getStateUsing(fn ($record) => !is_null($record->departmentInspection))
-                //     ->trueIcon('heroicon-o-check-circle')
-                //     ->falseIcon('heroicon-o-x-circle')
-                //     ->trueColor('success')
-                //     ->falseColor('danger'),
                 IconColumn::make('labTestHistory')
                     ->label('Анализы')
                     ->boolean()
@@ -382,7 +359,6 @@ class MedicalHistoryResource extends Resource
                     ->falseIcon('heroicon-o-x-circle')
                     ->trueColor('success')
                     ->falseColor('danger'),
-                // TextColumn::make('accommodation.discharge_date')->label('Дата выписки')->dateTime()->sortable(),,
             ])
             ->filters([
                 SelectFilter::make('doctor')

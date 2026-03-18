@@ -63,14 +63,6 @@ class ProfilResource extends Resource
         ];
     }
 
-    // public static function getPages(): array
-    // {
-    //     return [
-    //         'index' => Pages\ListProfils::route('/'),
-    //         'create' => Pages\CreateProfil::route('/create'),
-    //         'edit' => Pages\EditProfil::route('/{record}/edit'),
-    //     ];
-    // }
 
     public static function getPages(): array
     {

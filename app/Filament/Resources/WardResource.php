@@ -65,6 +65,7 @@ class WardResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query) => $query->with('tariff')->withCount(['beds', 'availableBeds as available_beds_count', 'busyBeds as beds_count']))
             ->headerActions([
                 CreateAction::make()
                     ->slideOver()
@@ -90,22 +91,22 @@ class WardResource extends Resource
                     ->modalCancelActionLabel('Назад')
             ])
             ->columns([
-                                    Tables\Columns\TextColumn::make('name')
-                                        ->label('Палата')
-                                        ->searchable()
-                                        ->columnSpan(6),
-                                    Tables\Columns\TextColumn::make('tariff.name')
-                                        ->label('Тарифф')
-                                        ->searchable()
-                                        ->columnSpan(6),
-                                    TextColumn::make('beds')
-                                        ->label('Койка')
-                                        ->getStateUsing(function ($record) {
-                                            return $record->beds->map(function ($bed) {
-                                                return $bed->number . ' ';
-                                            })->join(', ');
-                                        })
-                                        ->columnSpan(12),
+                Tables\Columns\TextColumn::make('name')
+                    ->label('Палата')
+                    ->searchable()
+                    ->columnSpan(6),
+                Tables\Columns\TextColumn::make('tariff.name')
+                    ->label('Тарифф')
+                    ->searchable()
+                    ->columnSpan(6),
+                TextColumn::make('beds')
+                    ->label('Койка')
+                    ->getStateUsing(function ($record) {
+                        return $record->beds->map(function ($bed) {
+                            return $bed->number . ' ';
+                        })->join(', ');
+                    })
+                    ->columnSpan(12),
                 
             ])
             ->defaultSort('id','desc')
