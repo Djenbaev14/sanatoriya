@@ -215,13 +215,27 @@ class MedicalHistoryResource extends Resource
                         Hidden::make('created_id')
                             ->default(fn () => auth()->user()->id)
                             ->dehydrated(true),
+                        Radio::make('type')
+                            ->label('Тип истории')
+                            ->options([
+                                'paid'      => 'Платный',
+                                'disabled'  => 'Инвалид',
+                                'outpatient'=> 'Амбулаторный',
+                            ])
+                            ->default('paid')
+                            ->required()
+                            ->reactive()
+                            ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
+                                $set('number', self::generateNumber($state ?? 'paid'));
+                            })
+                            ->columnSpan(4),
+
                         TextInput::make('number')
                             ->label('Номер')
-                            ->default(function () {
-                                return MedicalHistory::whereYear('created_at', Carbon::now()->year)
-                                    ->max('number') + 1;
-                            })
                             ->required()
+                            ->disabled()          // qolyimcha tahrirlab bolmaydi, avtomatik
+                            ->dehydrated(true)     // lekin baribir saqlanadi
+                            ->default(fn (Get $get) => self::generateNumber($get('type') ?? 'paid'))
                             ->columnSpan(4),
                         TextInput::make('height')
                             ->label('рост')
@@ -298,6 +312,25 @@ class MedicalHistoryResource extends Resource
             ])->columns(12)->columnSpan(12),
                     
         ]);
+    }
+    protected static function generateNumber(string $type): string
+    {
+        $prefixes = [
+            'paid'       => '',
+            'disabled'   => 'N-',
+            'outpatient' => 'O-',
+        ];
+
+        $prefix = $prefixes[$type] ?? '';
+        $year   = \Carbon\Carbon::now()->year;
+
+        // number ustunidagi raqamli qismni ajratib olib eng kattasini topamiz
+        $lastNumber = \App\Models\MedicalHistory::where('type', $type)
+            ->whereYear('created_at', $year)
+            ->selectRaw("MAX(CAST(SUBSTRING_INDEX(number, '-', -1) AS UNSIGNED)) as max_num")
+            ->value('max_num');
+
+        return $prefix . (($lastNumber ?? 0) + 1);
     }
 
     public static function table(Table $table): Table
