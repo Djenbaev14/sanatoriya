@@ -609,7 +609,7 @@ class AccommodationResource extends Resource
                                             $start = $admission->hour < 12 ? $admission->copy()->startOfDay() : $admission->copy()->addDay()->startOfDay();
                                             $end = $discharge->hour >= 12 ? $discharge->copy()->startOfDay()->addDay() : $discharge->copy()->startOfDay();
                                             $days= max($start->diffInDays($end), 0);
-                                                    $partnerMealTotal = $mealType->partner_daily_price * $days;
+                                                    $partnerMealTotal = $partnerMealType->partner_daily_price * $days;  // ✅ TO'G'RI
                                                 }
                                             }
 
