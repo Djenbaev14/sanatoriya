@@ -318,7 +318,7 @@ class MedicalHistoryResource extends Resource
         $prefixes = [
             'paid'       => '',
             'disabled'   => 'N-',
-            'outpatient' => 'O-',
+            'outpatient' => 'A-',
         ];
 
         $prefix = $prefixes[$type] ?? '';
